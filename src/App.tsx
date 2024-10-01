@@ -17,7 +17,7 @@ import {
     User,
     UserStatus
 } from "@chatscope/use-chat";
-import {ExampleChatService} from "@chatscope/use-chat/dist/examples";
+import {ChatService} from "./ChatService";
 import {Chat} from "./components/Chat";
 import {nanoid} from "nanoid";
 import {Col, Container, Row} from "react-bootstrap";
@@ -39,7 +39,7 @@ const joeStorage = new BasicStorage({groupIdGenerator, messageIdGenerator});
 
 // Create serviceFactory
 const serviceFactory = (storage: IStorage, updateState: UpdateState) => {
-    return new ExampleChatService(storage, updateState);
+    return new ChatService(storage, updateState);
 };
 
 const akane = new User({
