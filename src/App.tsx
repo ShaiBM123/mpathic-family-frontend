@@ -199,7 +199,6 @@ function App() {
                     </Col>
                 </Row>
             </Container>
-            <Footer/>
         </div>
     );
 }
