@@ -21,7 +21,7 @@ import {ChatService} from "./ChatService";
 import {Chat} from "./components/Chat";
 import {nanoid} from "nanoid";
 import {Col, Container, Row} from "react-bootstrap";
-import {akaneModel, eliotModel, emilyModel, joeModel, users} from "./data/data";
+import {emilyModel, joeModel, users} from "./data/data";
 import {AutoDraft} from "@chatscope/use-chat/dist/enums/AutoDraft";
 
 // sendMessage and addMessage methods can automagically generate id for messages and groups
@@ -31,8 +31,6 @@ import {AutoDraft} from "@chatscope/use-chat/dist/enums/AutoDraft";
 const messageIdGenerator = (message: ChatMessage<MessageContentType>) => nanoid();
 const groupIdGenerator = () => nanoid();
 
-const akaneStorage = new BasicStorage({groupIdGenerator, messageIdGenerator});
-const eliotStorage = new BasicStorage({groupIdGenerator, messageIdGenerator});
 const emilyStorage = new BasicStorage({groupIdGenerator, messageIdGenerator});
 const joeStorage = new BasicStorage({groupIdGenerator, messageIdGenerator});
 
@@ -40,17 +38,6 @@ const joeStorage = new BasicStorage({groupIdGenerator, messageIdGenerator});
 const serviceFactory = (storage: IStorage, updateState: UpdateState) => {
     return new ChatService(storage, updateState);
 };
-
-const akane = new User({
-    id: akaneModel.name,
-    presence: new Presence({status: UserStatus.Available, description: ""}),
-    firstName: "",
-    lastName: "",
-    username: akaneModel.name,
-    email: "",
-    avatar: akaneModel.avatar,
-    bio: ""
-});
 
 const emily = new User({
     id: emilyModel.name,
@@ -60,17 +47,6 @@ const emily = new User({
     username: emilyModel.name,
     email: "",
     avatar: emilyModel.avatar,
-    bio: ""
-});
-
-const eliot = new User({
-    id: eliotModel.name,
-    presence: new Presence({status: UserStatus.Available, description: ""}),
-    firstName: "",
-    lastName: "",
-    username: eliotModel.name,
-    email: "",
-    avatar: eliotModel.avatar,
     bio: ""
 });
 
@@ -86,8 +62,6 @@ const joe = new User({
 });
 
 const chats = [
-    {name: "Akane", storage: akaneStorage},
-    {name: "Eliot", storage: eliotStorage},
     {name: "Emily", storage: emilyStorage},
     {name: "Joe", storage: joeStorage}
 ];
@@ -153,28 +127,6 @@ function App() {
     return (
         <div className="h-100 d-flex flex-column overflow-hidden">
             <Container fluid className="p-4 flex-grow-1 position-relative overflow-hidden">
-                <Row className="h-50 pb-2 flex-nowrap">
-                    <Col>
-                        <ChatProvider serviceFactory={serviceFactory} storage={akaneStorage} config={{
-                            typingThrottleTime: 250,
-                            typingDebounceTime: 900,
-                            debounceTyping: true,
-                            autoDraft: AutoDraft.Save | AutoDraft.Restore
-                        }}>
-                            <Chat user={akane}/>
-                        </ChatProvider>
-                    </Col>
-                    <Col>
-                        <ChatProvider serviceFactory={serviceFactory} storage={eliotStorage} config={{
-                            typingThrottleTime: 250,
-                            typingDebounceTime: 900,
-                            debounceTyping: true,
-                            autoDraft: AutoDraft.Save | AutoDraft.Restore
-                        }}>
-                            <Chat user={eliot}/>
-                        </ChatProvider>
-                    </Col>
-                </Row>
                 <Row className="h-50 pt-2 flex-nowrap">
                     <Col>
                         <ChatProvider serviceFactory={serviceFactory} storage={emilyStorage} config={{
