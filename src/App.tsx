@@ -23,7 +23,6 @@ import {nanoid} from "nanoid";
 import {Col, Container, Row} from "react-bootstrap";
 import {akaneModel, eliotModel, emilyModel, joeModel, users} from "./data/data";
 import {AutoDraft} from "@chatscope/use-chat/dist/enums/AutoDraft";
-import {Footer} from "./components/Footer";
 
 // sendMessage and addMessage methods can automagically generate id for messages and groups
 // This allows you to omit doing this manually, but you need to provide a message generator
