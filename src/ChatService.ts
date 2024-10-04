@@ -13,6 +13,8 @@ import {
 import { IStorage } from "@chatscope/use-chat/dist/interfaces";
 import { ChatEvent, MessageEvent, UserTypingEvent } from "@chatscope/use-chat/dist/events";
 import { ChatMessage } from "@chatscope/use-chat/dist/ChatMessage";
+// import 'dotenv/config'
+// console.log(process.env.REACT_APP_OPENAI_KEY)
 
 type EventHandlers = {
   onMessage: ChatEventHandler<
