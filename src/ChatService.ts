@@ -13,6 +13,8 @@ import {
 import { IStorage } from "@chatscope/use-chat/dist/interfaces";
 import { ChatEvent, MessageEvent, UserTypingEvent } from "@chatscope/use-chat/dist/events";
 import { ChatMessage } from "@chatscope/use-chat/dist/ChatMessage";
+import {OpenAIChatConversation} from "./OpenAIConversation"
+import {OpenAIMessageCallbackType} from './OpenAIInterfaces'
 // import 'dotenv/config'
 // console.log(process.env.REACT_APP_OPENAI_KEY)
 
@@ -44,9 +46,13 @@ type EventHandlers = {
   [key: string]: any;
 };
 
+
+
+
 export class ChatService implements IChatService {
   storage?: IStorage;
   updateState: UpdateState;
+  openAIChatConv: OpenAIChatConversation;
 
   eventHandlers: EventHandlers = {
     onMessage: () => {},
@@ -57,66 +63,89 @@ export class ChatService implements IChatService {
     onUserTyping: () => {},
   };
 
+
   constructor(storage: IStorage, update: UpdateState) {
     this.storage = storage;
     this.updateState = update;
+
+    this.openAIChatConv = new OpenAIChatConversation(storage, this.onOpenAIChatMessagesReceived)
 
     // For communication we use CustomEvent dispatched to the window object.
     // It allows you to simulate sending and receiving data from the server.
     // In a real application, instead of adding a listener to the window,
     // you will implement here receiving data from your chat server.
-    window.addEventListener("chat-protocol", (evt: Event) => {
-      const event = evt as CustomEvent;
 
-      const {
-        detail: { type },
-        detail,
-      } = event;
 
-      if (type === "message") {
-        const message = detail.message as ChatMessage<MessageContentType.TextHtml>;
+  //   window.addEventListener("chat-protocol", (evt: Event) => {
+  //     const event = evt as CustomEvent;
 
-        message.direction = MessageDirection.Incoming;
-        const { conversationId } = detail;
-        if (this.eventHandlers.onMessage && detail.sender !== this) {
-          // Running the onMessage callback registered by ChatProvider will cause:
-          // 1. Add a message to the conversation to which the message was sent
-          // 2. If a conversation with the given id exists and is not active,
-          //    its unreadCounter will be incremented
-          // 3. Remove information about the sender who is writing from the conversation
-          // 4. Re-render
-          //
-          // Note!
-          // If a conversation with such id does not exist,
-          // the message will be added, but the conversation object will not be created.
-          // You have to take care of such a case yourself.
-          // You can check here if there is already a conversation in storage.
-          // If it is not there, you can create it before calling onMessage.
-          // After adding a conversation to the list, you don't need to manually run updateState
-          // because ChatProvider in onMessage will do it.
-          this.eventHandlers.onMessage(
-            new MessageEvent({ message, conversationId })
-          );
-        }
-      } else if (type === "typing") {
-        const { userId, isTyping, conversationId, content, sender } = detail;
+  //     const {
+  //       detail: { type },
+  //       detail,
+  //     } = event;
 
-        if (this.eventHandlers.onUserTyping && sender !== this) {
-          // Running the onUserTyping callback registered by ChatProvider will cause:
-          // 1. Add the user to the list of users who are typing in the conversation
-          // 2. Debounce
-          // 3. Re-render
-          this.eventHandlers.onUserTyping(
-            new UserTypingEvent({
-              userId,
-              isTyping,
-              conversationId,
-              content,
-            })
-          );
-        }
+  //     if (type === "message") {
+  //       const message = detail.message as ChatMessage<MessageContentType.TextHtml>;
+
+  //       message.direction = MessageDirection.Incoming;
+  //       const { conversationId } = detail;
+  //       if (this.eventHandlers.onMessage && detail.sender !== this) {
+  //         // Running the onMessage callback registered by ChatProvider will cause:
+  //         // 1. Add a message to the conversation to which the message was sent
+  //         // 2. If a conversation with the given id exists and is not active,
+  //         //    its unreadCounter will be incremented
+  //         // 3. Remove information about the sender who is writing from the conversation
+  //         // 4. Re-render
+  //         //
+  //         // Note!
+  //         // If a conversation with such id does not exist,
+  //         // the message will be added, but the conversation object will not be created.
+  //         // You have to take care of such a case yourself.
+  //         // You can check here if there is already a conversation in storage.
+  //         // If it is not there, you can create it before calling onMessage.
+  //         // After adding a conversation to the list, you don't need to manually run updateState
+  //         // because ChatProvider in onMessage will do it.
+  //         this.eventHandlers.onMessage(
+  //           new MessageEvent({ message, conversationId })
+  //         );
+  //       }
+  //     } else if (type === "typing") {
+  //       const { userId, isTyping, conversationId, content, sender } = detail;
+
+  //       if (this.eventHandlers.onUserTyping && sender !== this) {
+  //         // Running the onUserTyping callback registered by ChatProvider will cause:
+  //         // 1. Add the user to the list of users who are typing in the conversation
+  //         // 2. Debounce
+  //         // 3. Re-render
+  //         this.eventHandlers.onUserTyping(
+  //           new UserTypingEvent({
+  //             userId,
+  //             isTyping,
+  //             conversationId,
+  //             content,
+  //           })
+  //         );
+  //       }
+  //     }
+  //   });
+  }
+
+  onOpenAIChatMessagesReceived: OpenAIMessageCallbackType = (created, conversationId, messages: Array<any>, sender: unknown) =>
+  {
+    for (let msg of messages) {
+    
+    const message = msg as ChatMessage<MessageContentType.TextHtml>;
+
+    message.direction = MessageDirection.Incoming;
+
+    if (this.eventHandlers.onMessage) {
+
+      this.eventHandlers.onMessage(
+        new MessageEvent({ message, conversationId })
+      );
+
       }
-    });
+    }
   }
 
   sendMessage({ message, conversationId }: SendMessageServiceParams) {
@@ -124,16 +153,21 @@ export class ChatService implements IChatService {
     // They are received in the callback assigned in the constructor.
     // In a real application, instead of dispatching the event here,
     // you will implement sending messages to your chat server.
-    const messageEvent = new CustomEvent("chat-protocol", {
-      detail: {
-        type: "message",
-        message,
-        conversationId,
-        sender: this,
-      },
-    });
 
-    window.dispatchEvent(messageEvent);
+    // const messageEvent = new CustomEvent("chat-protocol", {
+    //   detail: {
+    //     type: "message",
+    //     message,
+    //     conversationId,
+    //     sender: this,
+    //   },
+    // });
+
+    // window.dispatchEvent(messageEvent);
+
+
+    // Async call
+    this.openAIChatConv.sendMessage(message, conversationId, this)
 
     return message;
   }
@@ -148,18 +182,19 @@ export class ChatService implements IChatService {
     // It is received in the callback assigned in the constructor
     // In a real application, instead of dispatching the event here,
     // you will implement sending signalization to your chat server.
-    const typingEvent = new CustomEvent("chat-protocol", {
-      detail: {
-        type: "typing",
-        isTyping,
-        content,
-        conversationId,
-        userId,
-        sender: this,
-      },
-    });
 
-    window.dispatchEvent(typingEvent);
+    // const typingEvent = new CustomEvent("chat-protocol", {
+    //   detail: {
+    //     type: "typing",
+    //     isTyping,
+    //     content,
+    //     conversationId,
+    //     userId,
+    //     sender: this,
+    //   },
+    // });
+
+    // window.dispatchEvent(typingEvent);
   }
 
   // The ChatProvider registers callbacks with the service.
