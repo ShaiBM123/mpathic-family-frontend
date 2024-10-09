@@ -20,3 +20,24 @@ var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
 
 return formattedTime;
 }
+
+function isClassComponent(component: any) {
+    return (
+        typeof component === 'function' && 
+        !!component.prototype.isReactComponent
+    )
+}
+
+function isFunctionComponent(component: any) {
+    return (
+        typeof component === 'function' && 
+        String(component).includes('return React.createElement')
+    )
+}
+
+export function isReactComponent(component: any) {
+    return (
+        isClassComponent(component) || 
+        isFunctionComponent(component)
+    )
+}

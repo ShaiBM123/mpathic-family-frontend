@@ -4,6 +4,7 @@ import { MessageContentType, MessageDirection, MessageStatus } from "@chatscope/
 import { ChatMessage } from "@chatscope/use-chat/dist/ChatMessage";
 import {ChatModel, ChatCompletionMessageParam} from "openai/resources";
 import {IOpenAIBotCompleteMessage, OpenAIMessageCallbackType} from './OpenAIInterfaces'
+import TypingTextPayload from "./components/TypingPayload/TypingPayload"
 
 const openai = new OpenAI({
     apiKey: process.env.REACT_APP_OPENAI_KEY,
@@ -20,6 +21,7 @@ export class OpenAIChatConversation{
     max_tokens?: number | null;
     temperature?: number | null;
     messageCallback: OpenAIMessageCallbackType;
+    openAIUser: string;
   
 
     constructor(storage: IStorage, messageCallback: OpenAIMessageCallbackType) {
@@ -53,6 +55,7 @@ export class OpenAIChatConversation{
         this.temperature = 0.7; // Adjust creativity level, 0.7 for empathetic responses
 
         this.messageCallback = messageCallback;
+        this.openAIUser = "OpenAI"
     }
 
     _startConversation(){
@@ -78,10 +81,11 @@ export class OpenAIChatConversation{
         console.log(chatCompletion)
 
         var messages: Array<IOpenAIBotCompleteMessage> = chatCompletion.choices.map((c) => {return {
-            finish_reason: c.finish_reason, index: c.index, content: c.message.content, refusal: c.message.refusal,
+            finish_reason: c.finish_reason, index: c.index, refusal: c.message.refusal,
             status: MessageStatus.DeliveredToDevice, direction: MessageDirection.Incoming,
-            contentType: message.contentType, senderId: message.senderId, createdTime: message.createdTime,
-            id: message.id
+            contentType: MessageContentType.Other, createdTime: message.createdTime,
+            senderId: this.openAIUser, id: message.id, 
+            content: TypingTextPayload(String(c.message.content)) 
         }});
         this.messageCallback(new Date(chatCompletion.created * 1000), conversationId, messages, sender)
         

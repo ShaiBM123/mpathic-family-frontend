@@ -11,6 +11,8 @@ import {
 } from "@chatscope/use-chat";
 import {MessageContent, TextContent, User} from "@chatscope/use-chat";
 
+import {isReactComponent} from '../AppUtils'
+
 export const Chat = ({user}:{user:User}) => {
     
     // Get all chat related values and methods from useChat hook 
@@ -160,7 +162,7 @@ export const Chat = ({user}:{user:User}) => {
                 {activeConversation && currentMessages.map( (g) => <MessageGroup key={g.id} direction={g.direction}>
                     <MessageGroup.Messages>
                         {g.messages.map((m:ChatMessage<MessageContentType>) => <Message key={m.id} model={{
-                            type: "html",
+                            type: m.contentType === MessageContentType.Other ? "custom": "html",
                             payload: m.content,
                             direction: m.direction,
                             position: "normal"
