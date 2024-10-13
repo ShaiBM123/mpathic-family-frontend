@@ -1,6 +1,5 @@
 import {useMemo, useCallback, useEffect} from "react";
-
-import { MainContainer, Sidebar, ConversationList, Conversation, Avatar, ChatContainer, ConversationHeader, MessageGroup, Message,MessageList, MessageInput, TypingIndicator } from "@chatscope/chat-ui-kit-react";
+import { MainContainer, Sidebar, ConversationList, Conversation, Avatar, ChatContainer, ConversationHeader, MessageGroup, Message,MessageList, MessageInput, TypingIndicator, MessageModel } from "@chatscope/chat-ui-kit-react";
 
 import {
     useChat,
@@ -10,14 +9,16 @@ import {
     MessageStatus
 } from "@chatscope/use-chat";
 import {MessageContent, TextContent, User} from "@chatscope/use-chat";
+import { ReactTyped} from "react-typed";
+import {openAIModel} from "../data/data"
 
-import {isReactComponent} from '../AppUtils'
+import "./typing-payload/typing-payload.css"
 
 export const Chat = ({user}:{user:User}) => {
     
     // Get all chat related values and methods from useChat hook 
     const {
-        currentMessages, conversations, activeConversation, setActiveConversation,  sendMessage, getUser, currentMessage, setCurrentMessage,
+        currentMessages, conversations, activeConversation, setActiveConversation,  sendMessage, getUser, currentMessage, setCurrentMessage, updateMessage,
         sendTyping, setCurrentUser
     } = useChat();
     
@@ -99,6 +100,9 @@ export const Chat = ({user}:{user:User}) => {
                             const typingUser = getUser(typingUserId);
 
                             if (typingUser) {
+                                if (typingUserId === openAIModel.name)
+                                return <TypingIndicator content={`${typingUser.username} is replying`} />
+                                else 
                                 return <TypingIndicator content={`${typingUser.username} is typing`} />
                             }
 
@@ -114,6 +118,41 @@ export const Chat = ({user}:{user:User}) => {
         }, [activeConversation, getUser],
     );
     
+    const createMessageModel = 
+    // useCallback(
+
+        (m: ChatMessage<MessageContentType>) => {
+            let message_type = 
+                m.contentType === MessageContentType.Other ? "custom": 
+                m.contentType === MessageContentType.TextHtml ? "html": 
+                m.contentType === MessageContentType.Image ? "image": 
+                m.contentType === MessageContentType.TextPlain ? "text" : 
+                "";
+            let message_payload = 
+                m.status === MessageStatus.DeliveredToDevice && message_type === "custom" ? 
+                    <ReactTyped 
+                        className="text-typing-message-container"
+                        strings={[String(m.content)]} 
+                        typeSpeed={50} 
+                        showCursor={true} 
+                        onComplete={()=>{
+                                m.contentType=MessageContentType.TextPlain
+                                m.status=MessageStatus.Sent
+                                updateMessage(m)
+                            }}/> 
+                :m.content
+            let model={
+                type: message_type,
+                payload: message_payload,
+                direction: m.direction,
+                position: "normal"
+            }
+            return model as MessageModel;
+        }
+        // ,
+        // [updateMessage]
+    // );
+
     return (<MainContainer responsive>
         <Sidebar position="left" scrollable>
             <ConversationHeader style={{backgroundColor:"#fff"}}>
@@ -161,14 +200,9 @@ export const Chat = ({user}:{user:User}) => {
             <MessageList typingIndicator={getTypingIndicator()}>
                 {activeConversation && currentMessages.map( (g) => <MessageGroup key={g.id} direction={g.direction}>
                     <MessageGroup.Messages>
-                        {g.messages.map((m:ChatMessage<MessageContentType>) => <Message key={m.id} model={{
-                            type: m.contentType === MessageContentType.Other ? "custom": "html",
-                            payload: m.content,
-                            direction: m.direction,
-                            position: "normal"
-                        }} />)}
+                        {g.messages.map((m:ChatMessage<MessageContentType>) => <Message key={m.id} model={createMessageModel(m)} />)}
                     </MessageGroup.Messages>
-                </MessageGroup>)}
+                </MessageGroup>) }
             </MessageList>
             <MessageInput value={currentMessage} onChange={handleChange} onSend={handleSend} disabled={!activeConversation} attachButton={false} placeholder="Type here..."/>
         </ChatContainer>

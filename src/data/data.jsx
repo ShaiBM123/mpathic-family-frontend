@@ -1,5 +1,5 @@
-import emilyAvatar from "../assets/emily.svg";
-import joeAvatar from "../assets/joe.svg";
+import emilyAvatar from "../assets/User3.svg";
+import joeAvatar from "../assets/User7.svg";
 import openAIAvatar from "../assets/openAI.svg";
 
 export const emilyModel = {

@@ -14,7 +14,7 @@ import { IStorage } from "@chatscope/use-chat/dist/interfaces";
 import { ChatEvent, MessageEvent, UserTypingEvent } from "@chatscope/use-chat/dist/events";
 import { ChatMessage } from "@chatscope/use-chat/dist/ChatMessage";
 import {OpenAIChatConversation} from "./OpenAIConversation"
-import {OpenAIMessageCallbackType} from './OpenAIInterfaces'
+import {OpenAIMessageReceivedType, OpenAIGeneratingMessageType} from './OpenAIInterfaces'
 // import 'dotenv/config'
 // console.log(process.env.REACT_APP_OPENAI_KEY)
 
@@ -68,7 +68,8 @@ export class ChatService implements IChatService {
     this.storage = storage;
     this.updateState = update;
 
-    this.openAIChatConv = new OpenAIChatConversation(storage, this.onOpenAIChatMessagesReceived)
+    this.openAIChatConv = new OpenAIChatConversation(
+      storage, this.onOpenAIChatMessagesReceived, this.onOpenAIGeneratingMessage)
 
     // For communication we use CustomEvent dispatched to the window object.
     // It allows you to simulate sending and receiving data from the server.
@@ -130,19 +131,43 @@ export class ChatService implements IChatService {
   //   });
   }
 
-  onOpenAIChatMessagesReceived: OpenAIMessageCallbackType = (created, conversationId, messages: Array<any>, sender: unknown) =>
+  onOpenAIGeneratingMessage:OpenAIGeneratingMessageType = (conversationId: string, userId: string) =>
+  {
+        if (this.eventHandlers.onUserTyping) {
+            // Running the onUserTyping callback registered by ChatProvider will cause:
+            // 1. Add the user to the list of users who are typing in the conversation
+            // 2. Debounce
+            // 3. Re-render
+            this.eventHandlers.onUserTyping(
+              new UserTypingEvent({
+                userId,
+                isTyping: true,
+                conversationId,
+                content: "",
+              })
+            );
+        }
+  }
+
+
+  onOpenAIChatMessagesReceived: OpenAIMessageReceivedType = (created, conversationId, messages: Array<any>, sender: unknown) =>
   {
     for (let msg of messages) {
     
-    const message = msg as ChatMessage<MessageContentType.TextHtml>;
+      const message: ChatMessage<MessageContentType> = {    
+        id: msg.id,
+        status: msg.status,
+        contentType: msg.contentType,
+        senderId: msg.senderId,
+        direction: msg.direction,
+        content: msg.content,
+        createdTime: msg.createdTime};
 
-    message.direction = MessageDirection.Incoming;
+      if (this.eventHandlers.onMessage) {
 
-    if (this.eventHandlers.onMessage) {
-
-      this.eventHandlers.onMessage(
-        new MessageEvent({ message, conversationId })
-      );
+        this.eventHandlers.onMessage(
+          new MessageEvent({ message , conversationId })
+        );
 
       }
     }

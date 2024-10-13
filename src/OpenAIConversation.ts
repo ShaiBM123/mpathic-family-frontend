@@ -3,8 +3,9 @@ import { IStorage } from "@chatscope/use-chat/dist/interfaces";
 import { MessageContentType, MessageDirection, MessageStatus } from "@chatscope/use-chat/dist/enums";
 import { ChatMessage } from "@chatscope/use-chat/dist/ChatMessage";
 import {ChatModel, ChatCompletionMessageParam} from "openai/resources";
-import {IOpenAIBotCompleteMessage, OpenAIMessageCallbackType} from './OpenAIInterfaces'
-import TypingTextPayload from "./components/TypingPayload/TypingPayload"
+import {IOpenAIBotCompleteMessage, OpenAIMessageReceivedType, OpenAIGeneratingMessageType} from './OpenAIInterfaces'
+// import { UserTypingEvent } from "@chatscope/use-chat";
+import {openAIModel} from "./data/data"
 
 const openai = new OpenAI({
     apiKey: process.env.REACT_APP_OPENAI_KEY,
@@ -20,11 +21,12 @@ export class OpenAIChatConversation{
     model: (string & {}) | ChatModel;
     max_tokens?: number | null;
     temperature?: number | null;
-    messageCallback: OpenAIMessageCallbackType;
+    messageReceived: OpenAIMessageReceivedType;
+    messageIsGenerated: OpenAIGeneratingMessageType;
     openAIUser: string;
   
 
-    constructor(storage: IStorage, messageCallback: OpenAIMessageCallbackType) {
+    constructor(storage: IStorage, messageReceived: OpenAIMessageReceivedType, messageIsGenerated: OpenAIGeneratingMessageType) {
         
         this.storage = storage;
         this.systemMessages = [
@@ -54,8 +56,9 @@ export class OpenAIChatConversation{
         this.max_tokens = 300; // Maximum tokens to generate in response
         this.temperature = 0.7; // Adjust creativity level, 0.7 for empathetic responses
 
-        this.messageCallback = messageCallback;
-        this.openAIUser = "OpenAI"
+        this.messageReceived = messageReceived;
+        this.messageIsGenerated = messageIsGenerated;
+        this.openAIUser = openAIModel.name
     }
 
     _startConversation(){
@@ -70,6 +73,12 @@ export class OpenAIChatConversation{
 
         this.messages = [...this.messages, {role: "user", content: String(message.content) }]
 
+        var intervalId = window.setInterval(
+            function(messageIsGenerated: OpenAIGeneratingMessageType, conversationId: string, userId: string){
+            messageIsGenerated(conversationId, userId)
+          }, 500, this.messageIsGenerated, conversationId, this.openAIUser);
+        
+
         const chatCompletion = await openai.chat.completions.create({
             messages: this.messages,
             max_tokens: this.max_tokens, 
@@ -77,17 +86,21 @@ export class OpenAIChatConversation{
             model: this.model,
             user: this.storage.getUser(message.senderId)[0]?.username
         });
+        
+        clearInterval(intervalId) 
 
         console.log(chatCompletion)
-
-        var messages: Array<IOpenAIBotCompleteMessage> = chatCompletion.choices.map((c) => {return {
+        let msg_counter = 0;
+        var messages: Array<IOpenAIBotCompleteMessage> = chatCompletion.choices.map((c) => {
+            msg_counter+=1;
+            return {
             finish_reason: c.finish_reason, index: c.index, refusal: c.message.refusal,
             status: MessageStatus.DeliveredToDevice, direction: MessageDirection.Incoming,
             contentType: MessageContentType.Other, createdTime: message.createdTime,
-            senderId: this.openAIUser, id: message.id, 
-            content: TypingTextPayload(String(c.message.content)) 
+            senderId: this.openAIUser, id: message.id.concat('-',String(msg_counter)), 
+            content: c.message.content 
         }});
-        this.messageCallback(new Date(chatCompletion.created * 1000), conversationId, messages, sender)
+        this.messageReceived(new Date(chatCompletion.created * 1000), conversationId, messages, sender)
         
 
         

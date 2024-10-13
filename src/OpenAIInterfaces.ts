@@ -1,5 +1,5 @@
 import { MessageContentType, MessageDirection, MessageStatus } from "@chatscope/use-chat/dist/enums"; 
-
+import { UserTypingEvent } from "@chatscope/use-chat/dist/events";
 export interface IOpenAIBotCompleteMessage {
 
   /**
@@ -17,8 +17,9 @@ export interface IOpenAIBotCompleteMessage {
      */
     finish_reason: 'stop' | 'length' | 'tool_calls' | 'content_filter' | 'function_call';
   
-    // content: string | null;
-    content: React.ReactNode;
+    content: string | null;
+    // content: TextContent
+    // content: React.ReactNode;
 
     /**
      * The index of the choice in the list of choices.
@@ -40,6 +41,10 @@ export interface IOpenAIBotCompleteMessage {
 
   };
 
-  export interface OpenAIMessageCallbackType {
+  export interface OpenAIMessageReceivedType {
     (created: Date, conversationId: string, messages: Array<IOpenAIBotCompleteMessage>, sender: unknown): void;
+  }
+
+  export interface OpenAIGeneratingMessageType {
+    (conversationId: string, userId: string): void;
   }
