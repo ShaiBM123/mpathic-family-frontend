@@ -3,7 +3,7 @@
 // Using this service it's possible to connects two or more chats in the same application for a demonstration purposes
 
 import { IChatService } from "@chatscope/use-chat/dist/interfaces";
-import { ChatEventType, MessageContentType, MessageDirection } from "@chatscope/use-chat/dist/enums";
+import { ChatEventType, MessageContentType } from "@chatscope/use-chat/dist/enums";
 import {
   ChatEventHandler,
   SendMessageServiceParams,
@@ -14,7 +14,8 @@ import { IStorage } from "@chatscope/use-chat/dist/interfaces";
 import { ChatEvent, MessageEvent, UserTypingEvent } from "@chatscope/use-chat/dist/events";
 import { ChatMessage } from "@chatscope/use-chat/dist/ChatMessage";
 import {OpenAIChatConversation} from "./OpenAIConversation"
-import {OpenAIMessageReceivedType, OpenAIGeneratingMessageType} from './OpenAIInterfaces'
+import {OpenAIBotMessage, OpenAIMessageReceivedType, OpenAIGeneratingMessageType} from './OpenAIInterfaces'
+
 // import 'dotenv/config'
 // console.log(process.env.REACT_APP_OPENAI_KEY)
 
@@ -150,21 +151,12 @@ export class ChatService implements IChatService {
   }
 
 
-  onOpenAIChatMessagesReceived: OpenAIMessageReceivedType = (created, conversationId, messages: Array<any>, sender: unknown) =>
+  onOpenAIChatMessagesReceived: OpenAIMessageReceivedType = (created, conversationId, messages: Array<OpenAIBotMessage>, sender: unknown) =>
   {
     for (let msg of messages) {
-    
-      const message: ChatMessage<MessageContentType> = {    
-        id: msg.id,
-        status: msg.status,
-        contentType: msg.contentType,
-        senderId: msg.senderId,
-        direction: msg.direction,
-        content: msg.content,
-        createdTime: msg.createdTime};
+      let message = msg as ChatMessage<MessageContentType>;
 
       if (this.eventHandlers.onMessage) {
-
         this.eventHandlers.onMessage(
           new MessageEvent({ message , conversationId })
         );

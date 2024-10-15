@@ -129,14 +129,13 @@ export const Chat = ({user}:{user:User}) => {
                 m.contentType === MessageContentType.TextPlain ? "text" : 
                 "";
             let message_payload = 
-                m.status === MessageStatus.DeliveredToDevice && message_type === "custom" ? 
+                m.status === MessageStatus.DeliveredToDevice && message_type === "text" ? 
                     <ReactTyped 
                         className="text-typing-message-container"
                         strings={[String(m.content)]} 
                         typeSpeed={50} 
                         showCursor={true} 
                         onComplete={()=>{
-                                m.contentType=MessageContentType.TextPlain
                                 m.status=MessageStatus.Sent
                                 updateMessage(m)
                             }}/> 

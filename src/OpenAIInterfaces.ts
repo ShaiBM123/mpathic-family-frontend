@@ -1,11 +1,9 @@
-import { MessageContentType, MessageDirection, MessageStatus } from "@chatscope/use-chat/dist/enums"; 
-import { UserTypingEvent } from "@chatscope/use-chat/dist/events";
-export interface IOpenAIBotCompleteMessage {
+import { MessageContentType, MessageDirection, MessageStatus } from "@chatscope/use-chat/dist/enums";
+// import { MessageContent, TextContent } from "@chatscope/use-chat/dist/interfaces/MessageContent"; 
+import {ChatMessage} from "@chatscope/use-chat/dist"; 
+// import { UserTypingEvent } from "@chatscope/use-chat/dist/events";
 
-  /**
-   * A unique identifier for the chat completion.
-   */
-    id: string;
+export interface OpenAIBotMessage extends ChatMessage<MessageContentType>{
 
     /**
      * The reason the model stopped generating tokens. This will be `stop` if the model
@@ -17,9 +15,9 @@ export interface IOpenAIBotCompleteMessage {
      */
     finish_reason: 'stop' | 'length' | 'tool_calls' | 'content_filter' | 'function_call';
   
-    content: string | null;
-    // content: TextContent
-    // content: React.ReactNode;
+    // content: string | null;
+    // // content: TextContent | OpenAIStructuredContent | null
+    // // content: React.ReactNode;
 
     /**
      * The index of the choice in the list of choices.
@@ -31,20 +29,22 @@ export interface IOpenAIBotCompleteMessage {
      */
     refusal: string | null;
 
-    // other Chat related fields
-    status: MessageStatus;
-    contentType: MessageContentType;
-    senderId: string;
-    direction: MessageDirection;
-    createdTime: Date;
-    updatedTime?: Date;
-
   };
 
   export interface OpenAIMessageReceivedType {
-    (created: Date, conversationId: string, messages: Array<IOpenAIBotCompleteMessage>, sender: unknown): void;
+    (created: Date, conversationId: string, messages: Array<OpenAIBotMessage>, sender: unknown): void;
   }
 
   export interface OpenAIGeneratingMessageType {
     (conversationId: string, userId: string): void;
   }
+  
+//   export interface MessagesPhaseType {
+//     (conversationId: string, userId: string): void;
+//   }
+
+//   export interface OpenAIStructuredContent extends MessageContent<MessageContentType.Other> {
+//     content: unknown;
+// }
+
+export type TextualChatMessage = ChatMessage<MessageContentType.TextPlain | MessageContentType.TextMarkdown| MessageContentType.TextHtml>
