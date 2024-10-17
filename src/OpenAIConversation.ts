@@ -1,13 +1,16 @@
 import OpenAI from "openai";
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
-import {nanoid} from "nanoid";
-import { IStorage } from "@chatscope/use-chat/dist/interfaces";
+import { IStorage, MessageContent } from "@chatscope/use-chat/dist/interfaces";
 import { MessageContentType, MessageDirection, MessageStatus } from "@chatscope/use-chat/dist/enums";
-// import { ChatMessage } from "@chatscope/use-chat/dist/ChatMessage";
 import {ChatModel, ChatCompletionMessageParam} from "openai/resources";
-import {OpenAIBotMessage, OpenAIMessageReceivedType, OpenAIGeneratingMessageType, TextualChatMessage} from './OpenAIInterfaces'
-// import { UserTypingEvent } from "@chatscope/use-chat";
+import {
+    OpenAIBotMessage, 
+    OpenAIMessageReceivedType, 
+    OpenAIGeneratingMessageType, 
+    TextualChatMessage, 
+    OpenAIMessagePhase} from './OpenAIInterfaces'
+
 import {openAIModel} from "./data/data"
 
 const openai = new OpenAI({
@@ -19,8 +22,9 @@ const openai = new OpenAI({
 export class OpenAIChatConversation{
 
     storage: IStorage;
-    messagesPhases: {[key: string]:{[key: string]: any}};
-    // messagesPhaseIdx: number;
+    // messagesPhases: {[key: string]:{[key: string]: any}};
+    messagesPhases: Array<{[key: string]: any}>;
+    messagesPhaseIdx: OpenAIMessagePhase;
     // systemMessages: Array<ChatCompletionMessageParam>;
     messages: Array<ChatCompletionMessageParam>;
     model: (string & {}) | ChatModel;
@@ -29,8 +33,6 @@ export class OpenAIChatConversation{
     messageReceived: OpenAIMessageReceivedType;
     messageIsGenerated: OpenAIGeneratingMessageType;
     openAIUser: string;
-    userName: string
-  
 
     constructor(storage: IStorage, messageReceived: OpenAIMessageReceivedType, messageIsGenerated: OpenAIGeneratingMessageType) {
         
@@ -45,42 +47,32 @@ export class OpenAIChatConversation{
             steps: z.array(Feeling)
           });
 
-        this.messagesPhases = {
-            'bot-introduction': {   
-       
+        this.messagesPhaseIdx = 0;
+        this.messagesPhases = [
+            {   
+                name: 'ask-user-feelings',
                 messages: [
                     {
                         role: "system",
-                        content: "You are an NVC therapist chatbot whose role is to assist users in identifying their emotions and needs during a conflict and help them reconcile the situation empathetically.",
-                    },
-                    // { "role": "user", "content": "introduce yourself" }
-                ],
-                max_tokens: 100,
-            },
-            'ask-user-feelings': {   
-     
-                messages: [
-                    {
-                        role: "system",
-                        content: "Now, ask the user to tell their feelings about a current conflict situation.",
+                        content: "Given the following description of the personal conflict ask the user to tell more about their emotions regarding the situation."
                     },
 
                 ],
                 max_tokens: 50,
             },
-            'analyze-feelings': { 
-          
+            { 
+                name: 'analyze-feelings',
                 messages: [
                     {
                         role: "system",
-                        content: "Given the last user response extract 1-3 dominant feelings reflected in the text.",
+                        content: "Given the following and previous user response extract 1-3 dominant feelings reflected in the text.",
                     },
 
                 ],
                 response_format: zodResponseFormat(Feelings, "feelings_intensities"),
                 max_tokens: 30,
             },
-        }
+        ]
 
         // this.systemMessages = [
         //     {
@@ -104,7 +96,12 @@ export class OpenAIChatConversation{
         //     content: "After identifying the affected needs provide empathetic suggestions for conflict resolution.",
         //     }
         // ];
-        this.messages = [];
+        this.messages = [ 
+            {
+                role: "system",
+                content: "You are an NVC therapist chatbot whose role is to assist users to reconcile personal casual problems empathetically.",
+            }
+        ];
         this.model ="gpt-4o-mini"; 
         this.max_tokens = 300; // Maximum tokens to generate in response
         this.temperature = 0.7; // Adjust creativity level, 0.7 for empathetic responses
@@ -112,28 +109,17 @@ export class OpenAIChatConversation{
         this.messageReceived = messageReceived;
         this.messageIsGenerated = messageIsGenerated;
         this.openAIUser = openAIModel.name
-        this.userName = this.storage.getState().currentUser?.username || ''
     }
 
-    _startConversation(){
-
+    _getCurrentUser(){
+        return this.storage.getState().currentUser?.username || '';
     }
 
-    async fetchMessagePhase(phaseName: string, message: TextualChatMessage | undefined){
-        // this.messagesPhaseIdx += 1;
-        let phase = this.messagesPhases[phaseName]
-        this.messages.concat(phase.messages)
-        let message_created_time: Date;
-        let message_id: string;
-
-        if (message){
-            this.messages.concat({role: "user", content: String(message.content) })
-            message_created_time = message.createdTime
-            message_id = message.id
-        }else{
-            message_created_time = new Date();
-            message_id = nanoid();
-        }
+    async fetchMessagePhase(message: TextualChatMessage){
+        
+        let phase = this.messagesPhases[this.messagesPhaseIdx]
+        this.messages = 
+            [...this.messages, ...phase.messages, {role: "user", content: String(message.content) }]
 
         let bot_messages_reply: Array<OpenAIBotMessage> = [];
 
@@ -145,12 +131,12 @@ export class OpenAIChatConversation{
                     messages: this.messages,
                     response_format: phase.response_format,
                     max_tokens: phase.max_tokens,
-                    user: this.userName
+                    user: this._getCurrentUser()
                     });
                 
                     const bot_choise = completion.choices[0]
                     const bot_msg = bot_choise.message;
-                    this.messages.concat(bot_msg)
+                    this.messages = [...this.messages, bot_msg]
 
                     console.log(bot_msg);
                     let content
@@ -172,9 +158,9 @@ export class OpenAIChatConversation{
                     {
                         finish_reason: bot_choise.finish_reason, index: bot_choise.index, refusal: bot_msg.refusal,
                         status: MessageStatus.DeliveredToDevice, direction: MessageDirection.Incoming,
-                        contentType: content_type as MessageContentType, createdTime: message_created_time,
-                        senderId: this.openAIUser, id: message_id.concat('-1'), 
-                        content: content as any
+                        contentType: content_type as MessageContentType, createdTime: message.createdTime,
+                        senderId: this.openAIUser, id: message.id.concat('-1'), 
+                        content: content as unknown as MessageContent<MessageContentType.Other>
                     } ]
                 }
                 else{
@@ -183,23 +169,21 @@ export class OpenAIChatConversation{
                         max_tokens: this.max_tokens, 
                         temperature: this.temperature, 
                         model: this.model,
-                        user: this.userName
+                        user: this._getCurrentUser()
                     });
 
-                    let msg_counter = 0;
-                    bot_messages_reply = completion.choices.map((c) => {
-                        msg_counter+=1;
+                    bot_messages_reply = completion.choices.map((c, i) => {
+
+                        this.messages = [...this.messages, c.message]
             
                         return {
                         finish_reason: c.finish_reason, index: c.index, refusal: c.message.refusal,
                         status: MessageStatus.DeliveredToDevice, direction: MessageDirection.Incoming,
-                        contentType: MessageContentType.TextPlain, createdTime: message_created_time,
-                        senderId: this.openAIUser, id: message_id.concat('-',String(msg_counter)), 
-                        content: c.message.content as any 
+                        contentType: MessageContentType.TextPlain, createdTime: message.createdTime,
+                        senderId: this.openAIUser, id: message.id.concat('-',String(i+1)), 
+                        content: c.message.content as unknown as MessageContent<MessageContentType.TextPlain> 
                     }});
                 }
-
-                return bot_messages_reply;
 
           } catch (e: any) {
             // Handle edge cases
@@ -211,42 +195,28 @@ export class OpenAIChatConversation{
               console.log("An error occurred: ", e.message);
             }
           }
+          finally {
+            this.messagesPhaseIdx += 1;
+            return bot_messages_reply;
+          }
+    }
+
+    async _startConversation(){
     }
 
     async sendMessage(message: TextualChatMessage, conversationId: string, sender: unknown)
-        {
-
-        this.messages = [...this.messages, {role: "user", content: String(message.content) }]
-
+    {
         var intervalId = window.setInterval(
             function(messageIsGenerated: OpenAIGeneratingMessageType, conversationId: string, userId: string){
             messageIsGenerated(conversationId, userId)
           }, 200, this.messageIsGenerated, conversationId, this.openAIUser);
-        
 
-        const chatCompletion = await openai.chat.completions.create({
-            messages: this.messages,
-            max_tokens: this.max_tokens, 
-            temperature: this.temperature, 
-            model: this.model,
-            user: this.storage.getUser(message.senderId)[0]?.username
-        });
-        
+
+        let messages= await this.fetchMessagePhase(message)
+
         clearInterval(intervalId) 
 
-        console.log(chatCompletion)
-        let msg_counter = 0;
-        var messages: Array<OpenAIBotMessage> = chatCompletion.choices.map((c) => {
-            msg_counter+=1;
-
-            return {
-            finish_reason: c.finish_reason, index: c.index, refusal: c.message.refusal,
-            status: MessageStatus.DeliveredToDevice, direction: MessageDirection.Incoming,
-            contentType: MessageContentType.Other, createdTime: message.createdTime,
-            senderId: this.openAIUser, id: message.id.concat('-',String(msg_counter)), 
-            content: c.message.content as any 
-        }});
-        this.messageReceived(new Date(chatCompletion.created * 1000), conversationId, messages, sender)      
+        this.messageReceived(new Date(), conversationId, messages, sender)      
 
     }
 

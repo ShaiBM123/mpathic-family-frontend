@@ -15,6 +15,10 @@ export const joeModel = {
 export const openAIModel = {
   name: "OpenAI",
   avatar: openAIAvatar,
+  initial_messages: [
+    "Hello I'm chatbot therapist and I can help you solving personal issues and advising you how to reconcile the situation",
+    "Tell me what bothers you today ?",
+  ],
 };
 
 export const users = [emilyModel, joeModel, openAIModel];

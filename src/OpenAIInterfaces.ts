@@ -1,7 +1,5 @@
-import { MessageContentType, MessageDirection, MessageStatus } from "@chatscope/use-chat/dist/enums";
-// import { MessageContent, TextContent } from "@chatscope/use-chat/dist/interfaces/MessageContent"; 
+import { MessageContentType } from "@chatscope/use-chat/dist/enums";
 import {ChatMessage} from "@chatscope/use-chat/dist"; 
-// import { UserTypingEvent } from "@chatscope/use-chat/dist/events";
 
 export interface OpenAIBotMessage extends ChatMessage<MessageContentType>{
 
@@ -39,12 +37,9 @@ export interface OpenAIBotMessage extends ChatMessage<MessageContentType>{
     (conversationId: string, userId: string): void;
   }
   
-//   export interface MessagesPhaseType {
-//     (conversationId: string, userId: string): void;
-//   }
-
-//   export interface OpenAIStructuredContent extends MessageContent<MessageContentType.Other> {
-//     content: unknown;
-// }
-
 export type TextualChatMessage = ChatMessage<MessageContentType.TextPlain | MessageContentType.TextMarkdown| MessageContentType.TextHtml>
+
+export enum OpenAIMessagePhase {
+  AskUserFeelings = 0,
+  AnalyzeFeelings = 1
+}
