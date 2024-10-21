@@ -9,7 +9,8 @@ import {
     OpenAIMessageReceivedType, 
     OpenAIGeneratingMessageType, 
     TextualChatMessage, 
-    OpenAIMessagePhase} from './OpenAIInterfaces'
+    OpenAIMessagePhase, 
+    OpenAIContentType} from './OpenAIInterfaces'
 
 import {openAIModel} from "./data/data"
 
@@ -28,8 +29,8 @@ export class OpenAIChatConversation{
     // systemMessages: Array<ChatCompletionMessageParam>;
     messages: Array<ChatCompletionMessageParam>;
     model: (string & {}) | ChatModel;
-    max_tokens?: number | null;
-    temperature?: number | null;
+    // max_tokens?: number | null;
+    // temperature?: number | null;
     messageReceived: OpenAIMessageReceivedType;
     messageIsGenerated: OpenAIGeneratingMessageType;
     openAIUser: string;
@@ -40,11 +41,11 @@ export class OpenAIChatConversation{
 
         const Feeling = z.object({
             emotion_name: z.string(),
-            emotion_intensity: z.number().int().min(1).max(10),
+            emotion_intensity: z.enum(["1", "2" , "3", "4", "5", "6", "7", "8", "9", "10"]),
           });
           
         const Feelings = z.object({
-            steps: z.array(Feeling)
+            feelings: z.array(Feeling)
           });
 
         this.messagesPhaseIdx = 0;
@@ -59,6 +60,7 @@ export class OpenAIChatConversation{
 
                 ],
                 max_tokens: 50,
+                temperature: 0.7
             },
             { 
                 name: 'analyze-feelings',
@@ -69,8 +71,9 @@ export class OpenAIChatConversation{
                     },
 
                 ],
-                response_format: zodResponseFormat(Feelings, "feelings_intensities"),
-                max_tokens: 30,
+                response_format: zodResponseFormat(Feelings, "feelings-intensities"),
+                max_tokens: 50,
+                // temperature: 0.7
             },
         ]
 
@@ -103,8 +106,6 @@ export class OpenAIChatConversation{
             }
         ];
         this.model ="gpt-4o-mini"; 
-        this.max_tokens = 300; // Maximum tokens to generate in response
-        this.temperature = 0.7; // Adjust creativity level, 0.7 for empathetic responses
 
         this.messageReceived = messageReceived;
         this.messageIsGenerated = messageIsGenerated;
@@ -165,10 +166,10 @@ export class OpenAIChatConversation{
                 }
                 else{
                     const completion = await openai.chat.completions.create({
-                        messages: this.messages,
-                        max_tokens: this.max_tokens, 
-                        temperature: this.temperature, 
                         model: this.model,
+                        messages: this.messages,
+                        max_tokens: phase.max_tokens, 
+                        temperature: phase.temperature, 
                         user: this._getCurrentUser()
                     });
 

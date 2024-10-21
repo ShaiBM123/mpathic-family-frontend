@@ -8,8 +8,10 @@ import {
     MessageDirection,
     MessageStatus
 } from "@chatscope/use-chat";
+import {OpenAIContentType} from '../OpenAIInterfaces'
+
 import {MessageContent, TextContent, User} from "@chatscope/use-chat";
-import { ReactTyped} from "react-typed";
+import {ReactTyped} from "react-typed";
 import {openAIModel} from "../data/data"
 
 import "./typing-payload/typing-payload.css"
@@ -147,24 +149,44 @@ export const Chat = ({user}:{user:User}) => {
     const createMessageModel = useCallback(
 
         (m: ChatMessage<MessageContentType>) => {
-            let message_type = 
+            let message_type;
+            let message_payload;
+
+            if(m.status === MessageStatus.DeliveredToDevice && 
+                m.contentType === MessageContentType.TextPlain) 
+            {
+                message_type = "custom";
+                message_payload=
+                <ReactTyped 
+                    className="text-typing-message-container"
+                    strings={[String(m.content)]} 
+                    typeSpeed={50} 
+                    showCursor={true} 
+                    onComplete={()=>{
+                            m.status=MessageStatus.Sent
+                            updateMessage(m)
+                        }}/> 
+            }
+            else if (m.status === MessageStatus.DeliveredToDevice && 
+                m.contentType === MessageContentType.Other){
+                    if ('feelings' in m.content){
+                        for(var feel of Object(m.content)['feelings'])
+                        {
+                            console.log('emotion: '+feel.emotion_name+' intensity: '+feel.emotion_intensity)
+                        }
+                    }
+
+            }
+            else{
+                message_type = 
                 m.contentType === MessageContentType.Other ? "custom": 
                 m.contentType === MessageContentType.TextHtml ? "html": 
                 m.contentType === MessageContentType.Image ? "image": 
                 m.contentType === MessageContentType.TextPlain ? "text" : 
                 "";
-            let message_payload = 
-                m.status === MessageStatus.DeliveredToDevice && message_type === "text" ? 
-                    <ReactTyped 
-                        className="text-typing-message-container"
-                        strings={[String(m.content)]} 
-                        typeSpeed={50} 
-                        showCursor={true} 
-                        onComplete={()=>{
-                                m.status=MessageStatus.Sent
-                                updateMessage(m)
-                            }}/> 
-                :m.content
+                message_payload = m.content
+            
+            }
             let model={
                 type: message_type,
                 payload: message_payload,

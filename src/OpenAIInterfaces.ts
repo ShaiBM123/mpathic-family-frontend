@@ -1,5 +1,10 @@
 import { MessageContentType } from "@chatscope/use-chat/dist/enums";
+// import {MessageContent} from "@chatscope/use-chat/dist/interfaces"
 import {ChatMessage} from "@chatscope/use-chat/dist"; 
+
+export enum OpenAIContentType {
+  JSON = 10
+}
 
 export interface OpenAIBotMessage extends ChatMessage<MessageContentType>{
 
