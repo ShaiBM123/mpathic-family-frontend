@@ -16,8 +16,7 @@ export const openAIModel = {
   name: "OpenAI",
   avatar: openAIAvatar,
   initial_messages: [
-    "Hello I'm chatbot therapist and I can help you solving personal issues and advising you how to reconcile the situation",
-    "Tell me what bothers you today ?",
+    "שלום, אני מטפל וירטואלי ואני יכול לסייע לך בפתרון בעיות אישיות ולייעץ לך כיצד ליישב מצבים לא פשוטים. מה מפריע לך היום?",
   ],
 };
 

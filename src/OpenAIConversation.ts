@@ -9,8 +9,7 @@ import {
     OpenAIMessageReceivedType, 
     OpenAIGeneratingMessageType, 
     TextualChatMessage, 
-    OpenAIMessagePhase, 
-    OpenAIContentType} from './OpenAIInterfaces'
+    OpenAIMessagePhase} from './OpenAIInterfaces'
 
 import {openAIModel} from "./data/data"
 
@@ -55,11 +54,11 @@ export class OpenAIChatConversation{
                 messages: [
                     {
                         role: "system",
-                        content: "Given the following description of the personal conflict ask the user to tell more about their emotions regarding the situation."
+                        content: "בהנתן בתיאור הבא של הקונפליקט האישי, שאל את המשתמש אם יוכל לספר יותר על הרגשות שלו בנוגע למצב."
                     },
 
                 ],
-                max_tokens: 50,
+                max_tokens: 110,
                 temperature: 0.7
             },
             { 
@@ -67,7 +66,7 @@ export class OpenAIChatConversation{
                 messages: [
                     {
                         role: "system",
-                        content: "Given the following and previous user response extract 1-3 dominant feelings reflected in the text.",
+                        content: "בהתבסס על התגובה הקודמת והנוכחית של המשתמש, מצא 1-3 רגשות דומיננטיים המובעים בטקסט.",
                     },
 
                 ],
@@ -102,7 +101,7 @@ export class OpenAIChatConversation{
         this.messages = [ 
             {
                 role: "system",
-                content: "You are an NVC therapist chatbot whose role is to assist users to reconcile personal casual problems empathetically.",
+                content: "אתה מטפל בשיטת התקשורת המקרבת (NVC) התפקיד שלך הוא לסייע למשתמשים ליישב בעיות אישיות בצורה אמפתית.",
             }
         ];
         this.model ="gpt-4o-mini"; 

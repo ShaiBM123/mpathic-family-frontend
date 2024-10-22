@@ -8,7 +8,6 @@ import {
     MessageDirection,
     MessageStatus
 } from "@chatscope/use-chat";
-import {OpenAIContentType} from '../OpenAIInterfaces'
 
 import {MessageContent, TextContent, User} from "@chatscope/use-chat";
 import {ReactTyped} from "react-typed";
@@ -17,7 +16,7 @@ import {openAIModel} from "../data/data"
 import "./typing-payload/typing-payload.css"
 
 export const Chat = ({user}:{user:User}) => {
-    
+
     // Get all chat related values and methods from useChat hook 
     const {
         currentMessages, conversations, activeConversation, setActiveConversation,  sendMessage, addMessage, 
@@ -110,37 +109,24 @@ export const Chat = ({user}:{user:User}) => {
     };
     
 
-
     const getTypingIndicator = useCallback(
         () => {
-            
                 if (activeConversation) {
-
                     const typingUsers = activeConversation.typingUsers;
-
                     if (typingUsers.length > 0) {
-
                         const typingUserId = typingUsers.items[0].userId;
-
                         // Check if typing user participates in the conversation
                         if (activeConversation.participantExists(typingUserId)) {
-
                             const typingUser = getUser(typingUserId);
-
                             if (typingUser) {
                                 if (typingUserId === openAIModel.name)
                                 return <TypingIndicator content={`${typingUser.username} is replying`} />
                                 else 
                                 return <TypingIndicator content={`${typingUser.username} is typing`} />
                             }
-
                         }
-
                     }
-
                 }
-                
-
             return undefined;
 
         }, [activeConversation, getUser],
@@ -175,7 +161,6 @@ export const Chat = ({user}:{user:User}) => {
                             console.log('emotion: '+feel.emotion_name+' intensity: '+feel.emotion_intensity)
                         }
                     }
-
             }
             else{
                 message_type = 
@@ -199,6 +184,14 @@ export const Chat = ({user}:{user:User}) => {
         [updateMessage]
     );
 
+    const getOppositeMessageDirection = useCallback(
+        (d: MessageDirection)=>{
+            if (d===MessageDirection.Incoming)
+                return MessageDirection.Outgoing
+            else return MessageDirection.Incoming
+        }, []
+    )
+
     return (<MainContainer responsive>
         <Sidebar position="left" scrollable>
             <ConversationHeader style={{backgroundColor:"#fff"}}>
@@ -211,18 +204,13 @@ export const Chat = ({user}:{user:User}) => {
                 {conversations.map(c => {
                     // Helper for getting the data of the first participant
                     const [avatar, name] = (() => {
-
                         const participant = c.participants.length > 0 ? c.participants[0] : undefined;
-                        
                         if (participant) {
                             const user = getUser(participant.id);
                             if (user) {
-
                                 return [<Avatar src={user.avatar} />, user.username]
-
                             }
                         }
-
                         return [undefined, undefined]
                     })();
 
@@ -244,13 +232,26 @@ export const Chat = ({user}:{user:User}) => {
                 <ConversationHeader.Content userName={currentUserName} />
             </ConversationHeader>}
             <MessageList typingIndicator={getTypingIndicator()}>
-                {activeConversation && currentMessages.map( (g) => <MessageGroup key={g.id} direction={g.direction}>
-                    <MessageGroup.Messages>
-                        {g.messages.map((m:ChatMessage<MessageContentType>) => <Message key={m.id} model={createMessageModel(m)} />)}
-                    </MessageGroup.Messages>
+                {activeConversation && currentMessages.map( (g) => 
+                    <MessageGroup key={g.id} direction={process.env.REACT_APP_RTL ==='yes' ? getOppositeMessageDirection(g.direction): g.direction}>
+                        <Avatar src={user.id === g.senderId ? user.avatar: getUser(g.senderId)?.avatar} />
+                        <MessageGroup.Messages>
+                            {g.messages.map((m:ChatMessage<MessageContentType>) => 
+                                <Message 
+                                    key={m.id} 
+                                    model={createMessageModel(m)} 
+                                    className={process.env.REACT_APP_RTL ==='yes' ? "rtl-message" : ""}/>)}
+                        </MessageGroup.Messages>
                 </MessageGroup>) }
             </MessageList>
-            <MessageInput value={currentMessage} onChange={handleChange} onSend={handleSend} disabled={!activeConversation} attachButton={false} placeholder="Type here..."/>
+            <MessageInput 
+                className={process.env.REACT_APP_RTL ==='yes' ? "rtl-message" : ""}
+                value={currentMessage} 
+                onChange={handleChange} 
+                onSend={handleSend} 
+                disabled={!activeConversation} 
+                attachButton={false} 
+                placeholder={process.env.REACT_APP_RTL ==='yes' ? "הקלד כאן ..." : "Type here..."}/>
         </ChatContainer>
         
     </MainContainer>);
