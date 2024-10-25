@@ -13,7 +13,10 @@ import {MessageContent, TextContent, User} from "@chatscope/use-chat";
 import {ReactTyped} from "react-typed";
 import {openAIModel} from "../data/data"
 
+import {FeelingsScale, FeelingIntensitiesArray} from "./feelings-scale/FeelingsScale"
+
 import "./typing-payload/typing-payload.css"
+import { number, string } from "zod";
 
 export const Chat = ({user}:{user:User}) => {
 
@@ -156,10 +159,14 @@ export const Chat = ({user}:{user:User}) => {
             else if (m.status === MessageStatus.DeliveredToDevice && 
                 m.contentType === MessageContentType.Other){
                     if ('feelings' in m.content){
-                        for(var feel of Object(m.content)['feelings'])
-                        {
-                            console.log('emotion: '+feel.emotion_name+' intensity: '+feel.emotion_intensity)
-                        }
+                        message_type = "custom";
+                        message_payload= <FeelingsScale feelings={Object(m.content).feelings} onRescaleDone={(f)=>{
+                            console.log('onRescaleDone: ')
+                            console.log(f[0]); 
+                            console.log(f[1]);
+                            console.log(f[2]);  
+                           
+                        }}/>
                     }
             }
             else{

@@ -1,6 +1,10 @@
-import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+// import 'rsuite/styles/index.less';
+// import "rsuite/dist/rsuite-no-reset.min.css";
+// import 'rsuite/dist/rsuite.min.css'
+
 import {
     BasicStorage,
     ChatMessage,
