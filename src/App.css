@@ -5,4 +5,5 @@
 .rtl-message {
     direction: rtl;
     text-align: right;
+    justify-content: start!important;
   }
