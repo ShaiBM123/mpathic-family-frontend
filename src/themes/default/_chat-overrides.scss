@@ -1,0 +1,5 @@
+/* The path depends on the current location of the scss file */
+@import "../../../node_modules/@chatscope/chat-ui-kit-styles/themes/default/variables";
+
+// Here you can override variables from the imported file above. Check its source for a list of available variables
+$chat-container-min-width: 360px;

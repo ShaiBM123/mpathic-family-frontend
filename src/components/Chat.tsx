@@ -13,10 +13,10 @@ import {MessageContent, TextContent, User} from "@chatscope/use-chat";
 import {ReactTyped} from "react-typed";
 import {openAIModel} from "../data/data"
 
-import {FeelingsScale, FeelingIntensitiesArray} from "./feelings-scale/FeelingsScale"
+import {FeelingsScale} from "./feelings-scale/FeelingsScale"
 
 import "./typing-payload/typing-payload.css"
-import { number, string } from "zod";
+// import { number, string } from "zod";
 
 export const Chat = ({user}:{user:User}) => {
 
@@ -149,7 +149,7 @@ export const Chat = ({user}:{user:User}) => {
                 <ReactTyped 
                     className="text-typing-message-container"
                     strings={[String(m.content)]} 
-                    typeSpeed={50} 
+                    typeSpeed={10} 
                     showCursor={true} 
                     onComplete={()=>{
                             m.status=MessageStatus.Sent

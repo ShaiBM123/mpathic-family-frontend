@@ -1,0 +1,46 @@
+label.form-label {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0rem;
+}
+
+/* rbs stands for react-bootstrap */
+.rbs-feelings-list-container{
+    min-width: 25vw;
+}
+
+.rbs-feelings-list-form{
+    min-width: 20vw;
+}
+
+input[type="range"].emotion-level-1{
+    accent-color: rgb(255, 255, 204);
+}
+input[type="range"].emotion-level-2{
+    accent-color: rgb(255, 255, 153);
+}
+input[type="range"].emotion-level-3{
+    accent-color: rgb(255, 255, 102);
+}
+input[type="range"].emotion-level-4{
+    accent-color: rgb(255, 255, 51);
+}
+input[type="range"].emotion-level-5{
+    accent-color: rgb(255, 204, 0);
+}
+input[type="range"].emotion-level-6{
+    accent-color: rgb(255, 153, 0);
+}
+input[type="range"].emotion-level-7{
+    accent-color: rgb(255, 102, 0);
+}
+input[type="range"].emotion-level-8{
+    accent-color: rgb(255, 51, 0);
+}
+input[type="range"].emotion-level-9{
+    accent-color: rgb(204, 0, 0);
+}
+input[type="range"].emotion-level-10{
+    accent-color: rgb(255, 0, 0);
+}

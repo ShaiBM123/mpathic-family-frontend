@@ -1,6 +1,4 @@
 import OpenAI from "openai";
-import { zodResponseFormat } from 'openai/helpers/zod';
-import { z } from 'zod';
 import { IStorage, MessageContent } from "@chatscope/use-chat/dist/interfaces";
 import { MessageContentType, MessageDirection, MessageStatus } from "@chatscope/use-chat/dist/enums";
 import {ChatModel, ChatCompletionMessageParam} from "openai/resources";
@@ -12,7 +10,7 @@ import {
     OpenAIMessagePhase} from './OpenAIInterfaces'
 
 import {openAIModel} from "./data/data"
-import {FeelingIntensity} from "./components/feelings-scale/FeelingsScale"
+import {FeelingsResponseFormat} from './components/feelings-scale/FeelingsScale'
 
 const openai = new OpenAI({
     apiKey: process.env.REACT_APP_OPENAI_KEY,
@@ -39,23 +37,6 @@ export class OpenAIChatConversation{
         
         this.storage = storage;
 
-        // const FeelingIntensityEnum = z.nativeEnum(FeelingIntensity);
-        // type FeelingIntensityEnum = z.infer<typeof FeelingIntensityEnum>; 
-
-        const Feeling = z.object({
-            emotion_name: z.string(),
-            // emotion_intensity: FeelingIntensityEnum
-            emotion_intensity: z.enum(["1", "2" , "3", "4", "5", "6", "7", "8", "9", "10"]),
-        });
-          
-        const Feelings = z.object({
-            feelings: z.array(Feeling)
-        });
-
-        
-        // Feelings.transform((f)=> {f.feelings.})
-        // const ages = z.array(z.string()).preprocess((val) => val.map(Number), z.array(z.number()));
-
         this.messagesPhaseIdx = 0;
         this.messagesPhases = [
             {   
@@ -79,7 +60,7 @@ export class OpenAIChatConversation{
                     },
 
                 ],
-                response_format: zodResponseFormat(Feelings, "feelings-intensities"),
+                response_format: FeelingsResponseFormat,
                 max_tokens: 50,
                 // temperature: 0.7
             },
