@@ -56,7 +56,7 @@ export const FeelingsScale = ({feelings, onRescaleDone}: FeelingsScaleProps) => 
 
     return(
 		<Container className="rbs-feelings-list-container"
-			bsPrefix="container d-flex flex-column justify-content-center align-items-center flex-grow-1">
+			bsPrefix="container d-flex flex-column justify-content-center align-items-center">
            
             {scales.map((f, i) => 
 
@@ -85,8 +85,8 @@ export const FeelingsScale = ({feelings, onRescaleDone}: FeelingsScaleProps) => 
 
             <br />
             <Button variant="info" size="sm" className="bg-white text-dark border-dark rounded" 
-                block onClick={() => {onRescaleDone(scales)}} >
-                {process.env.REACT_APP_RTL ==='yes' ? 'שמור ושלח': 'Ok'}
+                onClick={() => {onRescaleDone(scales)}} >
+                {process.env.REACT_APP_RTL ==='yes' ? 'אישור': 'Ok'}
             </Button>
  
         </Container>

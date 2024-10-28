@@ -60,6 +60,10 @@ export class OpenAIChatConversation{
                     },
 
                 ],
+                initial_valid_response_message: {
+                    role: "assistant",
+                    content: "מתוך התיאור שלך הבנתי שאתה חש ברגשות הבאים , לכל רגש הערכתי את עוצמתו , ניתן לשנות את עוצמות הרגש במידה ולא דייקתי",
+                },
                 response_format: FeelingsResponseFormat,
                 max_tokens: 50,
                 // temperature: 0.7
@@ -129,29 +133,29 @@ export class OpenAIChatConversation{
                     this.messages = [...this.messages, bot_msg]
 
                     console.log(bot_msg);
-                    let content
-                    let content_type
+                    let response_messages_content = []
 
                     if (bot_msg.parsed) {
                         console.log(bot_msg.parsed);
-                        content = bot_msg.parsed;
-                        content_type = MessageContentType.Other;
+                        if (phase.initial_valid_response_message){
+                            response_messages_content.push({content: phase.initial_valid_response_message.content, content_type: MessageContentType.TextPlain})}
+                        response_messages_content.push({content: bot_msg.parsed, content_type: MessageContentType.Other})
 
                     } else if (bot_msg.refusal) {
                         // handle refusal
                         console.log(bot_msg.refusal);
-                        content = bot_msg.refusal;
-                        content_type = MessageContentType.TextPlain;
+                        response_messages_content.push({content: bot_msg.refusal, content_type: MessageContentType.TextPlain})
                     }
-
-                    bot_messages_reply =[ 
-                    {
-                        finish_reason: bot_choise.finish_reason, index: bot_choise.index, refusal: bot_msg.refusal,
-                        status: MessageStatus.DeliveredToDevice, direction: MessageDirection.Incoming,
-                        contentType: content_type as MessageContentType, createdTime: message.createdTime,
-                        senderId: this.openAIUser, id: message.id.concat('-1'), 
-                        content: content as unknown as MessageContent<MessageContentType.Other>
-                    } ]
+                    
+                    bot_messages_reply = response_messages_content.map((m, i) => {
+                        return  {
+                            finish_reason: bot_choise.finish_reason, index: i, refusal: bot_msg.refusal,
+                            status: MessageStatus.DeliveredToDevice, direction: MessageDirection.Incoming,
+                            contentType: m.content_type as MessageContentType, createdTime: message.createdTime,
+                            senderId: this.openAIUser, id: message.id.concat('-',String(i+1)), 
+                            content: m.content as unknown as MessageContent<MessageContentType.Other>
+                        }  
+                    })
                 }
                 else{
                     const completion = await openai.chat.completions.create({

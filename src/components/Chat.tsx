@@ -240,7 +240,9 @@ export const Chat = ({user}:{user:User}) => {
             </ConversationHeader>}
             <MessageList typingIndicator={getTypingIndicator()}>
                 {activeConversation && currentMessages.map( (g) => 
-                    <MessageGroup key={g.id} direction={process.env.REACT_APP_RTL ==='yes' ? getOppositeMessageDirection(g.direction): g.direction}>
+                    <MessageGroup key={g.id} 
+                        direction={process.env.REACT_APP_RTL ==='yes' ? 
+                            getOppositeMessageDirection(g.direction): g.direction}>
                         <Avatar src={user.id === g.senderId ? user.avatar: getUser(g.senderId)?.avatar} />
                         <MessageGroup.Messages>
                             {g.messages.map((m:ChatMessage<MessageContentType>) => 
