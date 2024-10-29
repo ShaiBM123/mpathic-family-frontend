@@ -21,14 +21,10 @@ const openai = new OpenAI({
 export class OpenAIChatConversation{
 
     storage: IStorage;
-    // messagesPhases: {[key: string]:{[key: string]: any}};
     messagesPhases: Array<{[key: string]: any}>;
     messagesPhaseIdx: OpenAIMessagePhase;
-    // systemMessages: Array<ChatCompletionMessageParam>;
     messages: Array<ChatCompletionMessageParam>;
     model: (string & {}) | ChatModel;
-    // max_tokens?: number | null;
-    // temperature?: number | null;
     messageReceived: OpenAIMessageReceivedType;
     messageIsGenerated: OpenAIGeneratingMessageType;
     openAIUser: string;

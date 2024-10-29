@@ -6,8 +6,14 @@ label.form-label {
 }
 
 /* rbs stands for react-bootstrap */
-.rbs-feelings-list-container{
+/* .rbs-feelings-list-container{
     min-width: 25vw;
+} */
+
+.rbs-feelings-card{
+    min-width: 25vw;
+    min-height: 20vh;
+
 }
 
 .rbs-feelings-list-form{
@@ -44,3 +50,9 @@ input[type="range"].emotion-level-9{
 input[type="range"].emotion-level-10{
     accent-color: rgb(255, 0, 0);
 }
+
+
+.dropdown-menu {
+    height: 15vh;
+    overflow-y: scroll;
+  }

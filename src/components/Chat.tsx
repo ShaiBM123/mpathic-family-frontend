@@ -162,9 +162,10 @@ export const Chat = ({user}:{user:User}) => {
                         message_type = "custom";
                         message_payload= <FeelingsScale feelings={Object(m.content).feelings} onRescaleDone={(f)=>{
                             console.log('onRescaleDone: ')
-                            console.log(f[0]); 
-                            console.log(f[1]);
-                            console.log(f[2]);  
+                            for(let idx in f)
+                            { 
+                                console.log(f[Number(idx)]);
+                            }
                            
                         }}/>
                     }
