@@ -104,7 +104,7 @@ export const FeelingsScale = ({feelings, onRescaleDone}: FeelingsScaleProps) => 
 
                         <Form className="rbs-feelings-list-form">
                                 <Form.Control className={'emotion-level-'+f.emotion_intensity} type="range" key={i}  
-                                    min={1} step={1} max={10} defaultValue={f.emotion_intensity} 
+                                    min={1} step={1} max={10} value={f.emotion_intensity} 
                                     onChange={(event) => 
                                         {
                                             let new_scales = scales.map((s)=>{
