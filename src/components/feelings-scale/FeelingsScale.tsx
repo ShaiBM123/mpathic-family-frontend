@@ -45,13 +45,13 @@ export const FeelingsScale = ({feelings, onRescaleDone}: FeelingsScaleProps) => 
     return(
 		<Container
 			bsPrefix="container d-flex flex-column justify-content-center align-items-center">
-            <Card className="rbs-feelings-card">
+            <Card>
                 <Card.Header>
                     
                     { addingFeeling ?
                         <Row>
                             <Col sm={1}>
-                                <FontAwesomeIcon icon={faSquareMinus}
+                                <FontAwesomeIcon icon={faSquareMinus} size={'lg'}
                                     onClick={() => {setAddingFeeling(false)}}
                                 />
                             </Col> 
@@ -75,7 +75,7 @@ export const FeelingsScale = ({feelings, onRescaleDone}: FeelingsScaleProps) => 
                         </Row> :
                         <Row>
                             <Col sm={1}>
-                                <FontAwesomeIcon icon={faSquarePlus}
+                                <FontAwesomeIcon icon={faSquarePlus} size={'lg'}
                                     onClick={() => {setAddingFeeling(true)}}
                                 />
                             </Col> 
@@ -89,7 +89,7 @@ export const FeelingsScale = ({feelings, onRescaleDone}: FeelingsScaleProps) => 
                         <Card.Subtitle>
                             <Row>
                                 <Col sm={1}>
-                                    <FontAwesomeIcon icon={faSquareXmark} 
+                                    <FontAwesomeIcon icon={faSquareXmark} size={'lg'}
                                     onClick={() => {
                                         let new_scales = scales.filter((s, s_idx)=>{return s_idx !== i})
                                         setScales(new_scales)
@@ -101,21 +101,21 @@ export const FeelingsScale = ({feelings, onRescaleDone}: FeelingsScaleProps) => 
                             </Row>
                         </Card.Subtitle>
 
-                        <Form className="rbs-feelings-list-form">
-                                <Form.Control className={'emotion-level-'+f.emotion_intensity} type="range" key={i}  
-                                    min={1} step={1} max={10} value={f.emotion_intensity} 
-                                    onChange={(event) => 
-                                        {
-                                            let new_scales = scales.map((s)=>{
-                                                return s.emotion_name === f.emotion_name ? 
-                                                    {
-                                                        emotion_name: s.emotion_name, 
-                                                        emotion_intensity: event.target.value as FeelingIntensityEnumType
-                                                    } : s})
-                                            setScales(new_scales)
-                                            console.log(event.target.value)
-                                        }}
-                                />
+                        <Form>
+                            <Form.Control className={'emotion-level-'+f.emotion_intensity} type="range" key={i}  
+                                min={1} step={1} max={10} value={f.emotion_intensity} 
+                                onChange={(event) => 
+                                    {
+                                        let new_scales = scales.map((s)=>{
+                                            return s.emotion_name === f.emotion_name ? 
+                                                {
+                                                    emotion_name: s.emotion_name, 
+                                                    emotion_intensity: event.target.value as FeelingIntensityEnumType
+                                                } : s})
+                                        setScales(new_scales)
+                                        console.log(event.target.value)
+                                    }}
+                            />
                         </Form>
                     </Card.Body>
                     ) : 

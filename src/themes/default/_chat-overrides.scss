@@ -1,6 +1,6 @@
 $chat-container-min-width: 360px;
+@import "@chatscope/chat-ui-kit-styles/themes/default/variables";
 
-@import "../../../node_modules/@chatscope/chat-ui-kit-styles/themes/default/variables";
 @import "./helper_mixins";
 
 .cs-conversation__info {
