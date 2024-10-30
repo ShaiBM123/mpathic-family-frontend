@@ -5,7 +5,6 @@ import { zodResponseFormat } from 'openai/helpers/zod';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSquareXmark, faSquarePlus, faSquareMinus } from '@fortawesome/free-solid-svg-icons'
 import {DropdownFeelingSelector, hebFeelings} from './FeelingsDropdown'
-import './feelings.scale.css'
 
 export const FeelingIntensityEnum = z.enum(["1", "2" , "3", "4", "5", "6", "7", "8", "9", "10"]);
 // const FeelingIntensityEnum = z.nativeEnum(FeelingIntensityEnum);

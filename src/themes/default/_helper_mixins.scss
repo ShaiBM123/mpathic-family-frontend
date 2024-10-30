@@ -1,0 +1,5 @@
+@mixin right-to-left() {
+    direction: rtl;
+    text-align: right;
+    justify-content: start!important;
+}

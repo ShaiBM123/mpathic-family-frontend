@@ -200,6 +200,8 @@ export const Chat = ({user}:{user:User}) => {
         }, []
     )
 
+    const rtl = process.env.REACT_APP_RTL
+
     return (<MainContainer responsive>
         <Sidebar position="left" scrollable>
             <ConversationHeader style={{backgroundColor:"#fff"}}>
@@ -242,7 +244,7 @@ export const Chat = ({user}:{user:User}) => {
             <MessageList typingIndicator={getTypingIndicator()}>
                 {activeConversation && currentMessages.map( (g) => 
                     <MessageGroup key={g.id} 
-                        direction={process.env.REACT_APP_RTL ==='yes' ? 
+                        direction={rtl ==='yes' ? 
                             getOppositeMessageDirection(g.direction): g.direction}>
                         <Avatar src={user.id === g.senderId ? user.avatar: getUser(g.senderId)?.avatar} />
                         <MessageGroup.Messages>
@@ -250,18 +252,18 @@ export const Chat = ({user}:{user:User}) => {
                                 <Message 
                                     key={m.id} 
                                     model={createMessageModel(m)} 
-                                    className={process.env.REACT_APP_RTL ==='yes' ? "rtl-message" : ""}/>)}
+                                    className={rtl ==='yes' ? "rtl-message" : ""}/>)}
                         </MessageGroup.Messages>
                 </MessageGroup>) }
             </MessageList>
             <MessageInput 
-                className={process.env.REACT_APP_RTL ==='yes' ? "rtl-message" : ""}
+                className={rtl ==='yes' ? "rtl-message" : ""}
                 value={currentMessage} 
                 onChange={handleChange} 
                 onSend={handleSend} 
                 disabled={!activeConversation} 
                 attachButton={false} 
-                placeholder={process.env.REACT_APP_RTL ==='yes' ? "הקלד כאן ..." : "Type here..."}/>
+                placeholder={rtl ==='yes' ? "הקלד כאן ..." : "Type here..."}/>
         </ChatContainer>
         
     </MainContainer>);

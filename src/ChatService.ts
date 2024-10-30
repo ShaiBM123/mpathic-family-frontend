@@ -17,8 +17,8 @@ import {OpenAIChatConversation} from "./OpenAIConversation"
 import {
   OpenAIBotMessage, 
   OpenAIMessageReceivedType, 
-  OpenAIGeneratingMessageType, 
-  OpenAIContentType} from './OpenAIInterfaces'
+  OpenAIGeneratingMessageType
+} from './OpenAIInterfaces'
 
 // import 'dotenv/config'
 // console.log(process.env.REACT_APP_OPENAI_KEY)

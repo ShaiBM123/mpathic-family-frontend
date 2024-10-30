@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import FormControl from "react-bootstrap/FormControl";
-import { Container, Row, Col, Form, Button, Card, Figure } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 
 interface IFeeling {
   id: number;
@@ -66,7 +66,7 @@ const CustomMenu = React.forwardRef(
         <FormControl
           autoFocus
           className="mx-3 my-2 w-auto"
-          placeholder="Type to filter..."
+          placeholder="הקלד רגש"
           onChange={e => setValue(e.target.value)}
           value={value}
         />
