@@ -33,57 +33,60 @@ export const FeelingsResponseFormat = zodResponseFormat(z.object({feelings: Feel
 // }
 
 export interface FeelingsScaleProps {
-    feelings: FeelingsArrayType
+    feelings: FeelingsArrayType;
+    active: Boolean;
     onRescaleDone: ( feelings: FeelingsArrayType ) => void ; 
 }
 
-export const FeelingsScale = ({feelings, onRescaleDone}: FeelingsScaleProps) => {
+export const FeelingsScale = ({feelings, active, onRescaleDone}: FeelingsScaleProps) => {
     const [scales, setScales] = useState(feelings);
     const [addingFeeling, setAddingFeeling] = useState(false);
     // const itemsRef = useRef(new Array());
 
     return(
-		<Container
+		<Container className={active ? "enabled" : "disabled"}
 			bsPrefix="container d-flex flex-column justify-content-center align-items-center">
             <Card>
-                <Card.Header>
-                    
-                    { addingFeeling ?
-                        <Row>
-                            <Col sm={1}>
-                                <FontAwesomeIcon icon={faSquareMinus} size={'lg'}
-                                    onClick={() => {setAddingFeeling(false)}}
-                                />
-                            </Col> 
-                            <Col sm={7}>
-                                <DropdownFeelingSelector onClick={
-                                    (e)=>{
-                                        const feeling_name = hebFeelings.find(f => f.id === Number(e.currentTarget.id))?.feeling_name
-                                        if(feeling_name)
-                                        {
-                                            console.log(feeling_name)
+                {active &&
+                    <Card.Header>
+                        
+                        { addingFeeling ?
+                            <Row>
+                                <Col sm={1}>
+                                    <FontAwesomeIcon icon={faSquareMinus} size={'lg'}
+                                        onClick={() => {setAddingFeeling(false)}}
+                                    />
+                                </Col> 
+                                <Col sm={7}>
+                                    <DropdownFeelingSelector onClick={
+                                        (e)=>{
+                                            const feeling_name = hebFeelings.find(f => f.id === Number(e.currentTarget.id))?.feeling_name
+                                            if(feeling_name)
+                                            {
+                                                console.log(feeling_name)
 
-                                            let new_scales = scales.concat([{
-                                                emotion_name: feeling_name, 
-                                                emotion_intensity: "5" as FeelingIntensityEnumType
-                                            }])
-                                            setScales(new_scales)
-                                            setAddingFeeling(false)
-                                        }
-                                    }}/>
-                            </Col> 
-                        </Row> :
-                        <Row>
-                            <Col sm={1}>
-                                <FontAwesomeIcon icon={faSquarePlus} size={'lg'}
-                                    onClick={() => {setAddingFeeling(true)}}
-                                />
-                            </Col> 
-                        </Row>
-                    }
+                                                let new_scales = scales.concat([{
+                                                    emotion_name: feeling_name, 
+                                                    emotion_intensity: "5" as FeelingIntensityEnumType
+                                                }])
+                                                setScales(new_scales)
+                                                setAddingFeeling(false)
+                                            }
+                                        }}/>
+                                </Col> 
+                            </Row> :
+                            <Row>
+                                <Col sm={1}>
+                                    <FontAwesomeIcon icon={faSquarePlus} size={'lg'}
+                                        onClick={() => {setAddingFeeling(true)}}
+                                    />
+                                </Col> 
+                            </Row>
+                        }
 
-                </Card.Header>
-                
+                    </Card.Header>
+                }
+
                 {scales.length > 0 ? scales.map((f, i) => 
                     <Card.Body key={i}>
                         <Card.Subtitle>
@@ -125,12 +128,14 @@ export const FeelingsScale = ({feelings, onRescaleDone}: FeelingsScaleProps) => 
                         </Card.Subtitle>
                     </Card.Body>
                 }
-                <Card.Footer className="text-muted">
-                    <Button variant="info" size="sm" className="bg-white text-dark border-dark rounded" 
-                    onClick={() => {onRescaleDone(scales)}} >
-                        {process.env.REACT_APP_RTL ==='yes' ? 'אישור': 'Ok'}
-                    </Button>
-                </Card.Footer>      
+                {active &&
+                    <Card.Footer className="text-muted">
+                        <Button variant="info" size="sm" className="bg-white text-dark border-dark rounded" 
+                        onClick={() => {onRescaleDone(scales)}} >
+                            {process.env.REACT_APP_RTL ==='yes' ? 'אישור': 'Ok'}
+                        </Button>
+                    </Card.Footer> 
+                }     
             </Card>
  
         </Container>

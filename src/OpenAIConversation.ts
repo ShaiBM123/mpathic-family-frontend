@@ -45,7 +45,8 @@ export class OpenAIChatConversation{
 
                 ],
                 max_tokens: 110,
-                temperature: 0.7
+                temperature: 0.7,
+                interactive: false
             },
             { 
                 name: 'analyze-feelings',
@@ -56,13 +57,14 @@ export class OpenAIChatConversation{
                     },
 
                 ],
-                initial_valid_response_message: {
+                intro_reply: {
                     role: "assistant",
-                    content: "ניתוח של מכלול הרגשות שלך יכול לעזור לי להבין טוב יותר את האירוע, מתוך התיאור שלך הבנתי שאתה חש ברגשות הבאים , לכל רגש הערכתי את עוצמתו , ניתן לשנות את עוצמות הרגש במידה ולא דייקתי",
+                    content: "ניתוח של מכלול הרגשות שלך יכול לעזור לי להבין טוב יותר את האירוע, מתוך התיאור שלך הבנתי שאתה חש ברגשות הבאים , לכל רגש הערכתי את עוצמתו , ניתן לשנות את עוצמות הרגש , למחוק או להוסיף רגשות במידה ולא דייקתי",
                 },
                 response_format: FeelingsResponseFormat,
                 max_tokens: 50,
                 // temperature: 0.7
+                interactive: true
             },
         ]
 
@@ -129,21 +131,26 @@ export class OpenAIChatConversation{
                     this.messages = [...this.messages, bot_msg]
 
                     console.log(bot_msg);
-                    let response_messages_content = []
+                    let content_reply = []
 
                     if (bot_msg.parsed) {
                         console.log(bot_msg.parsed);
-                        if (phase.initial_valid_response_message){
-                            response_messages_content.push({content: phase.initial_valid_response_message.content, content_type: MessageContentType.TextPlain})}
-                        response_messages_content.push({content: bot_msg.parsed, content_type: MessageContentType.Other})
+
+                        let content = phase.interactive ? 
+                            {...bot_msg.parsed as object, interactive: true, active: true} : 
+                            {...bot_msg.parsed as object, interactive: false, active: false}
+                      
+                        if (phase.intro_reply){
+                            content_reply.push({content: phase.intro_reply.content, content_type: MessageContentType.TextPlain})}
+                        content_reply.push({content: content, content_type: MessageContentType.Other})
 
                     } else if (bot_msg.refusal) {
                         // handle refusal
                         console.log(bot_msg.refusal);
-                        response_messages_content.push({content: bot_msg.refusal, content_type: MessageContentType.TextPlain})
+                        content_reply.push({content: bot_msg.refusal, content_type: MessageContentType.TextPlain})
                     }
                     
-                    bot_messages_reply = response_messages_content.map((m, i) => {
+                    bot_messages_reply = content_reply.map((m, i) => {
                         return  {
                             finish_reason: bot_choise.finish_reason, index: i, refusal: bot_msg.refusal,
                             status: MessageStatus.DeliveredToDevice, direction: MessageDirection.Incoming,

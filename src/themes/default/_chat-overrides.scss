@@ -1,8 +1,9 @@
+// override variables
 $chat-container-min-width: 360px;
 @import "@chatscope/chat-ui-kit-styles/themes/default/variables";
-
 @import "./helper_mixins";
 
+// override styles
 .cs-conversation__info {
     min-height: 1.5em;
 }

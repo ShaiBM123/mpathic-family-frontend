@@ -26,6 +26,8 @@ export const Chat = ({user}:{user:User}) => {
         getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping, setCurrentUser
     } = useChat();
     
+    // const [holdTextInput, setHoldTextInput] = useState(false);
+
     useEffect( () => {
         setCurrentUser(user);
     },[user, setCurrentUser]);
@@ -157,17 +159,27 @@ export const Chat = ({user}:{user:User}) => {
                         }}/> 
             }
             else if (m.status === MessageStatus.DeliveredToDevice && 
-                m.contentType === MessageContentType.Other){
-                    if ('feelings' in m.content){
+                    m.contentType === MessageContentType.Other){
+
+                    let obj = Object(m.content)
+
+                    if (obj.feelings){
+
                         message_type = "custom";
-                        message_payload= <FeelingsScale feelings={Object(m.content).feelings} onRescaleDone={(f)=>{
-                            console.log('onRescaleDone: ')
-                            for(let idx in f)
-                            { 
-                                console.log(f[Number(idx)]);
-                            }
-                           
-                        }}/>
+                        message_payload= <FeelingsScale feelings={obj.feelings} active={obj.active} 
+                            onRescaleDone={(f)=>{
+
+                                //DEBUG ***********************
+                                console.log('onRescaleDone: ')
+                                for(let idx in f)
+                                    console.log(f[Number(idx)]);
+                                // ****************************
+
+                                obj.active = false
+                                obj.feelings = f
+                                updateMessage(m)
+                            }}
+                        />
                     }
             }
             else{
@@ -192,7 +204,7 @@ export const Chat = ({user}:{user:User}) => {
         [updateMessage]
     );
 
-    const getOppositeMessageDirection = useCallback(
+    const oppositeMsgDirection = useCallback(
         (d: MessageDirection)=>{
             if (d===MessageDirection.Incoming)
                 return MessageDirection.Outgoing
@@ -200,7 +212,26 @@ export const Chat = ({user}:{user:User}) => {
         }, []
     )
 
+    const toHoldTextInput = ()=>{
+
+        for(let g of currentMessages)
+        {
+            for(let msg of g.messages)
+            {
+                if (msg.status === MessageStatus.DeliveredToDevice && 
+                    msg.contentType === MessageContentType.Other && 
+                    Object(msg.content).active )
+                {
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
+
     const rtl = process.env.REACT_APP_RTL
+    const hold_text_input = toHoldTextInput()
 
     return (<MainContainer responsive>
         <Sidebar position="left" scrollable>
@@ -245,7 +276,7 @@ export const Chat = ({user}:{user:User}) => {
                 {activeConversation && currentMessages.map( (g) => 
                     <MessageGroup key={g.id} 
                         direction={rtl ==='yes' ? 
-                            getOppositeMessageDirection(g.direction): g.direction}>
+                            oppositeMsgDirection(g.direction): g.direction}>
                         <Avatar src={user.id === g.senderId ? user.avatar: getUser(g.senderId)?.avatar} />
                         <MessageGroup.Messages>
                             {g.messages.map((m:ChatMessage<MessageContentType>) => 
@@ -261,7 +292,7 @@ export const Chat = ({user}:{user:User}) => {
                 value={currentMessage} 
                 onChange={handleChange} 
                 onSend={handleSend} 
-                disabled={!activeConversation} 
+                disabled={!activeConversation || hold_text_input} 
                 attachButton={false} 
                 placeholder={rtl ==='yes' ? "הקלד כאן ..." : "Type here..."}/>
         </ChatContainer>
