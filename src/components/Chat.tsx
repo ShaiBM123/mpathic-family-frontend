@@ -12,10 +12,10 @@ import {
 import {MessageContent, TextContent, User} from "@chatscope/use-chat";
 import {ReactTyped} from "react-typed";
 import {openAIModel} from "../data/data"
-
 import {FeelingsScale} from "./feelings-scale/FeelingsScale"
 
 import "./typing-payload/typing-payload.css"
+
 // import { number, string } from "zod";
 
 export const Chat = ({user}:{user:User}) => {
@@ -92,6 +92,10 @@ export const Chat = ({user}:{user:User}) => {
         }
         
     }
+
+    const doSend = (text: string) => {
+        handleSend('', text)
+    }
     
     const handleSend = (innerHtml: string, text: string) => {
 
@@ -137,9 +141,9 @@ export const Chat = ({user}:{user:User}) => {
         }, [activeConversation, getUser],
     );
     
-    const createMessageModel = useCallback(
-
+    const createMessageModel = 
         (m: ChatMessage<MessageContentType>) => {
+
             let message_type;
             let message_payload;
 
@@ -166,18 +170,20 @@ export const Chat = ({user}:{user:User}) => {
                     if (obj.feelings){
 
                         message_type = "custom";
-                        message_payload= <FeelingsScale feelings={obj.feelings} active={obj.active} 
-                            onRescaleDone={(f)=>{
+                        message_payload= 
+                        <FeelingsScale feelings={obj.feelings} active={obj.active} 
+                            onRescaleDone={(new_feelings, prompt_msg) => {
 
                                 //DEBUG ***********************
                                 console.log('onRescaleDone: ')
-                                for(let idx in f)
-                                    console.log(f[Number(idx)]);
+                                for(let idx in new_feelings)
+                                    console.log(new_feelings[Number(idx)]);
                                 // ****************************
 
                                 obj.active = false
-                                obj.feelings = f
+                                obj.feelings = new_feelings
                                 updateMessage(m)
+                                doSend(prompt_msg) 
                             }}
                         />
                     }
@@ -199,10 +205,7 @@ export const Chat = ({user}:{user:User}) => {
                 position: "normal"
             }
             return model as MessageModel;
-        }
-        ,
-        [updateMessage]
-    );
+        };
 
     const oppositeMsgDirection = useCallback(
         (d: MessageDirection)=>{

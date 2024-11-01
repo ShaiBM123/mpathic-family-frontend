@@ -3,12 +3,11 @@ import { IStorage, MessageContent } from "@chatscope/use-chat/dist/interfaces";
 import { MessageContentType, MessageDirection, MessageStatus } from "@chatscope/use-chat/dist/enums";
 import {ChatModel, ChatCompletionMessageParam} from "openai/resources";
 import {
-    OpenAIBotMessage, 
-    OpenAIMessageReceivedType, 
-    OpenAIGeneratingMessageType, 
-    TextualChatMessage, 
-    OpenAIMessagePhase} from './OpenAIInterfaces'
-
+        OpenAIBotMessage, 
+        OpenAIMessageReceivedType, 
+        OpenAIGeneratingMessageType, 
+        TextualChatMessage, 
+        OpenAIMessagePhase} from './OpenAIInterfaces'
 import {openAIModel} from "./data/data"
 import {FeelingsResponseFormat} from './components/feelings-scale/FeelingsScale'
 
@@ -53,18 +52,31 @@ export class OpenAIChatConversation{
                 messages: [
                     {
                         role: "system",
-                        content: "בהתבסס על התגובה הקודמת והנוכחית של המשתמש, מצא 1-3 רגשות דומיננטיים המובעים בטקסט.",
+                        content: "בהתבסס על התגובה הקודמת והנוכחית של המשתמש, מצא 1-3 רגשות דומיננטיים המובעים בטקסט ותאר בקצרה את הלך הרוח מההבט הרגשי.",
                     },
 
                 ],
                 intro_reply: {
                     role: "assistant",
-                    content: "ניתוח של מכלול הרגשות שלך יכול לעזור לי להבין טוב יותר את האירוע, מתוך התיאור שלך הבנתי שאתה חש ברגשות הבאים , לכל רגש הערכתי את עוצמתו , ניתן לשנות את עוצמות הרגש , למחוק או להוסיף רגשות במידה ולא דייקתי",
+                    content: "לכל רגש הערכתי את עוצמתו , ניתן לשנות את עוצמות הרגש , למחוק או להוסיף רגשות במידה ולא דייקתי",
                 },
                 response_format: FeelingsResponseFormat,
-                max_tokens: 50,
+                max_tokens: 150,
                 // temperature: 0.7
                 interactive: true
+            },
+            {   
+                name: 'ask-user-needs',
+                messages: [
+                    {
+                        role: "system",
+                        content: "בהתבסס על מכלול הרגשות שהתעוררו בעקבות האירוע בקש מהמשתמש לפרט מדוע הוא מרגיש ככה ומה פגע ברגשותיו"
+                    },
+
+                ],
+                max_tokens: 150,
+                temperature: 0.7,
+                interactive: false
             },
         ]
 
@@ -93,7 +105,7 @@ export class OpenAIChatConversation{
         this.messages = [ 
             {
                 role: "system",
-                content: "אתה מטפל בשיטת התקשורת המקרבת (NVC) התפקיד שלך הוא לסייע למשתמשים ליישב בעיות אישיות בצורה אמפתית.",
+                content: "אתה מטפל בשיטת התקשורת המקרבת (NVC) התפקיד שלך הוא לסייע למשתמשים ליישב בעיות אישיות בצורה אמפתית בשפה העברית.",
             }
         ];
         this.model ="gpt-4o-mini"; 
@@ -127,24 +139,35 @@ export class OpenAIChatConversation{
                     });
                 
                     const bot_choise = completion.choices[0]
-                    const bot_msg = bot_choise.message;
-                    this.messages = [...this.messages, bot_msg]
+                    const bot_msg = bot_choise?.message
+                    // this.messages = [...this.messages, bot_msg]
 
-                    console.log(bot_msg);
                     let content_reply = []
 
-                    if (bot_msg.parsed) {
+                    if (bot_msg?.parsed) {
                         console.log(bot_msg.parsed);
 
-                        let content = phase.interactive ? 
+                        let content =
+                            phase.interactive ? 
                             {...bot_msg.parsed as object, interactive: true, active: true} : 
                             {...bot_msg.parsed as object, interactive: false, active: false}
                       
-                        if (phase.intro_reply){
-                            content_reply.push({content: phase.intro_reply.content, content_type: MessageContentType.TextPlain})}
+                        if (Object(content).description)
+                        {
+                            this.messages = [...this.messages,
+                                {
+                                    role: "assistant",
+                                    content: Object(content).description,
+                                }
+                            ]
+                            content_reply.push({content: Object(content).description, content_type: MessageContentType.TextPlain})
+                        }
+                        if (phase.intro_reply)
+                            content_reply.push({content: phase.intro_reply.content, content_type: MessageContentType.TextPlain})
+                        
                         content_reply.push({content: content, content_type: MessageContentType.Other})
 
-                    } else if (bot_msg.refusal) {
+                    } else if (bot_msg?.refusal) {
                         // handle refusal
                         console.log(bot_msg.refusal);
                         content_reply.push({content: bot_msg.refusal, content_type: MessageContentType.TextPlain})

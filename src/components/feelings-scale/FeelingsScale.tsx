@@ -15,7 +15,7 @@ export const Feeling = z.object({
 });
 export const FeelingsArray = z.array(Feeling)
 export type FeelingsArrayType = z.infer<typeof FeelingsArray>;
-export const FeelingsResponseFormat = zodResponseFormat(z.object({feelings: FeelingsArray}), "feelings-intensities")
+export const FeelingsResponseFormat = zodResponseFormat(z.object({feelings: FeelingsArray, description: z.string()}), "feelings-intensities")
 
  
 // export enum FeelingIntensity {
@@ -35,13 +35,17 @@ export const FeelingsResponseFormat = zodResponseFormat(z.object({feelings: Feel
 export interface FeelingsScaleProps {
     feelings: FeelingsArrayType;
     active: Boolean;
-    onRescaleDone: ( feelings: FeelingsArrayType ) => void ; 
+    onRescaleDone: ( feelings: FeelingsArrayType, promptMsg: string ) => void ; 
 }
 
 export const FeelingsScale = ({feelings, active, onRescaleDone}: FeelingsScaleProps) => {
     const [scales, setScales] = useState(feelings);
     const [addingFeeling, setAddingFeeling] = useState(false);
     // const itemsRef = useRef(new Array());
+    const composePromptMsg = () => {
+        let msg = scales.map((s)=>{return ` ${s.emotion_name} בעוצמה ${s.emotion_intensity} `}).join(' ')
+        return `אני מרגיש את התחושות הבאות בסולם של אחת עד עשר: ${msg}`
+    }
 
     return(
 		<Container className={active ? "enabled" : "disabled"}
@@ -131,7 +135,7 @@ export const FeelingsScale = ({feelings, active, onRescaleDone}: FeelingsScalePr
                 {active &&
                     <Card.Footer className="text-muted">
                         <Button variant="info" size="sm" className="bg-white text-dark border-dark rounded" 
-                        onClick={() => {onRescaleDone(scales)}} >
+                        onClick={() => {onRescaleDone(scales, composePromptMsg())}} >
                             {process.env.REACT_APP_RTL ==='yes' ? 'אישור': 'Ok'}
                         </Button>
                     </Card.Footer> 
