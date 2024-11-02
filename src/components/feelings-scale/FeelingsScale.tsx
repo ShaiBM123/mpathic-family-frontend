@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSquareXmark, faSquarePlus, faSquareMinus } from '@fortawesome/free-solid-svg-icons'
-import {DropdownFeelingSelector, hebFeelings} from './FeelingsDropdown'
+import {DropdownFeelingSelector, HebFeelings} from './FeelingsDropdown'
 
 export const FeelingIntensityEnum = z.enum(["1", "2" , "3", "4", "5", "6", "7", "8", "9", "10"]);
 // const FeelingIntensityEnum = z.nativeEnum(FeelingIntensityEnum);
@@ -64,7 +64,7 @@ export const FeelingsScale = ({feelings, active, onRescaleDone}: FeelingsScalePr
                                 <Col sm={7}>
                                     <DropdownFeelingSelector onClick={
                                         (e)=>{
-                                            const feeling_name = hebFeelings.find(f => f.id === Number(e.currentTarget.id))?.feeling_name
+                                            const feeling_name = HebFeelings.find(f => f.id === Number(e.currentTarget.id))?.feeling_name
                                             if(feeling_name)
                                             {
                                                 console.log(feeling_name)

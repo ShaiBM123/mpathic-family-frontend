@@ -8,7 +8,7 @@ interface IFeeling {
   feeling_name: string;
 }
 
-export const hebFeelings: IFeeling[] = [
+export const HebFeelings: IFeeling[] = [
     {"id": 1, "feeling_name": "אהבה"},
     {"id": 2, "feeling_name": "אומץ"},
     {"id": 3, "feeling_name": "אושר"},
@@ -87,7 +87,7 @@ export const DropdownFeelingSelector =
   const [selectedFeeling, setSelectedFeeling] = useState(0);
 
   const getSelectedFeeling = () => {
-    const feeling: IFeeling | undefined = hebFeelings.find(f => f.id === selectedFeeling);
+    const feeling: IFeeling | undefined = HebFeelings.find(f => f.id === selectedFeeling);
     return feeling
       ? 'הוסף ' + feeling.feeling_name
       : "בחר רגש ...";
@@ -105,7 +105,7 @@ export const DropdownFeelingSelector =
         <Dropdown.Toggle split variant="info" size="sm" className="bg-white text-dark border-dark rounded" id="dropdown-custom-components">
         </Dropdown.Toggle>
         <Dropdown.Menu as={CustomMenu}>
-            {hebFeelings.map(fruit => {
+            {HebFeelings.map(fruit => {
             return (
                 <Dropdown.Item key={fruit.id} eventKey={fruit.id.toString()}>
                 {fruit.feeling_name}
