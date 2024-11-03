@@ -43,7 +43,7 @@ export class OpenAIChatConversation{
                     },
 
                 ],
-                max_tokens: 110,
+                max_tokens: 150,
                 temperature: 0.7,
                 interactive: false
             },
@@ -61,7 +61,7 @@ export class OpenAIChatConversation{
                     content: "לכל רגש הערכתי את עוצמתו , ניתן לשנות את עוצמות הרגש , למחוק או להוסיף רגשות במידה ולא דייקתי",
                 },
                 response_format: FeelingsResponseFormat,
-                max_tokens: 150,
+                max_tokens: 200,
                 // temperature: 0.7
                 interactive: true
             },
