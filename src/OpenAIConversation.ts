@@ -52,15 +52,12 @@ export class OpenAIChatConversation{
                 messages: [
                     {
                         role: "system",
-                        content: "בהתבסס על התגובה הקודמת והנוכחית של המשתמש, מצא 1-3 רגשות דומיננטיים המובעים בטקסט ותאר בקצרה את הלך הרוח מההבט הרגשי.",
+                        content: "בהתבסס על התגובה הקודמת והנוכחית של המשתמש, מצא 1-3 רגשות דומיננטיים המובעים בטקסט ותאר בקצרה את הלך הרוח מההבט הרגשי."
                     },
-
                 ],
-                intro_reply: {
-                    role: "assistant",
-                    content: "לכל רגש הערכתי את עוצמתו , ניתן לשנות את עוצמות הרגש , למחוק או להוסיף רגשות במידה ולא דייקתי",
-                },
+            
                 response_format: FeelingsResponseFormat,
+                end_description_with: " לכל רגש הערכתי את עוצמתו , ניתן לשנות את עוצמות הרגש , למחוק או להוסיף רגשות במידה ולא דייקתי",
                 max_tokens: 200,
                 // temperature: 0.7
                 interactive: true
@@ -160,11 +157,9 @@ export class OpenAIChatConversation{
                                     content: Object(content).description,
                                 }
                             ]
-                            content_reply.push({content: Object(content).description, content_type: MessageContentType.TextPlain})
+                            content_reply.push({content: Object(content).description + phase?.end_description_with, content_type: MessageContentType.TextPlain})
                         }
-                        if (phase.intro_reply)
-                            content_reply.push({content: phase.intro_reply.content, content_type: MessageContentType.TextPlain})
-                        
+                
                         content_reply.push({content: content, content_type: MessageContentType.Other})
 
                     } else if (bot_msg?.refusal) {
