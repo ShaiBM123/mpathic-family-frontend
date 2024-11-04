@@ -15,9 +15,8 @@ export const joeModel = {
 export const openAIModel = {
   name: "OpenAI",
   avatar: openAIAvatar,
-  initial_messages: [
-    "שלום, אני מטפל וירטואלי ואני יכול לסייע לך בפתרון בעיות אישיות ולייעץ לך כיצד ליישב מצבים לא פשוטים. מה מפריע לך היום?",
-  ],
+  initial_message:
+    "שלום, אני מטפל וירטואלי ואני יכול לסייע לך בפתרון בעיות אישיות ולייעץ לך כיצד ליישב מצבים לא פשוטים. נתחיל עם בחירת הנושא הרלוונטי לך",
 };
 
 export const users = [emilyModel, joeModel, openAIModel];
