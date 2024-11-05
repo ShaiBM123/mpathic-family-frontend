@@ -1,15 +1,11 @@
-import emilyAvatar from "../assets/User3.svg";
-import joeAvatar from "../assets/User7.svg";
+import femaleAvatar from "../assets/User3.svg";
+import maleAvatar from "../assets/User7.svg";
 import openAIAvatar from "../assets/openAI.svg";
+import { nanoid } from "nanoid";
 
-export const emilyModel = {
-  name: "Emily",
-  avatar: emilyAvatar,
-};
-
-export const joeModel = {
-  name: "Joe",
-  avatar: joeAvatar,
+export const userModel = {
+  name: "Shai",
+  avatar: maleAvatar,
 };
 
 export const openAIModel = {
@@ -19,4 +15,6 @@ export const openAIModel = {
     "שלום, אני מטפל וירטואלי ואני יכול לסייע לך בפתרון בעיות אישיות ולייעץ לך כיצד ליישב מצבים לא פשוטים. נתחיל עם בחירת הנושא הרלוונטי לך",
 };
 
-export const users = [emilyModel, joeModel, openAIModel];
+export const openAIConversationId = nanoid();
+
+export const users = [userModel, openAIModel];

@@ -11,7 +11,7 @@ import {
 
 import {MessageContent, TextContent, User} from "@chatscope/use-chat";
 import {ReactTyped} from "react-typed";
-import {openAIModel} from "../data/data"
+import {openAIModel, openAIConversationId} from "../data/data"
 import {interPersonalTopicsDictionary, InterPersonalTopics} from "./inter-personal-topics/InterPersonalTopics"
 import {FeelingsScale} from "./feelings-scale/FeelingsScale"
 
@@ -33,6 +33,10 @@ export const Chat = ({user}:{user:User}) => {
         setCurrentUser(user);
     },[user, setCurrentUser]);
     
+    useEffect( () => {
+        setActiveConversation(openAIConversationId)
+    },[setActiveConversation]);
+
     // show chatbot introductory message on mount
     useEffect( () => {
         if(
@@ -97,7 +101,6 @@ export const Chat = ({user}:{user:User}) => {
                 throttle: true
             });
         }
-        
     }
 
     const doSend = (text: string) => {
@@ -258,7 +261,7 @@ export const Chat = ({user}:{user:User}) => {
 
     return (
         <MainContainer responsive>
-            <Sidebar position="left" scrollable>
+            {/* <Sidebar position="left" scrollable>
                 <ConversationHeader style={{backgroundColor:"#fff"}}>
                     <Avatar src={user.avatar} />
                     <ConversationHeader.Content>
@@ -289,7 +292,7 @@ export const Chat = ({user}:{user:User}) => {
                         </Conversation>
                     })}
                 </ConversationList>
-            </Sidebar>
+            </Sidebar> */}
             
             <ChatContainer>
                 {activeConversation && <ConversationHeader>

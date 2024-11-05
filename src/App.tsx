@@ -23,7 +23,7 @@ import {ChatService} from "./ChatService";
 import {Chat} from "./components/Chat";
 import {nanoid} from "nanoid";
 import {Col, Container, Row} from "react-bootstrap";
-import {emilyModel, users} from "./data/data";
+import {userModel, openAIModel, openAIConversationId} from "./data/data";
 import {AutoDraft} from "@chatscope/use-chat/dist/enums/AutoDraft";
 
 // sendMessage and addMessage methods can automagically generate id for messages and groups
@@ -33,28 +33,10 @@ import {AutoDraft} from "@chatscope/use-chat/dist/enums/AutoDraft";
 const messageIdGenerator = (message: ChatMessage<MessageContentType>) => nanoid();
 const groupIdGenerator = () => nanoid();
 
-const emilyStorage = new BasicStorage({groupIdGenerator, messageIdGenerator});
-
 // Create serviceFactory
 const serviceFactory = (storage: IStorage, updateState: UpdateState) => {
     return new ChatService(storage, updateState);
 };
-
-const emily = new User({
-    id: emilyModel.name,
-    presence: new Presence({status: UserStatus.Available, description: ""}),
-    firstName: "",
-    lastName: "",
-    username: emilyModel.name,
-    email: "",
-    avatar: emilyModel.avatar,
-    bio: ""
-});
-
-
-const chats = [
-    {name: "Emily", storage: emilyStorage}
-];
 
 function createConversation(id: ConversationId, name: string): Conversation {
     return new Conversation({
@@ -71,46 +53,72 @@ function createConversation(id: ConversationId, name: string): Conversation {
     });
 }
 
-// Add users and conversations to the states
-chats.forEach(c => {
-
-    users.forEach(u => {
-        if (u.name !== c.name) {
-            c.storage.addUser(new User({
-                id: u.name,
-                presence: new Presence({status: UserStatus.Available, description: ""}),
-                firstName: "",
-                lastName: "",
-                username: u.name,
-                email: "",
-                avatar: u.avatar,
-                bio: ""
-            }));
-
-            const conversationId = nanoid();
-
-            const myConversation = c.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === u.name) !== "undefined");
-            if (!myConversation) {
-
-                c.storage.addConversation(createConversation(conversationId, u.name));
-
-                const chat = chats.find(chat => chat.name === u.name);
-
-                if (chat) {
-
-                    const hisConversation = chat.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === c.name) !== "undefined");
-                    if (!hisConversation) {
-                        chat.storage.addConversation(createConversation(conversationId, c.name));
-                    }
-
-                }
-
-            }
-
-        }
-    });
-
+const user = new User({
+    id: userModel.name,
+    presence: new Presence({status: UserStatus.Available, description: ""}),
+    firstName: "",
+    lastName: "",
+    username: userModel.name,
+    email: "",
+    avatar: userModel.avatar,
+    bio: ""
 });
+
+const userStorage = new BasicStorage({groupIdGenerator, messageIdGenerator});
+
+userStorage.addUser(new User({
+    id: openAIModel.name,
+    presence: new Presence({status: UserStatus.Available, description: ""}),
+    firstName: "",
+    lastName: "",
+    username: openAIModel.name,
+    email: "",
+    avatar: openAIModel.avatar,
+    bio: ""
+}));
+
+userStorage.addConversation(createConversation(openAIConversationId, openAIModel.name));
+
+// Add users and conversations to the states
+// chats.forEach(c => {
+
+//     users.forEach(u => {
+//         if (u.name !== c.name) {
+//             c.storage.addUser(new User({
+//                 id: u.name,
+//                 presence: new Presence({status: UserStatus.Available, description: ""}),
+//                 firstName: "",
+//                 lastName: "",
+//                 username: u.name,
+//                 email: "",
+//                 avatar: u.avatar,
+//                 bio: ""
+//             }));
+
+//             const conversationId = nanoid();
+
+//             const myConversation = c.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === u.name) !== "undefined");
+//             if (!myConversation) {
+
+//                 c.storage.addConversation(createConversation(conversationId, u.name));
+
+//                 const chat = chats.find(chat => chat.name === u.name);
+
+//                 if (chat) {
+
+//                     const hisConversation = chat.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === c.name) !== "undefined");
+//                     if (!hisConversation) {
+//                         chat.storage.addConversation(createConversation(conversationId, c.name));
+//                     }
+
+//                 }
+
+//             }
+
+//         }
+//     });
+
+// });
 
 function App() {
 
@@ -119,13 +127,13 @@ function App() {
             <Container fluid className="p-4 flex-grow-1 position-relative overflow-hidden">
                 <Row className="h-100 pt-2 flex-nowrap">
                     <Col>
-                        <ChatProvider serviceFactory={serviceFactory} storage={emilyStorage} config={{
+                        <ChatProvider serviceFactory={serviceFactory} storage={userStorage} config={{
                             typingThrottleTime: 250,
                             typingDebounceTime: 900,
                             debounceTyping: true,
                             autoDraft: AutoDraft.Save | AutoDraft.Restore
                         }}>
-                            <Chat user={emily}/>
+                            <Chat user={user}/>
                         </ChatProvider>
                     </Col>
                 </Row>
