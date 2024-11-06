@@ -1,5 +1,5 @@
 import {useState} from "react";
-import { Container, Row, Col, Form, Button, Card, CardColumns, Carousel } from "react-bootstrap";
+import {Row, Col, Form, Button, Card, CardColumns } from "react-bootstrap";
 // import { faSquareXmark, faSquarePlus, faSquareMinus } from '@fortawesome/free-solid-svg-icons'
 
 enum IP1stCategory {
@@ -176,8 +176,8 @@ export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPer
         {};
 
     return(
-		<Container className={active ? "enabled" : "disabled"}
-                    bsPrefix="container d-flex flex-column justify-content-center align-items-center">
+		// <Container className={active ? "enabled" : "disabled"}
+        //             bsPrefix="container d-flex flex-column justify-content-center align-items-center">
 
             <CardColumns>
                 {Object.entries(level_topics).map(([ip_topic_key, ip_topic_dct], idx) => 
@@ -213,7 +213,7 @@ export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPer
                 }
             </CardColumns>
                 
-        </Container>
+        // </Container>
 
     )
 };

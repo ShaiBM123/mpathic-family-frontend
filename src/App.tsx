@@ -1,7 +1,7 @@
 // import './App.css';
 import './themes/default/main.scss';
 import "bootstrap/dist/css/bootstrap.min.css";
-import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+// import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 
 import {
     BasicStorage,
@@ -123,7 +123,7 @@ userStorage.addConversation(createConversation(openAIConversationId, openAIModel
 function App() {
 
     return (
-        <div className="h-100 d-flex flex-column overflow-hidden">
+        <div className="mpathic-app h-100 d-flex flex-column overflow-hidden">
             <Container fluid className="p-4 flex-grow-1 position-relative overflow-hidden">
                 <Row className="h-100 pt-2 flex-nowrap">
                     <Col>

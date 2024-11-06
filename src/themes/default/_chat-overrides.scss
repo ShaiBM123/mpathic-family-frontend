@@ -1,24 +1,45 @@
-// override variables
-$chat-container-min-width: 360px;
 @import "@chatscope/chat-ui-kit-styles/themes/default/variables";
+// override variables
+// $chat-container-min-width: 360px;
+// $message-input-content-editor-wrapper-padding: 0.6em 0.9em 0.6em 0.0em;
+
+
+@import "@chatscope/chat-ui-kit-styles/themes/default/helpers/functions";
+@import "@chatscope/chat-ui-kit-styles/themes/default/helpers/mixins";
 @import "./helper_mixins";
+// @import "@chatscope/chat-ui-kit-styles/themes/default/components/message-list";
+// @import "@chatscope/chat-ui-kit-styles/themes/default/components/message-input";
+@import "@chatscope/chat-ui-kit-styles/themes/default/main";
 
-// override styles
-.cs-conversation__info {
-    min-height: 1.5em;
+
+.mpathic-app .#{$prefix}-message-list {
+  // Because message in group cant have max-width, only if its direct child of list
+  &__scroll-wrapper > .#{$prefix}-message,
+  &__scroll-wrapper > .#{$prefix}-message-group
+  {
+    max-width: 90%;
+  }
+
 }
 
-.cs-message.rtl-message {
-    @include right-to-left();
-
-    & .dropdown-menu ul {
-
-        @include right-to-left(); 
-        padding-inline-start: 0px;
-        padding-inline-end: 40px;
+.mpathic-app{
+    // override styles
+    & .#{$prefix}-conversation__info {
+        min-height: 1.5em;
     }
-}
 
-.cs-message-input.rtl-message {
-    @include right-to-left();
+    & .#{$prefix}-message.rtl-message {
+        @include right-to-left();
+
+        & .dropdown-menu ul {
+
+            @include right-to-left(); 
+            padding-inline-start: 0px;
+            padding-inline-end: 40px;
+        }
+    }
+
+    & .#{$prefix}-message-input.rtl-message {
+        @include right-to-left();
+    }
 }
