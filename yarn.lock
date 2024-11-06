@@ -8049,10 +8049,10 @@
     "klona" "^2.0.4"
     "neo-async" "^2.6.2"
 
-"sass@^1.3.0", "sass@1.32":
-  "integrity" "sha512-dEgI9nShraqP7cXQH+lEXVf73WOPCse0QlFzSD8k+1TcOxCMwVXfQlr0jtoluZysQOyJGnfr21dLvYKDJq8HkA=="
-  "resolved" "https://registry.npmjs.org/sass/-/sass-1.32.13.tgz"
-  "version" "1.32.13"
+"sass@^1.3.0", "sass@1.39.2":
+  "integrity" "sha512-4/6Vn2RPc+qNwSclUSKvssh7dqK1Ih3FfHBW16I/GfH47b3scbYeOw65UIrYG7PkweFiKbpJjgkf5CV8EMmvzw=="
+  "resolved" "https://registry.npmjs.org/sass/-/sass-1.39.2.tgz"
+  "version" "1.39.2"
   dependencies:
     "chokidar" ">=3.0.0 <4.0.0"
 
