@@ -179,41 +179,39 @@ export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPer
 		<Container className={active ? "enabled" : "disabled"}
                     bsPrefix="container d-flex flex-column justify-content-center align-items-center">
 
-            {/* <Carousel activeIndex={0} controls={false}>
-                    <Carousel.Item> */}
+            <CardColumns>
+                {Object.entries(level_topics).map(([ip_topic_key, ip_topic_dct], idx) => 
 
-                        <CardColumns>
-                            {Object.entries(level_topics).map(([ip_topic_key, ip_topic_dct]) => 
+                    <Card bsPrefix={`card bg-custom-color-${idx+1}`} key={ip_topic_key} onClick={(evt: any)=>{
 
-                                <Card key={ip_topic_key} onClick={(evt: any)=>{
-
-                                        console.log(evt.target)
-                                        if(categoryLevel === InterPersonalCategoryLevel.Level_1)
-                                        {
-                                            setCategoryLevel(InterPersonalCategoryLevel.Level_2)
-                                            setCategoryTopic(ip_topic_key)
-                                        }
-                                        else if(categoryLevel === InterPersonalCategoryLevel.Level_2)
-                                        {
-                                            onTopicSelection(ip_topic_dct.description)
-                                        }
-                                    }} >
-
-                                    <Card.Body>
-                                    <Card.Title>
-                                        {ip_topic_dct.title}
-                                    </Card.Title>
-                                    <Card.Text>
-                                        {ip_topic_dct.description}
-                                    </Card.Text>
-                                    </Card.Body>
-                                </Card>
-                                )
+                            console.log(evt.target)
+                            if(categoryLevel === InterPersonalCategoryLevel.Level_1)
+                            {
+                                setCategoryLevel(InterPersonalCategoryLevel.Level_2)
+                                setCategoryTopic(ip_topic_key)
                             }
-                        </CardColumns>
+                            else if(categoryLevel === InterPersonalCategoryLevel.Level_2)
+                            {
+                                onTopicSelection(ip_topic_dct.description)
+                            }
+                        }} >
 
-                    {/* </Carousel.Item>
-                </Carousel> */}
+                        <Card.Body>
+                            <Card.Title>
+                                <small>
+                                    {ip_topic_dct.title}
+                                </small>
+                            </Card.Title>
+                            <Card.Text>
+                                <small>
+                                    {ip_topic_dct.description}
+                                </small>
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                    )
+                }
+            </CardColumns>
                 
         </Container>
 

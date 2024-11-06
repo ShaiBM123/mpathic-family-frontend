@@ -10,9 +10,41 @@
 @import "~bootstrap/scss/variables";
 @import "~bootstrap/scss/mixins/breakpoints";
 
-.card-subtitle {
-    min-width: 250px;
+
+.card.bg-custom-color-1 {
+  background-color: rgba(255,255,0);
 }
+.card.bg-custom-color-2 {
+  background-color: rgba(64,224,208);
+}
+.card.bg-custom-color-3 {
+  background-color: rgba(218,165,32);
+}
+.card.bg-custom-color-4 {
+  background-color: rgba(70,130,180);
+}
+.card.bg-custom-color-5 {
+  background-color: rgba(0,255,127);
+}
+.card.bg-custom-color-6 {
+  background-color: rgba(135,206,235);
+}
+.card.bg-custom-color-7 {
+  background-color: rgba(65,105,225);
+}
+.card.bg-custom-color-8 {
+  background-color: rgba(255,165,0);
+}
+.card.bg-custom-color-9 {
+  background-color: rgba(205,92,92);
+}
+.card.bg-custom-color-10 {
+  background-color: rgba(147,112,219);
+}
+
+// .card-subtitle {
+//     min-width: 250px;
+// }
 
 .container.disabled
 {
