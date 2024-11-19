@@ -2,5 +2,13 @@
 @import "./chat-overrides";
 @import "./bootstrap-override";
 @import "./feelings.scale";
+// @import url('@fortawesome/fontawesome-free/css/fontawesome.min.css');
+
+div.disabled
+{
+  pointer-events: none;  
+  /* for "disabled" effect */
+  opacity: 0.8;
+}
 
 

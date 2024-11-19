@@ -2,6 +2,7 @@
 import './themes/default/main.scss';
 import "bootstrap/dist/css/bootstrap.min.css";
 // import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 
 import {
     BasicStorage,

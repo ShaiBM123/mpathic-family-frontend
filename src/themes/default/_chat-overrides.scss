@@ -12,15 +12,15 @@
 @import "@chatscope/chat-ui-kit-styles/themes/default/main";
 
 
-.mpathic-app .#{$prefix}-message-list {
-  // Because message in group cant have max-width, only if its direct child of list
-  &__scroll-wrapper > .#{$prefix}-message,
-  &__scroll-wrapper > .#{$prefix}-message-group
-  {
-    max-width: 90%;
-  }
+// .mpathic-app .#{$prefix}-message-list {
+//   // Because message in group cant have max-width, only if its direct child of list
+//   &__scroll-wrapper > .#{$prefix}-message,
+//   &__scroll-wrapper > .#{$prefix}-message-group
+//   {
+//     max-width: 90%;
+//   }
 
-}
+// }
 
 .mpathic-app{
     // override styles

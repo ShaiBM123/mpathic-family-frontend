@@ -1,6 +1,7 @@
-import {useState} from "react";
-import {Row, Col, Form, Button, Card, CardColumns } from "react-bootstrap";
-// import { faSquareXmark, faSquarePlus, faSquareMinus } from '@fortawesome/free-solid-svg-icons'
+import {useState, useCallback} from "react";
+import {Container, Row, Col, Form, Button, Card, CardColumns, CardDeck } from "react-bootstrap";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 enum IP1stCategory {
     None, 
@@ -143,56 +144,111 @@ export const interPersonalTopicsDictionary= {
             }
         },
 
-        [IP1stCategory.Other]: {title: 'אחר', description: 'כל בעיה בין אישית אחרת'}
+        [IP1stCategory.Other]: {
+            title: 'אחר', 
+            description: 'כל בעיה בין אישית אחרת',             
+            sub_categories:{ 
+                [IP2ndCategory.Other]: {title: 'אחר', description: 'כל נושא אחר'}}}
     }   
 }
 
 
-export enum InterPersonalCategoryLevel {
-    Level_1 = "1",
-    Level_2 = "2"
+export enum CategoryLevel {
+    Level_0 = -1,
+    Level_1 = 0,
+    Level_2 = 1
 }
+
+type DctType = {[key: string]: string }
+type Topics1stLevelNestedDctType = {[key: string]: string | DctType}
+type Topics2ndLevelNestedDctType = { [key: string]: Topics1stLevelNestedDctType }
 
 export interface InterPersonalTopicsProps {
-    topics: { [key: string]: {[key: string]: string | {[key: string]: string }} };
+    topics: Topics2ndLevelNestedDctType;
     active: Boolean;
-    onTopicSelection: ( promptMsg: string ) => void ; 
+    onTopicSelection: (msg: string) => void ; 
 }
+//bg-custom-color-${idx+1}
 
 export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPersonalTopicsProps) => {
-    const [categoryTopic, setCategoryTopic] = useState("");
-    const [categoryLevel, setCategoryLevel] = useState(InterPersonalCategoryLevel.Level_1);
-
+    const [categoryTopic, setCategoryTopic] = useState<Array<string>>([])
+    const [categoryLevel, setCategoryLevel] = useState(CategoryLevel.Level_0);
 
     // const itemsRef = useRef(new Array());
-    const composePromptMsg = () => {
-        let msg = ``
-        return ` ${msg}`
+    const composeHebMsg = (title1: string, title2: string) => {
+        let intro1 = title1 ? `נראה שיש לך בעיה בין אישית הקשורה לנושאי ${title1}` : ''
+        let intro2 = title2 ? `בעיקר קשיים הקשורים ב ${title2}` : ''
+        return `${intro1} ${intro2} זה המקום לתאר את אשר ליבך, הרגש בנוח לתאר כל דבר שעולה בדעתך, כל מה שנאמר כאן נשאר ביננו`.trim()
     }
 
+    const getCardColorCls = useCallback((isSelected: Boolean, cardIdx: number) => {
+        let bootstrap_color_cls = [
+            'bg-primary text-white',
+            'bg-secondary text-white',
+            'bg-success text-white',
+            'bg-danger text-white',
+            'bg-warning text-white',
+            'bg-info text-white']
+
+        return isSelected ? 'bg-light text-dark' : bootstrap_color_cls[cardIdx % bootstrap_color_cls.length] 
+    }, [])
+
     let level_topics = 
-        categoryLevel === InterPersonalCategoryLevel.Level_1 ? topics : 
-        categoryLevel === InterPersonalCategoryLevel.Level_2 ? topics[categoryTopic].sub_categories : 
-        {};
+        categoryLevel === CategoryLevel.Level_0 ? 
+            topics : 
+                categoryLevel === CategoryLevel.Level_1 ? 
+                    topics[categoryTopic[CategoryLevel.Level_1]].sub_categories :
+                        categoryLevel === CategoryLevel.Level_2 ?
+                            {
+                                [categoryTopic[CategoryLevel.Level_2]]: 
+                                (topics[categoryTopic[CategoryLevel.Level_1]]
+                                    .sub_categories as DctType)[categoryTopic[CategoryLevel.Level_2]]
+                            }: {};
 
     return(
-		// <Container className={active ? "enabled" : "disabled"}
-        //             bsPrefix="container d-flex flex-column justify-content-center align-items-center">
+
+         <div className={active ? "enabled" : "disabled"}> 
+            { categoryLevel === CategoryLevel.Level_1 && active &&
+                <Button className='mb-2 bg-white border-dark'>
+                    <FontAwesomeIcon color={"black"} icon={faArrowRight} size={'lg'} onClick={() => {
+                        setCategoryTopic([])
+                        setCategoryLevel(CategoryLevel.Level_0)
+                    }}/>
+                </Button>
+            }
 
             <CardColumns>
+
                 {Object.entries(level_topics).map(([ip_topic_key, ip_topic_dct], idx) => 
 
-                    <Card bsPrefix={`card bg-custom-color-${idx+1}`} key={ip_topic_key} onClick={(evt: any)=>{
+                    <Card bsPrefix={`card topic-card ${getCardColorCls(!active, idx)}`} key={ip_topic_key} onClick={(evt: any)=>{
 
                             console.log(evt.target)
-                            if(categoryLevel === InterPersonalCategoryLevel.Level_1)
+                            let category_topics = [...categoryTopic, ip_topic_key]
+
+                            setCategoryTopic(category_topics)
+
+                            if(categoryLevel === CategoryLevel.Level_0)
                             {
-                                setCategoryLevel(InterPersonalCategoryLevel.Level_2)
-                                setCategoryTopic(ip_topic_key)
+                                setCategoryLevel(CategoryLevel.Level_1)
+                                if (ip_topic_key === String(IP1stCategory.Other))
+                                {
+                                    onTopicSelection(composeHebMsg('', ''))
+                                }  
                             }
-                            else if(categoryLevel === InterPersonalCategoryLevel.Level_2)
+                            else if(categoryLevel === CategoryLevel.Level_1)
                             {
-                                onTopicSelection(ip_topic_dct.description)
+                                setCategoryLevel(CategoryLevel.Level_2)
+                                let title1 = topics[categoryTopic[CategoryLevel.Level_1]].title as string
+
+                                if (ip_topic_key === String(IP2ndCategory.Other))
+                                {
+                                    onTopicSelection(composeHebMsg(title1, ''))
+                                }
+                                else {
+                                    let title2 = ((level_topics as Topics1stLevelNestedDctType)[ip_topic_key] as DctType).title 
+                                    onTopicSelection(composeHebMsg(title1, title2))
+                                }
                             }
                         }} >
 
@@ -212,8 +268,7 @@ export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPer
                     )
                 }
             </CardColumns>
-                
-        // </Container>
+         </div>    
 
     )
 };

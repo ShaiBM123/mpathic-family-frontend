@@ -1,9 +1,0 @@
-.cs-conversation__info {
-    min-height: 1.5em;
-}
-
-.rtl-message {
-    direction: rtl;
-    text-align: right;
-    justify-content: start!important;
-  }
