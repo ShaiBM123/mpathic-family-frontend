@@ -171,10 +171,10 @@ export const Chat = ({user}:{user:User}) => {
 
                     let obj = Object(chat_msg.content)
 
-                    if (obj.inter_personal_categories){
+                    if (obj.major_categories){
                         message_type = "custom";
                         message_payload=
-                        <InterPersonalTopics topics={obj.inter_personal_categories} active={obj.active}  
+                        <InterPersonalTopics topics={obj.major_categories} active={obj.active}  
                             onTopicSelection={(msg) => {
                                 console.log(msg)
 
