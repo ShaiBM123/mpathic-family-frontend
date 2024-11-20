@@ -9,6 +9,20 @@
 @import "~bootstrap/scss/variables";
 @import "~bootstrap/scss/mixins/breakpoints";
 
+.card.topic-card .card-img-bottom{
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+  // margin-bottom: 10px;
+  padding-bottom: 20px;
+  // border: 1px solid #ccc;
+  // background-position: center;
+  // background-size: 50% 50%;
+  background-repeat: no-repeat;
+  // background-color: #eee;
+  position: relative;
+}
+
 .card.topic-card{
   text-align: center;
   align-items: center;

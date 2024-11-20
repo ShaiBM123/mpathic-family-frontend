@@ -1,4 +1,4 @@
-
+import { toHtml, icon, IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
 export function convertUnixTimeStamp(unix_timestamp: number)  
 {
@@ -41,3 +41,15 @@ export function isReactComponent(component: any) {
         isFunctionComponent(component)
     )
 }
+
+export function getSVGURI ({ prefix, iconName, icon }: IconDefinition, color: string = 'black') {
+    return(
+        `data:image/svg+xml;base64,${btoa(`<svg data-prefix="${prefix}" data-icon="${iconName}"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${icon[0]} ${icon[1]}">
+            <path fill="${color || "currentColor"}" d="${icon[4]}"></path>
+            </svg>`)}`
+    );}
+    
+
+
+

@@ -1,7 +1,11 @@
 import {useState, useCallback} from "react";
 import {Container, Row, Col, Form, Button, Card, CardColumns, CardDeck } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRight, faCircle, faCheck } from '@fortawesome/free-solid-svg-icons'
+import * as FASolidIcons from "@fortawesome/free-solid-svg-icons";
+import * as FABrandIcons from "@fortawesome/free-brands-svg-icons";
+import * as FARegularIcons from "@fortawesome/free-regular-svg-icons";
+import {getSVGURI} from "../../AppUtils";
 
 enum IP1stCategory {
     None, 
@@ -31,6 +35,7 @@ export const interPersonalTopicsDictionary= {
 
         [IP1stCategory.HomeAssignments]: {
             title: 'לוחות זמנים ומטלות בית', 
+            icon: FASolidIcons.faHouseUser,           
             sub_categories:{
                 [IP2ndCategory.Other]: {title: 'אחר'},
                 [IP2ndCategory.Issue1]: {title: 'שינויים בלוחות זמנים שנקבעו'},
@@ -41,7 +46,8 @@ export const interPersonalTopicsDictionary= {
         },
 
         [IP1stCategory.School]: {
-            title: 'לימודים ובי"ס', 
+            title: 'לימודים ובי"ס',
+            icon: FASolidIcons.faBookReader, 
             sub_categories:{
                 [IP2ndCategory.Other]: {title: 'אחר'}, 
                 [IP2ndCategory.Issue1]: {title: 'שיעורי בית'},
@@ -54,6 +60,7 @@ export const interPersonalTopicsDictionary= {
 
         [IP1stCategory.LeisureTime]: {
             title: 'זמן פנאי ומסכים', 
+            icon: FASolidIcons.faFutbol,
             sub_categories:{ 
                 [IP2ndCategory.Other]: {title: 'אחר'},
                 [IP2ndCategory.Issue1]: {title: 'זמני מסך'},
@@ -67,6 +74,7 @@ export const interPersonalTopicsDictionary= {
 
         [IP1stCategory.Relationships]: {
             title: 'תקשורת ומערכות יחסים', 
+            icon: FASolidIcons.faUserFriends,
             sub_categories:{ 
                 [IP2ndCategory.Other]: {title: 'אחר'},
                 [IP2ndCategory.Issue1]: {title: 'קונפליקט לא פטור'},
@@ -79,6 +87,7 @@ export const interPersonalTopicsDictionary= {
 
         [IP1stCategory.HomeEconomy]: {
             title: 'נושאים כלכליים',  
+            icon: FASolidIcons.faMoneyBill,
             sub_categories:{ 
                 [IP2ndCategory.Other]: {title: 'אחר'},
                 [IP2ndCategory.Issue1]: {title: 'דמי כיס'},
@@ -88,7 +97,8 @@ export const interPersonalTopicsDictionary= {
             }
         },
         [IP1stCategory.SpaceAndPrivacy]: {
-            title: 'מרחב ופרטיות',  
+            title: 'מרחב ופרטיות', 
+            icon: FASolidIcons.faUsers, 
             sub_categories:{ 
                 [IP2ndCategory.Other]: {title: 'אחר'},
                 [IP2ndCategory.Issue1]: {title: 'פרטיות בבית'},
@@ -100,6 +110,7 @@ export const interPersonalTopicsDictionary= {
 
         [IP1stCategory.Health]: {
             title: 'בריאות',  
+            icon: FASolidIcons.faHeartbeat,
             sub_categories:{ 
                 [IP2ndCategory.Other]: {title: 'אחר'},
                 [IP2ndCategory.Issue1]: {title: 'תזונה והרגלי אכילה'},
@@ -169,6 +180,24 @@ export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPer
                                     .sub_categories as DctType)[categoryTopic[CategoryLevel.Level_2]]
                             }: {};
 
+    const get_categories_title = (level2_topic_title: string = '') => {
+        let title1 = '';
+        let title2 = '';
+        
+        if(categoryLevel === CategoryLevel.Level_1)
+        {
+            title1 = topics[categoryTopic[CategoryLevel.Level_1]].title as string;
+            // title2 = ((level_topics as Topics1stLevelNestedDctType)[level2_topic_key] as DctType).title;
+            title2 = level2_topic_title;
+        }
+        else if(categoryLevel === CategoryLevel.Level_2)
+        {
+            title1 = topics[categoryTopic[CategoryLevel.Level_1]].title as string;
+            title2 = topics[categoryTopic[CategoryLevel.Level_2]].title as string;
+        }
+        return [title1, title2]
+    }
+
     return(
 
          <div className={active ? "enabled" : "disabled"}> 
@@ -183,54 +212,67 @@ export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPer
 
             <CardColumns>
 
-                {Object.entries(level_topics).map(([ip_topic_key, ip_topic_dct], idx) => 
+                {Object.entries(level_topics).map(([t_key, t_dct], idx) => {
 
-                    <Card bsPrefix={`card topic-card ${getCardColorCls(!active, idx)}`} key={ip_topic_key} onClick={(evt: any)=>{
+                    let titles = get_categories_title(t_dct.title);
 
-                            console.log(evt.target)
-                            let category_topics = [...categoryTopic, ip_topic_key]
+                    return(
+                        <Card 
+                            bsPrefix={`card topic-card ${getCardColorCls(!active, idx)}`} key={t_key} 
+                            onClick={(evt: any)=>{
 
-                            setCategoryTopic(category_topics)
+                                console.log(evt.target)
+                                let category_topics = [...categoryTopic, t_key]
 
-                            if(categoryLevel === CategoryLevel.Level_0)
-                            {
-                                setCategoryLevel(CategoryLevel.Level_1)
-                                if (ip_topic_key === String(IP1stCategory.Other))
+                                setCategoryTopic(category_topics)
+
+                                if(categoryLevel === CategoryLevel.Level_0)
                                 {
-                                    onTopicSelection(composeHebMsg('', ''))
-                                }  
-                            }
-                            else if(categoryLevel === CategoryLevel.Level_1)
-                            {
-                                setCategoryLevel(CategoryLevel.Level_2)
-                                let title1 = topics[categoryTopic[CategoryLevel.Level_1]].title as string
-
-                                if (ip_topic_key === String(IP2ndCategory.Other))
+                                    setCategoryLevel(CategoryLevel.Level_1)
+                                    if (t_key === String(IP1stCategory.Other))
+                                    {
+                                        onTopicSelection(composeHebMsg('', ''))
+                                    }  
+                                }
+                                else if(categoryLevel === CategoryLevel.Level_1)
                                 {
-                                    onTopicSelection(composeHebMsg(title1, ''))
+                                    setCategoryLevel(CategoryLevel.Level_2)
+                                    if (t_key === String(IP2ndCategory.Other))
+                                    {
+                                        onTopicSelection(composeHebMsg(titles[0], ''))
+                                    }
+                                    else {
+                                        onTopicSelection(composeHebMsg(titles[0], titles[1]))
+                                    }
                                 }
-                                else {
-                                    let title2 = ((level_topics as Topics1stLevelNestedDctType)[ip_topic_key] as DctType).title 
-                                    onTopicSelection(composeHebMsg(title1, title2))
-                                }
-                            }
-                        }} >
+                            }} >
 
-                        <Card.Body>
-                            <Card.Title>
-                                <small>
-                                    {ip_topic_dct.title}
-                                </small>
-                            </Card.Title>
-                            {/* <Card.Text>
-                                <small>
-                                    {ip_topic_dct.description}
-                                </small>
-                            </Card.Text> */}
-                        </Card.Body>
-                    </Card>
-                    )
-                }
+                            {active ?
+                                <Card.Body>
+                                    
+                                    <Card.Title>
+                                        <small>
+                                            {t_dct.title}
+                                        </small>
+                                    </Card.Title>
+                                </Card.Body> 
+                                : 
+                                <Card.Body>
+                                    <Card.Title>
+                                        {titles[0]}
+                                    </Card.Title>
+                                    <Card.Text>
+                                        <small>
+                                            {titles[1]}
+                                        </small>
+                                    </Card.Text>
+                                </Card.Body>
+                            }
+
+                            { t_dct.icon && <Card.Img variant="bottom" src={`${getSVGURI(t_dct.icon)}`} /> }
+                        </Card>
+                    )}
+                )}
             </CardColumns>
          </div>    
 
