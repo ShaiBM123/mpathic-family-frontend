@@ -7,6 +7,8 @@
     "@chatscope/chat-ui-kit-styles": "^1.2.3",
     "@chatscope/use-chat": "^3.1.2",
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-brands-svg-icons": "^6.7.1",
+    "@fortawesome/free-regular-svg-icons": "^6.7.1",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@testing-library/jest-dom": "^5.11.4",
