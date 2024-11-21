@@ -201,7 +201,8 @@ export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPer
     return(
 
          <div className={active ? "enabled" : "disabled"}> 
-            { categoryLevel === CategoryLevel.Level_1 && active &&
+            { 
+                categoryLevel === CategoryLevel.Level_1 && active &&
                 <Button className='mb-2 bg-white border-dark'>
                     <FontAwesomeIcon color={"black"} icon={faArrowRight} size={'lg'} onClick={() => {
                         setCategoryTopic([])
@@ -247,29 +248,32 @@ export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPer
                                 }
                             }} >
 
-                            {active ?
-                                <Card.Body>
+                            <Card.Body>
+                                {active ?  
+                                    <>
+                                        <Card.Title>
+                                            <small>
+                                                {t_dct.title}
+                                            </small>
+                                        </Card.Title>
+                                        { t_dct.icon && <Card.Img variant="bottom" src={`${getSVGURI(t_dct.icon)}`} /> }
+                                    </>
+                                    : 
+                                    <>
+                                        <Card.Title>
+                                            {titles[0]}
+                                        </Card.Title>
+                                        <Card.Text>
+                                            <small>
+                                                {titles[1]}
+                                            </small>
+                                        </Card.Text>
+                                    </>
                                     
-                                    <Card.Title>
-                                        <small>
-                                            {t_dct.title}
-                                        </small>
-                                    </Card.Title>
-                                </Card.Body> 
-                                : 
-                                <Card.Body>
-                                    <Card.Title>
-                                        {titles[0]}
-                                    </Card.Title>
-                                    <Card.Text>
-                                        <small>
-                                            {titles[1]}
-                                        </small>
-                                    </Card.Text>
-                                </Card.Body>
-                            }
+                                }
+                            </Card.Body>
 
-                            { t_dct.icon && <Card.Img variant="bottom" src={`${getSVGURI(t_dct.icon)}`} /> }
+                            
                         </Card>
                     )}
                 )}
