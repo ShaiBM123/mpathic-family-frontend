@@ -58,7 +58,7 @@ export const Chat = ({user}:{user:User}) => {
             activeConversation.participants.length === 1 && 
             activeConversation.participantExists(openAIModel.name)){
                 addIncomingChatBotMsg(openAIModel.initial_message, MessageContentType.TextPlain)
-                addIncomingChatBotMsg({...interPersonalTopicsDictionary, active: true}, MessageContentType.Other)     
+                addIncomingChatBotMsg({...interPersonalTopicsDictionary, active: true, card_layout: true}, MessageContentType.Other)     
             }
     },[activeConversation, addIncomingChatBotMsg, currentMessages.length, user.username]);
 
@@ -174,7 +174,7 @@ export const Chat = ({user}:{user:User}) => {
                     if (obj.major_categories){
                         message_type = "custom";
                         message_payload=
-                        <InterPersonalTopics topics={obj.major_categories} active={obj.active}  
+                        <InterPersonalTopics topics={obj.major_categories}  
                             onTopicSelection={(msg) => {
                                 console.log(msg)
 
@@ -251,6 +251,10 @@ export const Chat = ({user}:{user:User}) => {
         return false
     }
 
+    const getMsgCustomizedContentClasses = (m: ChatMessage<MessageContentType>)=> {
+        return (Object(m.content).card_layout ? 'card-message' : '').trim();
+    }
+
     const rtl = process.env.REACT_APP_RTL
     const hold_text_input = toHoldTextInput()
 
@@ -305,7 +309,10 @@ export const Chat = ({user}:{user:User}) => {
                                     <Message 
                                         key={m.id} 
                                         model={createMessageModel(m)} 
-                                        className={rtl ==='yes' ? "rtl-message" : ""}/>)}
+                                        className={(
+                                            (rtl ==='yes' ? "rtl-message" : "") + 
+                                            ` ${getMsgCustomizedContentClasses(m)}`
+                                            ).trim()}/>)}
                             </MessageGroup.Messages>
                     </MessageGroup>) }
                 </MessageList>
