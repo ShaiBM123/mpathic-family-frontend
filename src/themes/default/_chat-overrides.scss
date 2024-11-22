@@ -13,14 +13,24 @@
 
 
 // .mpathic-app .#{$prefix}-message-list {
-//   // Because message in group cant have max-width, only if its direct child of list
-//   &__scroll-wrapper > .#{$prefix}-message,
-//   &__scroll-wrapper > .#{$prefix}-message-group
-//   {
-//     max-width: 90%;
-//   }
-
+//     // Because message in group cant have max-width, only if its direct child of list
+//     &__scroll-wrapper > .#{$prefix}-message,
+//     &__scroll-wrapper > .#{$prefix}-message-group
+//     {
+//         max-width: 90%;
+//     }
 // }
+
+@media (min-width: 576px) {
+    .mpathic-app .#{$prefix}-message-list {
+        // Because message in group cant have max-width, only if its direct child of list
+        &__scroll-wrapper > .#{$prefix}-message,
+        &__scroll-wrapper > .#{$prefix}-message-group
+        {
+            max-width: 65%;
+        }
+    }
+}
 
 .mpathic-app{
     // override styles
