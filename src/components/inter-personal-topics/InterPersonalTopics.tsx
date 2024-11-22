@@ -37,7 +37,7 @@ export const interPersonalTopicsDictionary= {
             title: 'לוחות זמנים ומטלות בית', 
             icon: FASolidIcons.faHouseUser,           
             sub_categories:{
-                [IP2ndCategory.Other]: {title: 'אחר'},
+                [IP2ndCategory.Other]: {title: 'אחר', description: 'נושא חופשי'},
                 [IP2ndCategory.Issue1]: {title: 'שינויים בלוחות זמנים שנקבעו'},
                 [IP2ndCategory.Issue2]: {title: 'תפקידים ואחריות בבית'},
                 [IP2ndCategory.Issue3]: {title: 'ביצוע מטלות'},
@@ -49,7 +49,7 @@ export const interPersonalTopicsDictionary= {
             title: 'לימודים ובי"ס',
             icon: FASolidIcons.faBookReader, 
             sub_categories:{
-                [IP2ndCategory.Other]: {title: 'אחר'}, 
+                [IP2ndCategory.Other]: {title: 'אחר', description: 'נושא חופשי'}, 
                 [IP2ndCategory.Issue1]: {title: 'שיעורי בית'},
                 [IP2ndCategory.Issue2]: {title: 'ציונים ומבחנים'},
                 [IP2ndCategory.Issue3]: {title: 'הגעה לבית הספר'},
@@ -62,7 +62,7 @@ export const interPersonalTopicsDictionary= {
             title: 'זמן פנאי ומסכים', 
             icon: FASolidIcons.faFutbol,
             sub_categories:{ 
-                [IP2ndCategory.Other]: {title: 'אחר'},
+                [IP2ndCategory.Other]: {title: 'אחר', description: 'נושא חופשי'},
                 [IP2ndCategory.Issue1]: {title: 'זמני מסך'},
                 [IP2ndCategory.Issue2]: {title: 'טלפון נייד ורשתות חברתיות'},
                 [IP2ndCategory.Issue3]: {title: 'מפגש משפחתי'},
@@ -76,7 +76,7 @@ export const interPersonalTopicsDictionary= {
             title: 'תקשורת ומערכות יחסים', 
             icon: FASolidIcons.faUserFriends,
             sub_categories:{ 
-                [IP2ndCategory.Other]: {title: 'אחר'},
+                [IP2ndCategory.Other]: {title: 'אחר', description: 'נושא חופשי'},
                 [IP2ndCategory.Issue1]: {title: 'קונפליקט לא פטור'},
                 [IP2ndCategory.Issue2]: {title: 'העלאת נושא מסויים'},
                 [IP2ndCategory.Issue3]: {title: 'התעניינות בנושא מסויים'},
@@ -89,7 +89,7 @@ export const interPersonalTopicsDictionary= {
             title: 'נושאים כלכליים',  
             icon: FASolidIcons.faMoneyBill,
             sub_categories:{ 
-                [IP2ndCategory.Other]: {title: 'אחר'},
+                [IP2ndCategory.Other]: {title: 'אחר', description: 'נושא חופשי'},
                 [IP2ndCategory.Issue1]: {title: 'דמי כיס'},
                 [IP2ndCategory.Issue2]: {title: 'קבלה / קנייה של משהוא'},
                 [IP2ndCategory.Issue3]: {title: 'קשיים כלכליים'},
@@ -100,7 +100,7 @@ export const interPersonalTopicsDictionary= {
             title: 'מרחב ופרטיות', 
             icon: FASolidIcons.faUsers, 
             sub_categories:{ 
-                [IP2ndCategory.Other]: {title: 'אחר'},
+                [IP2ndCategory.Other]: {title: 'אחר', description: 'נושא חופשי'},
                 [IP2ndCategory.Issue1]: {title: 'פרטיות בבית'},
                 [IP2ndCategory.Issue2]: {title: 'טלפון נייד ורשתות חברתיות'},
                 [IP2ndCategory.Issue3]: {title: 'זמן עם עצמי'},
@@ -112,7 +112,7 @@ export const interPersonalTopicsDictionary= {
             title: 'בריאות',  
             icon: FASolidIcons.faHeartbeat,
             sub_categories:{ 
-                [IP2ndCategory.Other]: {title: 'אחר'},
+                [IP2ndCategory.Other]: {title: 'אחר', description: 'נושא חופשי'},
                 [IP2ndCategory.Issue1]: {title: 'תזונה והרגלי אכילה'},
                 [IP2ndCategory.Issue2]: {title: 'שינה'},
                 [IP2ndCategory.Issue3]: {title: 'פעילות גופנית'},
@@ -123,7 +123,7 @@ export const interPersonalTopicsDictionary= {
 
         [IP1stCategory.Other]: {
             title: 'אחר', 
-            description: 'כל בעיה בין אישית אחרת',             
+            description: 'נושא חופשי',             
             sub_categories:{ 
                 [IP2ndCategory.Other]: {title: 'אחר', description: 'כל נושא אחר'}}}
     }   
@@ -142,13 +142,20 @@ type Topics2ndLevelNestedDctType = { [key: string]: Topics1stLevelNestedDctType 
 
 export interface InterPersonalTopicsProps {
     topics: Topics2ndLevelNestedDctType;
-    active: Boolean;
     onTopicSelection: (msg: string) => void ; 
 }
 
-export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPersonalTopicsProps) => {
-    const [categoryTopic, setCategoryTopic] = useState<Array<string>>([])
-    const [categoryLevel, setCategoryLevel] = useState(CategoryLevel.Level_0);
+interface ICategories {
+    level: CategoryLevel;
+    topics_key: Array<string>;
+    topics_titles: Array<string>;
+}
+
+export const InterPersonalTopics = ({topics, onTopicSelection}: InterPersonalTopicsProps) => {
+
+    const [categories, setCategories] = 
+        useState<ICategories>({level: CategoryLevel.Level_0, topics_key: [], topics_titles: []})
+    const [topicSelected, setTopicSelected] = useState(false);
 
     const composeHebMsg = useCallback((title1: string, title2: string) => {
         let intro1 = title1 ? `נראה שיש לך בעיה בין אישית הקשורה לנושאי ${title1}` : ''
@@ -156,7 +163,7 @@ export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPer
         return `${intro1} ${intro2} זה המקום לתאר את אשר ליבך, הרגש בנוח לתאר כל דבר שעולה בדעתך, כל מה שנאמר כאן נשאר ביננו`.trim()
     }, [])
 
-    const getCardColorCls = useCallback((isSelected: Boolean, cardIdx: number) => {
+    const getCardColorCls = useCallback((cardIdx: number) => {
         let bootstrap_color_cls = [
             'bg-primary text-white',
             'bg-secondary text-white',
@@ -165,48 +172,29 @@ export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPer
             'bg-warning text-white',
             'bg-info text-white']
 
-        return isSelected ? 'bg-light text-dark' : bootstrap_color_cls[cardIdx % bootstrap_color_cls.length] 
-    }, [])
+        return topicSelected ? 'bg-light text-dark' : bootstrap_color_cls[cardIdx % bootstrap_color_cls.length] 
+    }, [topicSelected])
 
     let level_topics = 
-        categoryLevel === CategoryLevel.Level_0 ? 
+        categories.level === CategoryLevel.Level_0 ? 
             topics : 
-                categoryLevel === CategoryLevel.Level_1 ? 
-                    topics[categoryTopic[CategoryLevel.Level_1]].sub_categories :
-                        categoryLevel === CategoryLevel.Level_2 ?
+            categories.level === CategoryLevel.Level_1 ? 
+                    topics[categories.topics_key[CategoryLevel.Level_1]].sub_categories :
+                    categories.level === CategoryLevel.Level_2 ?
                             {
-                                [categoryTopic[CategoryLevel.Level_2]]: 
-                                (topics[categoryTopic[CategoryLevel.Level_1]]
-                                    .sub_categories as DctType)[categoryTopic[CategoryLevel.Level_2]]
+                                [categories.topics_key[CategoryLevel.Level_2]]: 
+                                (topics[categories.topics_key[CategoryLevel.Level_1]]
+                                    .sub_categories as DctType)[categories.topics_key[CategoryLevel.Level_2]]
                             }: {};
-
-    const get_categories_title = (level2_topic_title: string = '') => {
-        let title1 = '';
-        let title2 = '';
-        
-        if(categoryLevel === CategoryLevel.Level_1)
-        {
-            title1 = topics[categoryTopic[CategoryLevel.Level_1]].title as string;
-            // title2 = ((level_topics as Topics1stLevelNestedDctType)[level2_topic_key] as DctType).title;
-            title2 = level2_topic_title;
-        }
-        else if(categoryLevel === CategoryLevel.Level_2)
-        {
-            title1 = topics[categoryTopic[CategoryLevel.Level_1]].title as string;
-            title2 = topics[categoryTopic[CategoryLevel.Level_2]].title as string;
-        }
-        return [title1, title2]
-    }
 
     return(
 
-         <div className={active ? "enabled" : "disabled"}> 
+         <div className={topicSelected ? "disabled" : "enabled" }> 
             { 
-                categoryLevel === CategoryLevel.Level_1 && active &&
+                categories.level === CategoryLevel.Level_1 && !topicSelected &&
                 <Button className='mb-2 bg-white border-dark'>
                     <FontAwesomeIcon color={"black"} icon={faArrowRight} size={'lg'} onClick={() => {
-                        setCategoryTopic([])
-                        setCategoryLevel(CategoryLevel.Level_0)
+                        setCategories({level: CategoryLevel.Level_0, topics_key: [], topics_titles: []})
                     }}/>
                 </Button>
             }
@@ -214,42 +202,63 @@ export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPer
             <CardColumns>
 
                 {Object.entries(level_topics).map(([t_key, t_dct], idx) => {
+                    
+                    // let caption = [String(IP1stCategory.Other), String(IP2ndCategory.Other)].includes(t_key) ? t_dct.description:  t_dct.title
+                    // let topics_titles_2 = categories.level <= CategoryLevel.Level_1 ? [...categories.topics_titles, caption] : [...categories.topics_titles];
+                    let caption = 
+                    (categories.level === CategoryLevel.Level_0 && t_key === String(IP1stCategory.Other)) ||  
+                    (categories.level === CategoryLevel.Level_1 && t_key === String(IP2ndCategory.Other)) ? 
+                    t_dct.description:  t_dct.title; 
 
-                    let titles = get_categories_title(t_dct.title);
+                    let topics_titles = categories.level <= CategoryLevel.Level_1 ? 
+                        [...categories.topics_titles, caption] : [...categories.topics_titles];
 
                     return(
                         <Card 
-                            bsPrefix={`card topic-card ${getCardColorCls(!active, idx)}`} key={t_key} 
+                            bsPrefix={`card topic-card ${getCardColorCls(idx)}`} key={t_key} 
                             onClick={(evt: any)=>{
+                                
+                                setCategories({
+                                    level: categories.level+1, 
+                                    topics_key: [...categories.topics_key, t_key],
+                                    topics_titles: topics_titles})
 
-                                console.log(evt.target)
-                                let category_topics = [...categoryTopic, t_key]
-
-                                setCategoryTopic(category_topics)
-
-                                if(categoryLevel === CategoryLevel.Level_0)
+                                if(categories.level === CategoryLevel.Level_0)
                                 {
-                                    setCategoryLevel(CategoryLevel.Level_1)
                                     if (t_key === String(IP1stCategory.Other))
                                     {
+                                        setTopicSelected(true)
                                         onTopicSelection(composeHebMsg('', ''))
                                     }  
                                 }
-                                else if(categoryLevel === CategoryLevel.Level_1)
+                                else if(categories.level === CategoryLevel.Level_1)
                                 {
-                                    setCategoryLevel(CategoryLevel.Level_2)
+                                    setTopicSelected(true)
                                     if (t_key === String(IP2ndCategory.Other))
                                     {
-                                        onTopicSelection(composeHebMsg(titles[0], ''))
+                                        onTopicSelection(composeHebMsg(topics_titles[0], ''))
                                     }
-                                    else {
-                                        onTopicSelection(composeHebMsg(titles[0], titles[1]))
+                                    else 
+                                    {
+                                        onTopicSelection(composeHebMsg(topics_titles[0], topics_titles[1]))
                                     }
                                 }
                             }} >
 
                             <Card.Body>
-                                {active ?  
+                                {topicSelected ?  
+                                    <>
+                                        <Card.Title>
+                                            {topics_titles[0]}
+                                        </Card.Title>
+                                        {
+                                            categories.level === CategoryLevel.Level_2 &&
+                                            <Card.Text>
+                                                {topics_titles[1]}
+                                            </Card.Text>
+                                        }
+                                    </>
+                                    :
                                     <>
                                         <Card.Title>
                                             <small>
@@ -258,22 +267,8 @@ export const InterPersonalTopics = ({topics, active, onTopicSelection}: InterPer
                                         </Card.Title>
                                         { t_dct.icon && <Card.Img variant="bottom" src={`${getSVGURI(t_dct.icon)}`} /> }
                                     </>
-                                    : 
-                                    <>
-                                        <Card.Title>
-                                            {titles[0]}
-                                        </Card.Title>
-                                        <Card.Text>
-                                            <small>
-                                                {titles[1]}
-                                            </small>
-                                        </Card.Text>
-                                    </>
-                                    
                                 }
                             </Card.Body>
-
-                            
                         </Card>
                     )}
                 )}
