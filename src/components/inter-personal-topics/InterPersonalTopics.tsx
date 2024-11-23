@@ -158,7 +158,7 @@ export const InterPersonalTopics = ({topics, onTopicSelection}: InterPersonalTop
     const [topicSelected, setTopicSelected] = useState(false);
 
     const composeHebMsg = useCallback((title1: string, title2: string) => {
-        let intro1 = title1 ? `נראה שיש לך בעיה בין אישית הקשורה לנושאי ${title1}` : ''
+        let intro1 = title1 ? `אתה מעלה בעיה בין אישית הקשורה לנושאי ${title1}` : ''
         let intro2 = title2 ? `בעיקר קשיים הקשורים ב ${title2}` : ''
         return `${intro1} ${intro2} זה המקום לתאר את אשר ליבך, הרגש בנוח לתאר כל דבר שעולה בדעתך, כל מה שנאמר כאן נשאר ביננו`.trim()
     }, [])
