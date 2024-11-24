@@ -98,7 +98,7 @@ export const interPersonalTopicsDictionary= {
         },
         [IP1stCategory.SpaceAndPrivacy]: {
             title: 'מרחב ופרטיות', 
-            icon: FASolidIcons.faUsers, 
+            icon: FASolidIcons.faPeopleRoof, 
             sub_categories:{ 
                 [IP2ndCategory.Other]: {title: 'אחר', description: 'נושא חופשי'},
                 [IP2ndCategory.Issue1]: {title: 'פרטיות בבית'},
@@ -123,6 +123,7 @@ export const interPersonalTopicsDictionary= {
 
         [IP1stCategory.Other]: {
             title: 'אחר', 
+            icon: FASolidIcons.faQuestion,
             description: 'נושא חופשי',             
             sub_categories:{ 
                 [IP2ndCategory.Other]: {title: 'אחר', description: 'כל נושא אחר'}}}

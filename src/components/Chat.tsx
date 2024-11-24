@@ -158,8 +158,9 @@ export const Chat = ({user}:{user:User}) => {
                 message_payload=
                 <ReactTyped 
                     className="text-typing-message-container"
+                    // stringsElement = {String(chat_msg.content)} 
                     strings={[String(chat_msg.content)]} 
-                    typeSpeed={10} 
+                    typeSpeed={15} 
                     showCursor={true} 
                     onComplete={()=>{
                             chat_msg.status=MessageStatus.Sent
