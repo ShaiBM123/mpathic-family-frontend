@@ -10,7 +10,7 @@ import {
         OpenAIMessageReceivedType, 
         OpenAIGeneratingMessageType,
         UserMessageContent, 
-        TextualChatMessage, 
+        // TextualChatMessage, 
         UserMessagePhase} from './OpenAIInterfaces';
 import {ChatMessage} from "@chatscope/use-chat"; 
 import {openAIModel} from "./data/data"
@@ -124,8 +124,7 @@ export class OpenAIChatConversation{
                     }
                 },
                 max_tokens: 350,
-                temperature: 0.7,
-                interactive: false
+                temperature: 0.7
             },
             [UserMessagePhase.FeelingsProbe]: { 
 
@@ -177,7 +176,7 @@ export class OpenAIChatConversation{
                     ])   
                 },
                 max_tokens: 200,
-                // temperature: 0.7
+                temperature: 0.7
             },
 
             [UserMessagePhase.FeelingsAnalysis]: { 
@@ -211,6 +210,8 @@ export class OpenAIChatConversation{
                         }
                     ] 
                 },
+                max_tokens: 350,
+                temperature: 0.7
             },
 
             [UserMessagePhase.NeedsProbe]:{   
@@ -268,9 +269,8 @@ export class OpenAIChatConversation{
                             }]
                     }
                 },
-                max_tokens: 200,
-                temperature: 0.7,
-                interactive: false
+                max_tokens: 350,
+                temperature: 0.7
             },
 
             [UserMessagePhase.TBD]:{ 
@@ -360,6 +360,7 @@ export class OpenAIChatConversation{
                 messages: this.messages,
                 response_format: phase_block.response_format,
                 max_tokens: phase_block.max_tokens,
+                temperature: phase_block.temperature,
                 user: this._getCurrentUser()
                 });
             
