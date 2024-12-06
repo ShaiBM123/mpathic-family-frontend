@@ -1,7 +1,7 @@
 import {useState} from "react";
 import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
 import { z } from 'zod';
-import { zodResponseFormat } from 'openai/helpers/zod';
+// import { zodResponseFormat } from 'openai/helpers/zod';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSquareXmark, faSquarePlus, faSquareMinus } from '@fortawesome/free-solid-svg-icons'
 import {DropdownFeelingSelector, HebFeelings} from './FeelingsDropdown'
@@ -15,7 +15,7 @@ export const Feeling = z.object({
 });
 export const FeelingsArray = z.array(Feeling)
 export type FeelingsArrayType = z.infer<typeof FeelingsArray>;
-export const FeelingsResponseFormat = zodResponseFormat(z.object({feelings: FeelingsArray, description: z.string()}), "feelings-intensities")
+// export const FeelingsResponseFormat = zodResponseFormat(z.object({feelings: FeelingsArray, description: z.string()}), "feelings-intensities")
 
  
 // export enum FeelingIntensity {

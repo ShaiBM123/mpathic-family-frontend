@@ -1,4 +1,15 @@
-import { toHtml, icon, IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import {IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import {useRef, useEffect} from "react";
+
+export const useFirstRender = () => {
+    const firstRender = useRef(true);
+  
+    useEffect(() => {
+      firstRender.current = false;
+    }, []);
+  
+    return firstRender.current;
+};
 
 export function convertUnixTimeStamp(unix_timestamp: number)  
 {

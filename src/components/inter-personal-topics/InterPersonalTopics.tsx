@@ -131,7 +131,7 @@ export const interPersonalTopicsDictionary= {
 }
 
 
-export enum CategoryLevel {
+export enum TopicCategoryLevel {
     Level_0 = -1,
     Level_1 = 0,
     Level_2 = 1
@@ -143,20 +143,22 @@ type Topics2ndLevelNestedDctType = { [key: string]: Topics1stLevelNestedDctType 
 
 export interface InterPersonalTopicsProps {
     topics: Topics2ndLevelNestedDctType;
-    onTopicSelection: (msg: string) => void ; 
+    selectedCategories: ICategories;
+    selected: boolean;
+    onTopicSelection: (msg: string, selectedCategories: ICategories) => void ; 
 }
 
 interface ICategories {
-    level: CategoryLevel;
+    level: TopicCategoryLevel;
     topics_key: Array<string>;
     topics_titles: Array<string>;
 }
 
-export const InterPersonalTopics = ({topics, onTopicSelection}: InterPersonalTopicsProps) => {
+export const InterPersonalTopics = ({topics, selected, selectedCategories, onTopicSelection}: InterPersonalTopicsProps) => {
 
     const [categories, setCategories] = 
-        useState<ICategories>({level: CategoryLevel.Level_0, topics_key: [], topics_titles: []})
-    const [topicSelected, setTopicSelected] = useState(false);
+        useState<ICategories>({level: TopicCategoryLevel.Level_0, topics_key: [], topics_titles: []})
+    const [topicSelected, setTopicSelected] = useState(selected);
 
     const composeHebMsg = useCallback((title1: string, title2: string) => {
         let intro1 = title1 ? `אתה מעלה בעיה בין אישית הקשורה לנושאי ${title1}` : ''
@@ -177,25 +179,25 @@ export const InterPersonalTopics = ({topics, onTopicSelection}: InterPersonalTop
     }, [topicSelected])
 
     let level_topics = 
-        categories.level === CategoryLevel.Level_0 ? 
+        categories.level === TopicCategoryLevel.Level_0 ? 
             topics : 
-            categories.level === CategoryLevel.Level_1 ? 
-                    topics[categories.topics_key[CategoryLevel.Level_1]].sub_categories :
-                    categories.level === CategoryLevel.Level_2 ?
+            categories.level === TopicCategoryLevel.Level_1 ? 
+                    topics[categories.topics_key[TopicCategoryLevel.Level_1]].sub_categories :
+                    categories.level === TopicCategoryLevel.Level_2 ?
                             {
-                                [categories.topics_key[CategoryLevel.Level_2]]: 
-                                (topics[categories.topics_key[CategoryLevel.Level_1]]
-                                    .sub_categories as DctType)[categories.topics_key[CategoryLevel.Level_2]]
+                                [categories.topics_key[TopicCategoryLevel.Level_2]]: 
+                                (topics[categories.topics_key[TopicCategoryLevel.Level_1]]
+                                    .sub_categories as DctType)[categories.topics_key[TopicCategoryLevel.Level_2]]
                             }: {};
 
     return(
 
          <div className={topicSelected ? "disabled" : "enabled" }> 
             { 
-                categories.level === CategoryLevel.Level_1 && !topicSelected &&
+                categories.level === TopicCategoryLevel.Level_1 && !topicSelected &&
                 <Button className='mb-2 bg-white border-dark'>
                     <FontAwesomeIcon color={"black"} icon={faArrowRight} size={'lg'} onClick={() => {
-                        setCategories({level: CategoryLevel.Level_0, topics_key: [], topics_titles: []})
+                        setCategories({level: TopicCategoryLevel.Level_0, topics_key: [], topics_titles: []})
                     }}/>
                 </Button>
             }
@@ -207,11 +209,11 @@ export const InterPersonalTopics = ({topics, onTopicSelection}: InterPersonalTop
                     // let caption = [String(IP1stCategory.Other), String(IP2ndCategory.Other)].includes(t_key) ? t_dct.description:  t_dct.title
                     // let topics_titles_2 = categories.level <= CategoryLevel.Level_1 ? [...categories.topics_titles, caption] : [...categories.topics_titles];
                     let caption = 
-                    (categories.level === CategoryLevel.Level_0 && t_key === String(IP1stCategory.Other)) ||  
-                    (categories.level === CategoryLevel.Level_1 && t_key === String(IP2ndCategory.Other)) ? 
+                    (categories.level === TopicCategoryLevel.Level_0 && t_key === String(IP1stCategory.Other)) ||  
+                    (categories.level === TopicCategoryLevel.Level_1 && t_key === String(IP2ndCategory.Other)) ? 
                     t_dct.description:  t_dct.title; 
 
-                    let topics_titles = categories.level <= CategoryLevel.Level_1 ? 
+                    let topics_titles = categories.level <= TopicCategoryLevel.Level_1 ? 
                         [...categories.topics_titles, caption] : [...categories.topics_titles];
 
                     return(
@@ -224,24 +226,30 @@ export const InterPersonalTopics = ({topics, onTopicSelection}: InterPersonalTop
                                     topics_key: [...categories.topics_key, t_key],
                                     topics_titles: topics_titles})
 
-                                if(categories.level === CategoryLevel.Level_0)
+                                if(categories.level === TopicCategoryLevel.Level_0)
                                 {
                                     if (t_key === String(IP1stCategory.Other))
                                     {
                                         setTopicSelected(true)
-                                        onTopicSelection(composeHebMsg('', ''))
+                                        onTopicSelection(
+                                            composeHebMsg('', ''), 
+                                            categories)
                                     }  
                                 }
-                                else if(categories.level === CategoryLevel.Level_1)
+                                else if(categories.level === TopicCategoryLevel.Level_1)
                                 {
                                     setTopicSelected(true)
                                     if (t_key === String(IP2ndCategory.Other))
                                     {
-                                        onTopicSelection(composeHebMsg(topics_titles[0], ''))
+                                        onTopicSelection(
+                                            composeHebMsg(topics_titles[0], ''), 
+                                            categories)
                                     }
                                     else 
                                     {
-                                        onTopicSelection(composeHebMsg(topics_titles[0], topics_titles[1]))
+                                        onTopicSelection(
+                                            composeHebMsg(topics_titles[0], topics_titles[1]), 
+                                            categories)
                                     }
                                 }
                             }} >
@@ -253,7 +261,7 @@ export const InterPersonalTopics = ({topics, onTopicSelection}: InterPersonalTop
                                             {topics_titles[0]}
                                         </Card.Title>
                                         {
-                                            categories.level === CategoryLevel.Level_2 &&
+                                            categories.level === TopicCategoryLevel.Level_2 &&
                                             <Card.Text>
                                                 {topics_titles[1]}
                                             </Card.Text>
