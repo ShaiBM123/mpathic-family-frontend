@@ -131,3 +131,8 @@ dist
 .env.production
 .env.development
 build/
+
+# amplify
+.amplify
+amplify_outputs*
+amplifyconfiguration*
