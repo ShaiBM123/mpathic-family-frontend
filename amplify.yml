@@ -1,0 +1,22 @@
+version: 1
+backend:
+  phases:
+    build:
+      commands:
+        - npm ci --prefer-offline
+        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - nvm install 16.20.2
+        - nvm use 16.20.2
+        - npm install -g npm@7.24.2
+    build:
+      commands:
+        - nvm use 16.20.2
+        - npm run build
+  artifacts:
+    baseDirectory: build
+    files:
+      - "**/*"
