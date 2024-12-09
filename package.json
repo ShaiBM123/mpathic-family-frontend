@@ -1,6 +1,6 @@
 {
-  "name": "@chatscope/use-chat-example",
-  "version": "0.2.1",
+  "name": "mpathic-family",
+  "version": "1.0.1",
   "private": true,
   "dependencies": {
     "@chatscope/chat-ui-kit-react": "^1.9.7",
