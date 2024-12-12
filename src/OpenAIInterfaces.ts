@@ -7,7 +7,6 @@ export enum OpenAIContentType {
 }
 
 export enum UserMessagePhase {
-  Start = 0,
   GeneralDescriptionAnalysis = 1,
   FeelingsProbe = 2,
   FeelingsAnalysis = 3,
@@ -17,7 +16,7 @@ export enum UserMessagePhase {
 
 export interface UserMessageContent extends MessageContent<MessageContentType> {
   user_text: string;
-  phase: UserMessagePhase;
+  // phase: UserMessagePhase;
 }
 
 export interface OpenAIBotMessage extends ChatMessage<MessageContentType>{
@@ -52,7 +51,7 @@ export interface OpenAIBotMessage extends ChatMessage<MessageContentType>{
   };
 
   export interface OpenAIMessageReceivedType {
-    (created: Date, conversationId: string, messages: Array<OpenAIBotMessage>, sender: unknown): void;
+    (created: Date, intervalId: number, conversationId: string, messages: Array<OpenAIBotMessage>, sender: unknown): void;
   }
 
   export interface OpenAIGeneratingMessageType {

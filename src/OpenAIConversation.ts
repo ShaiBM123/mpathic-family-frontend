@@ -1,16 +1,13 @@
 import OpenAI from "openai";
-// import {ChatCompletion} from 'openai/src/resources/chat/completions';
 import { z } from 'zod';
 import { zodResponseFormat } from 'openai/helpers/zod';
-import { IStorage, MessageContent } from "@chatscope/use-chat/dist/interfaces";
+import { MessageContent } from "@chatscope/use-chat/dist/interfaces";
 import { MessageContentType, MessageDirection, MessageStatus } from "@chatscope/use-chat/dist/enums";
 import {ChatModel, ChatCompletionMessageParam} from "openai/resources";
 import {
         OpenAIBotMessage, 
         OpenAIMessageReceivedType, 
-        OpenAIGeneratingMessageType,
         UserMessageContent, 
-        // TextualChatMessage, 
         UserMessagePhase} from './OpenAIInterfaces';
 import {ChatMessage} from "@chatscope/use-chat"; 
 import {openAIModel} from "./data/data"
@@ -30,21 +27,14 @@ type ConstructBotMsgReplyProps =  {
 }
 
 export class OpenAIChatConversation{
-
-    storage: IStorage;
     msgPhaseBlocks: { [key in UserMessagePhase]?: any}  //Array<{[key: string]: any}>;
-    msgPhase: UserMessagePhase;
     messages: Array<ChatCompletionMessageParam>;
     model: (string & {}) | ChatModel;
     messageReceived: OpenAIMessageReceivedType;
-    messageIsGenerated: OpenAIGeneratingMessageType;
     openAIUser: string;
 
-    constructor(storage: IStorage, messageReceived: OpenAIMessageReceivedType, messageIsGenerated: OpenAIGeneratingMessageType) {
-        
-        this.storage = storage;
+    constructor(messageReceived: OpenAIMessageReceivedType) {
 
-        this.msgPhase = 0;
         this.msgPhaseBlocks = {
             [UserMessagePhase.GeneralDescriptionAnalysis]: {   
 
@@ -287,19 +277,22 @@ export class OpenAIChatConversation{
         this.model ="gpt-4o-mini"; 
 
         this.messageReceived = messageReceived;
-        this.messageIsGenerated = messageIsGenerated;
         this.openAIUser = openAIModel.name
     }
 
-    _getCurrentUser(){
-        return this.storage.getState().currentUser?.username || '';
-    }
+    // _getCurrentUser(){
+    //     return this.storage.getState().currentUser?.username || '';
+    // }
 
-    async doMessagePhase(user_message: ChatMessage<MessageContentType.Other>){
+    async doMessagePhase(
+        user_message: ChatMessage<MessageContentType.Other>, 
+        msg_phase: UserMessagePhase, 
+        phase_transition: boolean)
+    {
         
         let msg_content = user_message.content as UserMessageContent
         let msg = msg_content.user_text
-        let msg_phase = msg_content.phase
+        // let msg_phase = msg_content.phase
         let phase_block
         let bot_messages_reply: Array<OpenAIBotMessage> = [];
 
@@ -326,18 +319,10 @@ export class OpenAIChatConversation{
 
         try 
         {
-            if(msg_phase < this.msgPhase)
-                throw new Error(`user message phase ${msg_phase} is inconsistent with internal phase ${this.msgPhase} !`);
-            else
-            {
-                phase_block = this.msgPhaseBlocks[msg_phase]
-                if(msg_phase > this.msgPhase)
-                {
-                    this.msgPhase = msg_phase 
-                    this.messages.push(...phase_block.system_msg) 
-                }  
-            }            
-                
+            phase_block = this.msgPhaseBlocks[msg_phase]
+            if(phase_transition)
+                this.messages.push(...phase_block.system_msg) 
+            
             this.messages.push({role: "user", content: String(msg)})
 
             let content_reply: Array<Object> = []
@@ -361,7 +346,7 @@ export class OpenAIChatConversation{
                 response_format: phase_block.response_format,
                 max_tokens: phase_block.max_tokens,
                 temperature: phase_block.temperature,
-                user: this._getCurrentUser()
+                user: user_message.senderId //this._getCurrentUser()
                 });
             
                 const bot_choise = completion.choices[0]
@@ -397,7 +382,7 @@ export class OpenAIChatConversation{
                     messages: this.messages,
                     max_tokens: phase_block.max_tokens, 
                     temperature: phase_block.temperature, 
-                    user: this._getCurrentUser()
+                    user: user_message.senderId //this._getCurrentUser()
                 });
 
                 const bot_choise = completion.choices[0]
@@ -439,22 +424,16 @@ export class OpenAIChatConversation{
         }
     }
 
-    async _startConversation(){
-    }
-
-    async sendMessage(message: ChatMessage<MessageContentType.Other>, conversationId: string, sender: unknown)
+    async sendMessage(
+        message: ChatMessage<MessageContentType.Other>, 
+        phase: UserMessagePhase, phaseTransition: boolean, 
+        intervalId: number,
+        conversationId: string,
+        sender: unknown)
     {
-        var intervalId = window.setInterval(
-            function(messageIsGenerated: OpenAIGeneratingMessageType, conversationId: string, userId: string){
-            messageIsGenerated(conversationId, userId)
-          }, 200, this.messageIsGenerated, conversationId, this.openAIUser);
+        let messages= await this.doMessagePhase(message, phase, phaseTransition) 
 
-
-        let messages= await this.doMessagePhase(message)
-
-        clearInterval(intervalId) 
-
-        this.messageReceived(new Date(), conversationId, messages, sender)      
+        this.messageReceived(new Date(), intervalId, conversationId, messages, sender)      
 
     }
 

@@ -17,9 +17,12 @@ import {OpenAIChatConversation} from "./OpenAIConversation"
 import {
   OpenAIBotMessage, 
   OpenAIMessageReceivedType, 
-  OpenAIGeneratingMessageType
-} from './OpenAIInterfaces'
-
+  OpenAIGeneratingMessageType,
+  UserMessagePhase
+} from './OpenAIInterfaces';
+import {openAIModel} from "./data/data";
+// import { BasicStorage } from "@chatscope/use-chat";
+import { UserStorage, UserChatState } from "./data/UserStorage";
 // import 'dotenv/config'
 // console.log(process.env.REACT_APP_OPENAI_KEY)
 
@@ -73,8 +76,7 @@ export class ChatService implements IChatService {
     this.storage = storage;
     this.updateState = update;
 
-    this.openAIChatConv = new OpenAIChatConversation(
-      storage, this.onOpenAIChatMessagesReceived, this.onOpenAIGeneratingMessage)
+    this.openAIChatConv = new OpenAIChatConversation(this.onOpenAIChatMessagesReceived)
 
     // For communication we use CustomEvent dispatched to the window object.
     // It allows you to simulate sending and receiving data from the server.
@@ -155,8 +157,11 @@ export class ChatService implements IChatService {
   }
 
 
-  onOpenAIChatMessagesReceived: OpenAIMessageReceivedType = (created, conversationId, messages: Array<OpenAIBotMessage>, sender: unknown) =>
+  onOpenAIChatMessagesReceived: OpenAIMessageReceivedType = (
+    created, intervalId, conversationId, messages: Array<OpenAIBotMessage>, sender: unknown) =>
   {
+    clearInterval(intervalId);
+
     for (let msg of messages) {
       let message = msg as ChatMessage<MessageContentType>;
 
@@ -164,7 +169,6 @@ export class ChatService implements IChatService {
         this.eventHandlers.onMessage(
           new MessageEvent({ message , conversationId })
         );
-
       }
     }
   }
@@ -186,11 +190,17 @@ export class ChatService implements IChatService {
 
     // window.dispatchEvent(messageEvent);
 
+    const { phase, phaseTransition } = this.storage?.getState() as UserChatState;
+
+    var intervalId = window.setInterval(
+      function(msgIsGenerated: OpenAIGeneratingMessageType, conversationId: string, userId: string){
+      msgIsGenerated(conversationId, userId)
+    }, 200, this.onOpenAIGeneratingMessage, conversationId, openAIModel.name);
 
     // Async call
-    this.openAIChatConv.sendMessage(message, conversationId, this)
+    this.openAIChatConv.sendMessage(message, phase, phaseTransition, intervalId, conversationId, this)
 
-    return message;
+    // return message;
   }
 
   sendTyping({

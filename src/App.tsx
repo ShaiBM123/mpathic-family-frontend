@@ -4,8 +4,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 // import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 
+import {UserStorage} from "./data/UserStorage";
+
 import {
-    BasicStorage,
+    // BasicStorage,
     ChatMessage,
     ChatProvider,
     Conversation,
@@ -65,7 +67,7 @@ const user = new User({
     bio: ""
 });
 
-const userStorage = new BasicStorage({groupIdGenerator, messageIdGenerator});
+const userStorage = new UserStorage({groupIdGenerator, messageIdGenerator});
 
 userStorage.addUser(new User({
     id: openAIModel.name,
