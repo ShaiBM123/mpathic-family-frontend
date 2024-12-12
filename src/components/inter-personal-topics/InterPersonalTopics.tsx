@@ -3,8 +3,8 @@ import {Container, Row, Col, Form, Button, Card, CardColumns, CardDeck } from "r
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight, faCircle, faCheck } from '@fortawesome/free-solid-svg-icons'
 import * as FASolidIcons from "@fortawesome/free-solid-svg-icons";
-import * as FABrandIcons from "@fortawesome/free-brands-svg-icons";
-import * as FARegularIcons from "@fortawesome/free-regular-svg-icons";
+// import * as FABrandIcons from "@fortawesome/free-brands-svg-icons";
+// import * as FARegularIcons from "@fortawesome/free-regular-svg-icons";
 import {getSVGURI} from "../../AppUtils";
 
 enum IP1stCategory {
@@ -193,16 +193,23 @@ export const InterPersonalTopics = ({topics, selected, selectedCategories, onTop
     return(
 
          <div className={topicSelected ? "disabled" : "enabled" }> 
-            { 
-                categories.level === TopicCategoryLevel.Level_1 && !topicSelected &&
-                <Button className='mb-2 bg-white border-dark'>
-                    <FontAwesomeIcon color={"black"} icon={faArrowRight} size={'lg'} onClick={() => {
-                        setCategories({level: TopicCategoryLevel.Level_0, topics_key: [], topics_titles: []})
-                    }}/>
-                </Button>
-            }
 
             <CardColumns>
+                { 
+                    categories.level === TopicCategoryLevel.Level_1 && !topicSelected &&
+
+                    <Card 
+                        bsPrefix={`card topic-card go-back-card bg-light text-dark`} 
+                        onClick={(evt: any)=>{
+                            setCategories({
+                                level: TopicCategoryLevel.Level_0, 
+                                topics_key: [], 
+                                topics_titles: [] }) }}>
+                        <Card.Body>
+                            <Card.Img variant="bottom" src={`${getSVGURI(FASolidIcons.faArrowRight)}`} />
+                        </Card.Body>
+                    </Card> 
+                }
 
                 {Object.entries(level_topics).map(([t_key, t_dct], idx) => {
                     
