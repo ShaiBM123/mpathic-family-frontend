@@ -17,12 +17,11 @@ import {OpenAIChatConversation} from "./OpenAIConversation"
 import {
   OpenAIBotMessage, 
   OpenAIMessageReceivedType, 
-  OpenAIGeneratingMessageType,
-  UserMessagePhase
+  OpenAIGeneratingMessageType
 } from './OpenAIInterfaces';
 import {openAIModel} from "./data/data";
 // import { BasicStorage } from "@chatscope/use-chat";
-import { UserStorage, UserChatState } from "./data/UserStorage";
+import {UserChatState } from "./data/UserStorage";
 // import 'dotenv/config'
 // console.log(process.env.REACT_APP_OPENAI_KEY)
 

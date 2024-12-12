@@ -1,7 +1,9 @@
 import {useState, useCallback} from "react";
-import {Container, Row, Col, Form, Button, Card, CardColumns, CardDeck } from "react-bootstrap";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRight, faCircle, faCheck } from '@fortawesome/free-solid-svg-icons'
+import {
+    // Container, Row, Col, Form, Button, CardDeck,
+    Card, CardColumns } from "react-bootstrap";
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { faArrowRight, faCircle, faCheck } from '@fortawesome/free-solid-svg-icons'
 import * as FASolidIcons from "@fortawesome/free-solid-svg-icons";
 // import * as FABrandIcons from "@fortawesome/free-brands-svg-icons";
 // import * as FARegularIcons from "@fortawesome/free-regular-svg-icons";
