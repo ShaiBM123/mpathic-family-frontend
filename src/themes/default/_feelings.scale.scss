@@ -43,6 +43,9 @@ input[type="range"].emotion-level-10{
     overflow-y: scroll;
 }
 
+.dropdown-item.rtl-dropdown-item{
+    text-align: right !important;
+}
 
 div.feeling-block{
     padding-bottom: 7px;

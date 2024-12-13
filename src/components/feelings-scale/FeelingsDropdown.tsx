@@ -44,12 +44,12 @@ export const HebFeelings: IFeeling[] = [
 
 
 
-type CustomMenuProps = {
-  children?: React.ReactNode;
-  style?: React.CSSProperties;
-  className?: string;
-  labeledBy?: string;
-};
+// type CustomMenuProps = {
+//   children?: React.ReactNode;
+//   style?: React.CSSProperties;
+//   className?: string;
+//   labeledBy?: string;
+// };
 
 // forwardRef again here!
 // Dropdown needs access to the DOM of the Menu to measure it
@@ -98,6 +98,8 @@ export const DropdownFeelingSelector =
     return selectedFeeling === 0 ? undefined : String(selectedFeeling)
   };
 
+  const rtl = process.env.REACT_APP_RTL
+
   return (
     <Dropdown onSelect={(e) => setSelectedFeeling(Number(e))}>
         <Button variant="info" size="sm" className="bg-white text-dark border-dark rounded" 
@@ -116,7 +118,7 @@ export const DropdownFeelingSelector =
         <Dropdown.Menu>
             {HebFeelings.map(fruit => {
               return (
-                  <Dropdown.Item key={fruit.id} eventKey={fruit.id.toString()}>
+                  <Dropdown.Item className={ rtl ==='yes' ? "rtl-dropdown-item" : ""} key={fruit.id} eventKey={fruit.id.toString()}>
                     {fruit.feeling_name}
                   </Dropdown.Item>
               );
