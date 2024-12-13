@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
-import FormControl from "react-bootstrap/FormControl";
+// import FormControl from "react-bootstrap/FormControl";
 import { Button } from "react-bootstrap";
 
 interface IFeeling {
@@ -38,7 +38,8 @@ export const HebFeelings: IFeeling[] = [
     {"id": 27, "feeling_name": "פסימיות"},
     {"id": 28, "feeling_name": "קנאה"},
     {"id": 29, "feeling_name": "רוגע"},
-    {"id": 30, "feeling_name": "שמחה"}
+    {"id": 30, "feeling_name": "שמחה"},
+    {"id": 31, "feeling_name": "תסכול"}
 ];
 
 
@@ -52,38 +53,39 @@ type CustomMenuProps = {
 
 // forwardRef again here!
 // Dropdown needs access to the DOM of the Menu to measure it
-const CustomMenu = React.forwardRef(
-  (props: CustomMenuProps, ref: React.Ref<HTMLDivElement>) => {
-    const [value, setValue] = useState("");
 
-    return (
-      <div
-        ref={ref}
-        style={props.style}
-        className={props.className}
-        aria-labelledby={props.labeledBy}
-      >
-        <FormControl
-          autoFocus
-          className="mx-3 my-2 w-auto"
-          placeholder="הקלד רגש"
-          onChange={e => setValue(e.target.value)}
-          value={value}
-        />
-        <ul className="list-unstyled">
-          {React.Children.toArray(props.children).filter(
-            (child: any) =>
-              !value || child.props.children.toLowerCase().startsWith(value)
-          )}
-        </ul>
-      </div>
-    );
-  }
-);
+// const CustomMenu = React.forwardRef(
+//   (props: CustomMenuProps, ref: React.Ref<HTMLDivElement>) => {
+//     const [value, setValue] = useState("");
+
+//     return (
+//       <div
+//         ref={ref}
+//         style={props.style}
+//         className={props.className}
+//         aria-labelledby={props.labeledBy}
+//       >
+//         <FormControl
+//           autoFocus
+//           className="mx-3 my-2 w-auto"
+//           placeholder="הקלד רגש"
+//           onChange={e => setValue(e.target.value)}
+//           value={value}
+//         />
+//         <ul className="list-unstyled">
+//           {React.Children.toArray(props.children).filter(
+//             (child: any) =>
+//               !value || child.props.children.toLowerCase().startsWith(value)
+//           )}
+//         </ul>
+//       </div>
+//     );
+//   }
+// );
 
 
 export const DropdownFeelingSelector = 
-({ onClick, onTouchStart }: { onClick? : React.MouseEventHandler, onTouchStart? : React.TouchEventHandler }) => {
+({ onClick }: { onClick? : React.MouseEventHandler}) => {
   const [selectedFeeling, setSelectedFeeling] = useState(0);
 
   const getSelectedFeeling = () => {
@@ -99,18 +101,25 @@ export const DropdownFeelingSelector =
   return (
     <Dropdown onSelect={(e) => setSelectedFeeling(Number(e))}>
         <Button variant="info" size="sm" className="bg-white text-dark border-dark rounded" 
-        id={getSelectedFeelingId()} onTouchStart={onTouchStart} onClick={onClick}>
+        id={getSelectedFeelingId()} onClick={onClick}>
             {getSelectedFeeling()}
         </Button>
-        <Dropdown.Toggle split variant="info" size="sm" className="bg-white text-dark border-dark rounded" id="dropdown-custom-components">
-        </Dropdown.Toggle>
-        <Dropdown.Menu as={CustomMenu}>
+
+        <Dropdown.Toggle 
+          split 
+          variant="info" 
+          size="sm" 
+          className="bg-white text-dark border-dark rounded" 
+          id="dropdown-custom-components"/>
+      
+        {/* <Dropdown.Menu as={CustomMenu}> */}
+        <Dropdown.Menu>
             {HebFeelings.map(fruit => {
-            return (
-                <Dropdown.Item key={fruit.id} eventKey={fruit.id.toString()}>
-                {fruit.feeling_name}
-                </Dropdown.Item>
-            );
+              return (
+                  <Dropdown.Item key={fruit.id} eventKey={fruit.id.toString()}>
+                    {fruit.feeling_name}
+                  </Dropdown.Item>
+              );
             })}
         </Dropdown.Menu>
     </Dropdown>

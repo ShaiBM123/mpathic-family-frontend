@@ -41,4 +41,17 @@ input[type="range"].emotion-level-10{
 .dropdown-menu {
     height: 20vh;
     overflow-y: scroll;
-  }
+}
+
+
+div.feeling-block{
+    padding-bottom: 7px;
+}
+
+div.feeling-head{
+    display: flex;
+    align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.2em;
+    padding-bottom: 5px;
+}
