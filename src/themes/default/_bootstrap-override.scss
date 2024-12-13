@@ -9,25 +9,29 @@
 @import "~bootstrap/scss/variables";
 @import "~bootstrap/scss/mixins/breakpoints";
 
+.card.topic-card.go-back-card .card-img-bottom{
+  width: 25px;
+  height: 25px;
+}
+
 .card.topic-card .card-img-bottom{
   display: inline-block;
-  width: 50px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
   padding-bottom: 1px;
   background-repeat: no-repeat;
   position: relative;
 }
 
-.card.topic-card.go-back-card .card-img-bottom{
-  width: 30px;
-  height: 30px;
+.card.topic-card .card-title{
+  font-size: 1.2em;
 }
 
 .card.topic-card{
   text-align: center;
   align-items: center;
   min-width: 185px;
-  max-height: 135px;
+  max-height: 115px;
 }
 
 // .card.bg-custom-color-1 {
