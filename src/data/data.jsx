@@ -12,7 +12,7 @@ export const openAIModel = {
   name: "OpenAI",
   avatar: openAIAvatar,
   initial_message:
-    "שלום, אני המטפל הוירטואלי שלך ואני יכול להכוין אותך בפתרון קונפליקטים בין אישיים. נתחיל עם בחירת הנושא הרלוונטי לך",
+    "היי :) בחר.י נושא עליו תרצה.י לדבר או נושא שמעסיק אותך עכשיו",
 };
 
 export const openAIConversationId = nanoid();
