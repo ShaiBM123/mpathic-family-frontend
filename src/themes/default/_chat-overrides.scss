@@ -64,4 +64,8 @@
     & .#{$prefix}-message-input.rtl-message {
         @include right-to-left();
     }
+
+    // & .#{$prefix}-message.card-message {
+    //     text-align: center;
+    // }
 }
