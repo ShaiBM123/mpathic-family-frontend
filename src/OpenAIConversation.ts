@@ -10,8 +10,8 @@ import {
         UserMessageContent, 
         UserMessagePhase} from './OpenAIInterfaces';
 import {ChatMessage} from "@chatscope/use-chat"; 
-import {openAIModel} from "./data/data"
-import {FeelingsArray} from './components/feelings-scale/FeelingsScale'
+import {openAIModel} from "./data/data";
+import {FeelingsArray} from './components/feelings-scale/FeelingsScale';
 
 const openai = new OpenAI({
     apiKey: process.env.REACT_APP_OPENAI_KEY,

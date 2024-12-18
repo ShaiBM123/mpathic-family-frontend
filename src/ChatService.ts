@@ -189,12 +189,12 @@ export class ChatService implements IChatService {
 
     // window.dispatchEvent(messageEvent);
 
-    const { phase, phaseTransition } = this.storage?.getState() as UserChatState;
+    const { phase, phaseTransition, currentUser } = this.storage?.getState() as UserChatState;
 
     var intervalId = window.setInterval(
-      function(msgIsGenerated: OpenAIGeneratingMessageType, conversationId: string, userId: string){
-      msgIsGenerated(conversationId, userId)
-    }, 200, this.onOpenAIGeneratingMessage, conversationId, openAIModel.name);
+      function(msgIsGenerated: OpenAIGeneratingMessageType){
+        msgIsGenerated(conversationId, openAIModel.name)
+    }, 200, this.onOpenAIGeneratingMessage);
 
     // Async call
     this.openAIChatConv.sendMessage(message, phase, phaseTransition, intervalId, conversationId, this)
