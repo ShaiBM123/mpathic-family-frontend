@@ -15,8 +15,9 @@ import {
     MessageModel
 } from "@chatscope/chat-ui-kit-react";
 
+import { useExtendedChat } from "../ExtendedChatProvider";
 import {
-    useChat,
+    // useChat,
     ChatMessage,
     MessageContentType,
     MessageDirection,
@@ -43,8 +44,9 @@ export const Chat = ({ user }: { user: User }) => {
     // Get all chat related values and methods from useChat hook 
     const {
         currentMessages, activeConversation, setActiveConversation, sendMessage, addMessage,
-        getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping, setCurrentUser
-    } = useChat();
+        getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping, setCurrentUser,
+        setTopic, setSubTopic
+    } = useExtendedChat();
 
     useEffect(() => {
         setCurrentUser(user);
@@ -99,7 +101,7 @@ export const Chat = ({ user }: { user: User }) => {
                     ...interPersonalTopicsDictionary,
                     active: true,
                     selected: false,
-                    selected_categories: { level: TopicCategoryLevel.Level_0, topics_key: [], topics_titles: [] },
+                    selected_categories: null,
                     inter_personal_topics: true
                 },
                 MessageContentType.Other);
@@ -231,16 +233,23 @@ export const Chat = ({ user }: { user: User }) => {
                         message_payload =
                             <InterPersonalTopics
                                 topics={obj.major_categories}
+                                active={obj.active}
                                 selected={obj.selected}
                                 selectedCategories={obj.selected_categories}
-                                onTopicSelection={(msg, selected_categories) => {
-                                    console.log(msg)
+                                onTopicSelection={(selected_categories) => {
 
+                                    if (selected_categories.level === TopicCategoryLevel.Level_1) {
+                                        setTopic(selected_categories.topics_titles[0])
+                                    }
+                                    else if (selected_categories.level === TopicCategoryLevel.Level_2) {
+                                        setTopic(selected_categories.topics_titles[0])
+                                        setSubTopic(selected_categories.topics_titles[1])
+                                    }
                                     obj.active = false
                                     obj.selected = true
                                     obj.selected_categories = selected_categories
                                     updateMessage(chat_msg)
-                                    addChatBotMsg(msg, MessageContentType.TextPlain)
+                                    addChatBotMsg('תאר את הסיטואציה עליה אתה מדבר, מה קרה בעצם ?', MessageContentType.TextPlain)
                                     // doSend(msg) 
                                 }}
                             />

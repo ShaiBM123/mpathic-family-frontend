@@ -4,12 +4,12 @@ import "bootstrap/dist/css/bootstrap.min.css";
 // import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 
-import {UserStorage} from "./data/UserStorage";
-
+import { ExtendedStorage } from "./data/ExtendedStorage";
+import { ExtendedChatProvider } from './ExtendedChatProvider';
 import {
     // BasicStorage,
     ChatMessage,
-    ChatProvider,
+    // ChatProvider,
     Conversation,
     ConversationId,
     ConversationRole,
@@ -22,12 +22,12 @@ import {
     User,
     UserStatus
 } from "@chatscope/use-chat";
-import {ChatService} from "./ChatService";
-import {Chat} from "./components/Chat";
-import {nanoid} from "nanoid";
-import {Col, Container, Row} from "react-bootstrap";
-import {userModel, openAIModel, openAIConversationId} from "./data/data";
-import {AutoDraft} from "@chatscope/use-chat/dist/enums/AutoDraft";
+import { ChatService } from "./ChatService";
+import { Chat } from "./components/Chat";
+import { nanoid } from "nanoid";
+import { Col, Container, Row } from "react-bootstrap";
+import { userModel, openAIModel, openAIConversationId } from "./data/data";
+import { AutoDraft } from "@chatscope/use-chat/dist/enums/AutoDraft";
 
 // sendMessage and addMessage methods can automagically generate id for messages and groups
 // This allows you to omit doing this manually, but you need to provide a message generator
@@ -51,14 +51,14 @@ function createConversation(id: ConversationId, name: string): Conversation {
             })
         ],
         unreadCounter: 0,
-        typingUsers: new TypingUsersList({items: []}),
+        typingUsers: new TypingUsersList({ items: [] }),
         draft: ""
     });
 }
 
 const user = new User({
     id: userModel.name,
-    presence: new Presence({status: UserStatus.Available, description: ""}),
+    presence: new Presence({ status: UserStatus.Available, description: "" }),
     firstName: "",
     lastName: "",
     username: userModel.name,
@@ -67,11 +67,11 @@ const user = new User({
     bio: ""
 });
 
-const userStorage = new UserStorage({groupIdGenerator, messageIdGenerator});
+const extendedStorage = new ExtendedStorage({ groupIdGenerator, messageIdGenerator });
 
-userStorage.addUser(new User({
+extendedStorage.addUser(new User({
     id: openAIModel.name,
-    presence: new Presence({status: UserStatus.Available, description: ""}),
+    presence: new Presence({ status: UserStatus.Available, description: "" }),
     firstName: "",
     lastName: "",
     username: openAIModel.name,
@@ -80,7 +80,7 @@ userStorage.addUser(new User({
     bio: ""
 }));
 
-userStorage.addConversation(createConversation(openAIConversationId, openAIModel.name));
+extendedStorage.addConversation(createConversation(openAIConversationId, openAIModel.name));
 
 // Add users and conversations to the states
 // chats.forEach(c => {
@@ -130,14 +130,14 @@ function App() {
             <Container fluid className="p-4 flex-grow-1 position-relative overflow-hidden">
                 <Row className="h-100 pt-2 flex-nowrap">
                     <Col>
-                        <ChatProvider serviceFactory={serviceFactory} storage={userStorage} config={{
+                        <ExtendedChatProvider serviceFactory={serviceFactory} storage={extendedStorage} config={{
                             typingThrottleTime: 250,
                             typingDebounceTime: 900,
                             debounceTyping: true,
                             autoDraft: AutoDraft.Save | AutoDraft.Restore
                         }}>
-                            <Chat user={user}/>
-                        </ChatProvider>
+                            <Chat user={user} />
+                        </ExtendedChatProvider>
                     </Col>
                 </Row>
             </Container>

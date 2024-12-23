@@ -21,7 +21,7 @@ import {
 } from './OpenAIInterfaces';
 import {openAIModel} from "./data/data";
 // import { BasicStorage } from "@chatscope/use-chat";
-import {UserChatState } from "./data/UserStorage";
+import {ExtendedChatState, ExtendedStorage } from "./data/ExtendedStorage";
 // import 'dotenv/config'
 // console.log(process.env.REACT_APP_OPENAI_KEY)
 
@@ -189,7 +189,7 @@ export class ChatService implements IChatService {
 
     // window.dispatchEvent(messageEvent);
 
-    const { phase, phaseTransition, currentUser } = this.storage?.getState() as UserChatState;
+    const {phase, phaseTransition} = (this.storage as ExtendedStorage)?.getState();
 
     var intervalId = window.setInterval(
       function(msgIsGenerated: OpenAIGeneratingMessageType){

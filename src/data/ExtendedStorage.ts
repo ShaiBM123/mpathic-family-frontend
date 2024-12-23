@@ -2,32 +2,61 @@
 import { ChatState, ConversationId, ChatMessage, MessageContentType } from "@chatscope/use-chat";
 import { BasicStorage, BasicStorageParams } from "@chatscope/use-chat";
 import { UserMessagePhase, OpenAIBotMessage } from '../OpenAIInterfaces';
-import {openAIModel} from "../data/data";
+import {openAIModel} from "./data";
 
-export interface AppStorageParams extends Required<BasicStorageParams> {
+export interface ExtendedStorageParams extends Required<BasicStorageParams> {
 
 }
-export type UserChatState = ChatState & {phase: UserMessagePhase, phaseTransition: boolean}
 
-export class UserStorage<ConversationData = any>
+export type ExtendedChatState = {
+    phase: UserMessagePhase, 
+    phaseTransition: boolean, 
+    topic: string, 
+    // setTopic: (topic: string) => void,
+    subTopic: string,
+    // setSubTopic: (subTopic: string) => void
+}
+
+export class ExtendedStorage<ConversationData = any>
   extends BasicStorage<ConversationData>{
 
     private phase: UserMessagePhase;
     private phaseTransition: boolean;
     private _phaseGroupID?: string; 
+
+    private topic: string;
+    private subTopic: string;
      /**
    * Constructor
    * @param messageIdGenerator
    * @param groupIdGenerator
    */
-    constructor({ groupIdGenerator, messageIdGenerator }: AppStorageParams) {
+    constructor({ groupIdGenerator, messageIdGenerator }: ExtendedStorageParams) {
         super({ groupIdGenerator, messageIdGenerator })
         this.phase = UserMessagePhase.GeneralDescriptionAnalysis;
         this.phaseTransition = true;
+        this.topic = '';
+        this.subTopic = '';
     }   
     
-      /**
-   * Sets current (logged in) user object
+    /**
+   * Sets topic
+   * @param topic
+   */
+    setTopic(topic: string): void {
+        this.topic = topic;
+    }
+
+        /**
+   * Sets topic
+   * @param subTopic
+   */
+    setSubTopic(subTopic: string): void {
+        this.subTopic = subTopic;
+    }
+
+    /**
+   * Sets current phase
    * @param phase
    */
     setPhase(phase: UserMessagePhase): void {
@@ -65,8 +94,15 @@ export class UserStorage<ConversationData = any>
         return resultMsg;
     }
 
-    getState(): UserChatState {
-        return {...super.getState(), phase: this.phase, phaseTransition: this.phaseTransition}
+    getState(): ChatState & ExtendedChatState {
+        return {...super.getState(), 
+            phase: this.phase, 
+            phaseTransition: this.phaseTransition,
+            topic: this.topic,
+            // setTopic: this.setTopic,
+            subTopic: this.subTopic,
+            // setSubTopic: this.setSubTopic
+        }
     }
 
     resetState(): void {
