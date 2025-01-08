@@ -25,7 +25,7 @@ import {
 } from "@chatscope/use-chat";
 
 import { MessageContent, User } from "@chatscope/use-chat";
-import { UserMessageContent } from "../OpenAIInterfaces";
+import { UserMessageContent, UserMessagePhase } from "../open_ai/OpenAITypes";
 // import { ReactTyped } from "react-typed";
 import { openAIModel, openAIConversationId } from "../data/data";
 import {
@@ -33,6 +33,7 @@ import {
     InterPersonalTopics,
     TopicCategoryLevel
 } from "./inter-personal-topics/InterPersonalTopics";
+import { Observation } from "./observation/Observation";
 import { FeelingsScale } from "./feelings-scale/FeelingsScale";
 import { TypingText } from "./typing-text/TypingText";
 
@@ -45,7 +46,7 @@ export const Chat = ({ user }: { user: User }) => {
     const {
         currentMessages, activeConversation, setActiveConversation, sendMessage, addMessage,
         getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping, setCurrentUser,
-        setTopic, setSubTopic
+        setTopic, setSubTopic, setPhaseAndTransition
     } = useExtendedChat();
 
     useEffect(() => {
@@ -81,18 +82,12 @@ export const Chat = ({ user }: { user: User }) => {
 
     // show chatbot introductory message on mount
     useEffect(() => {
-        if (
-            activeConversation &&
-            currentMessages.length === 0 &&
-            user.username !== openAIModel.name &&
-            activeConversation.participants.length === 1 &&
-            activeConversation.participantExists(openAIModel.name)) {
+        if (activeConversation && currentMessages.length === 0) {
 
-            // addChatBotMsg(openAIModel.initial_message, MessageContentType.TextPlain);
             addChatBotMsg(
                 {
-                    message: openAIModel.initial_message,
-                    intro_msg_1: true
+                    message: "היי :) בחר.י נושא עליו תרצה.י לדבר או נושא שמעסיק אותך עכשיו",
+                    id: "intro_msg_1"
                 },
                 MessageContentType.Other);
 
@@ -102,11 +97,11 @@ export const Chat = ({ user }: { user: User }) => {
                     active: true,
                     selected: false,
                     selected_categories: null,
-                    inter_personal_topics: true
+                    id: "inter_personal_topics"
                 },
                 MessageContentType.Other);
         }
-    }, [activeConversation, addChatBotMsg, currentMessages.length, user.username]);
+    }, [activeConversation, addChatBotMsg, currentMessages.length]);
 
     // Get current user data
     const [currentUserAvatar, currentUserName] = useMemo(() => {
@@ -213,7 +208,8 @@ export const Chat = ({ user }: { user: User }) => {
 
                     let obj = Object(chat_msg.content)
 
-                    if (obj.intro_msg_1) {
+                    if (obj.id === "intro_msg_1") {
+
                         message_type = "custom";
                         // a separate module should be implemented instaed displaying just typed text 
                         message_payload =
@@ -226,9 +222,9 @@ export const Chat = ({ user }: { user: User }) => {
                                     scrollToTop()
                                 }}
                             />
-
                     }
-                    else if (obj.inter_personal_topics) {
+                    else if (obj.id === "inter_personal_topics") {
+
                         message_type = "custom";
                         message_payload =
                             <InterPersonalTopics
@@ -249,29 +245,39 @@ export const Chat = ({ user }: { user: User }) => {
                                     obj.selected = true
                                     obj.selected_categories = selected_categories
                                     updateMessage(chat_msg)
-                                    addChatBotMsg('תאר את הסיטואציה עליה אתה מדבר, מה קרה בעצם ?', MessageContentType.TextPlain)
+                                    setPhaseAndTransition(UserMessagePhase.PersonInConflictRelationship, true)
+                                    addChatBotMsg("מי האדם אליו את.ה מתייחס.ת (בת זוג, בן, אמא וכו’)?", MessageContentType.TextPlain)
                                     // doSend(msg) 
                                 }}
                             />
                     }
-                    else if (obj.general_description_analysis) {
+                    else if (obj.id === "observation") {
+
                         message_type = "custom";
                         // a separate module should be implemented instaed displaying just typed text 
                         message_payload =
-                            <TypingText
-                                chatMsg={chat_msg}
-                                chatMsgContentToStrings={(c: Object) => {
-                                    return [String().concat(
-                                        Object(c).summery,
-                                        `\n\n תצפית אובייקטיבית למה שסיפרת: \n\n ${obj.observation}`)]
+                            <Observation
+                                active={obj.active}
+                                isCorrect={obj.isCorrect}
+                                text={obj.observation}
+                                onCorrectClick={() => {
+                                    obj.isCorrect = true;
+                                    obj.active = false;
+                                    updateMessage(chat_msg);
+                                    addChatBotMsg('כעט בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה', MessageContentType.TextPlain)
+                                    setPhaseAndTransition(UserMessagePhase.FeelingsProbe, true)
                                 }}
-                                onStringTyped={() => {
-                                    scrollToBottom()
+                                onNotAccurateClick={() => {
+                                    obj.isCorrect = false;
+                                    obj.active = false;
+                                    updateMessage(chat_msg);
+                                    addChatBotMsg("בבקשה תדייק.י את מה שכתבתי. אגב, אני בכוונה מנסה להתנסח בצורה חסרת שיפוטיות, מכיוון שאני לוקח השראה מתקשורת מקרבת :) וחשוב לי להבין כרגע את העובדות. אני מדמיין שאני מצלם את הסיטואציה ומה המצלמה קולטת (היא לא קולטת רגש, אך נדבר גם על רגשות ממש עוד מעט)", MessageContentType.TextPlain)
+                                    setPhaseAndTransition(UserMessagePhase.DescriptionAnalysis, false)
                                 }}
                             />
-
                     }
-                    else if (obj.feelings) {
+                    else if (obj.id === "feelings") {
+
                         message_type = "custom";
                         message_payload =
                             <FeelingsScale feelings={obj.feelings} active={obj.active}
@@ -294,16 +300,8 @@ export const Chat = ({ user }: { user: User }) => {
                 else if (chat_msg.status === MessageStatus.Sent &&
                     chat_msg.contentType === MessageContentType.Other) {
 
-                    // THIS PART SHOULD BE REMOVED ONCE A SEPARATE MODULE IS IMPLEMENTED 
-                    // FOR THE 'general decription analisys' STAGE
                     let obj = Object(chat_msg.content)
-                    if (obj.general_description_analysis) {
-                        message_type = "text";
-                        message_payload = String().concat(
-                            obj.summery, `\n\n תצפית אובייקטיבית למה שסיפרת: \n\n ${obj.observation}`)
-
-                    }
-                    else if (obj.intro_msg_1) {
+                    if (obj.id === "intro_msg_1") {
                         message_type = "text";
                         message_payload = obj.message;
                     }
@@ -358,7 +356,7 @@ export const Chat = ({ user }: { user: User }) => {
     }
 
     const getMsgCustomizedContentClasses = (m: ChatMessage<MessageContentType>) => {
-        return (Object(m.content).inter_personal_topics ? 'card-message' : '').trim();
+        return (Object(m.content).id === "inter_personal_topics" ? 'card-message' : '').trim();
     }
 
     const rtl = process.env.REACT_APP_RTL

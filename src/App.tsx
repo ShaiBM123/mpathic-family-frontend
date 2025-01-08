@@ -3,21 +3,14 @@ import './themes/default/main.scss';
 import "bootstrap/dist/css/bootstrap.min.css";
 // import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
-
 import { ExtendedStorage } from "./data/ExtendedStorage";
 import { ExtendedChatProvider } from './ExtendedChatProvider';
 import {
     // BasicStorage,
     ChatMessage,
-    // ChatProvider,
-    Conversation,
-    ConversationId,
-    ConversationRole,
     IStorage,
     MessageContentType,
-    Participant,
     Presence,
-    TypingUsersList,
     UpdateState,
     User,
     UserStatus
@@ -26,7 +19,7 @@ import { ChatService } from "./ChatService";
 import { Chat } from "./components/Chat";
 import { nanoid } from "nanoid";
 import { Col, Container, Row } from "react-bootstrap";
-import { userModel, openAIModel, openAIConversationId } from "./data/data";
+import { userModel } from "./data/data";
 import { AutoDraft } from "@chatscope/use-chat/dist/enums/AutoDraft";
 
 // sendMessage and addMessage methods can automagically generate id for messages and groups
@@ -41,87 +34,19 @@ const serviceFactory = (storage: IStorage, updateState: UpdateState) => {
     return new ChatService(storage, updateState);
 };
 
-function createConversation(id: ConversationId, name: string): Conversation {
-    return new Conversation({
-        id,
-        participants: [
-            new Participant({
-                id: name,
-                role: new ConversationRole([])
-            })
-        ],
-        unreadCounter: 0,
-        typingUsers: new TypingUsersList({ items: [] }),
-        draft: ""
-    });
-}
-
 const user = new User({
-    id: userModel.name,
+    id: "972-50-7632123", // should be the phone number
     presence: new Presence({ status: UserStatus.Available, description: "" }),
-    firstName: "",
-    lastName: "",
+    firstName: "שי",
+    lastName: "בן מיכאל",
     username: userModel.name,
-    email: "",
+    email: "shaibenmichael@gmail.com",
     avatar: userModel.avatar,
-    bio: ""
+    bio: "CTO and Co-Founder at Mpathic",
+    data: userModel
 });
 
-const extendedStorage = new ExtendedStorage({ groupIdGenerator, messageIdGenerator });
-
-extendedStorage.addUser(new User({
-    id: openAIModel.name,
-    presence: new Presence({ status: UserStatus.Available, description: "" }),
-    firstName: "",
-    lastName: "",
-    username: openAIModel.name,
-    email: "",
-    avatar: openAIModel.avatar,
-    bio: ""
-}));
-
-extendedStorage.addConversation(createConversation(openAIConversationId, openAIModel.name));
-
-// Add users and conversations to the states
-// chats.forEach(c => {
-
-//     users.forEach(u => {
-//         if (u.name !== c.name) {
-//             c.storage.addUser(new User({
-//                 id: u.name,
-//                 presence: new Presence({status: UserStatus.Available, description: ""}),
-//                 firstName: "",
-//                 lastName: "",
-//                 username: u.name,
-//                 email: "",
-//                 avatar: u.avatar,
-//                 bio: ""
-//             }));
-
-//             const conversationId = nanoid();
-
-//             const myConversation = c.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === u.name) !== "undefined");
-//             if (!myConversation) {
-
-//                 c.storage.addConversation(createConversation(conversationId, u.name));
-
-//                 const chat = chats.find(chat => chat.name === u.name);
-
-//                 if (chat) {
-
-//                     const hisConversation = chat.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === c.name) !== "undefined");
-//                     if (!hisConversation) {
-//                         chat.storage.addConversation(createConversation(conversationId, c.name));
-//                     }
-
-//                 }
-
-//             }
-
-//         }
-//     });
-
-// });
+const userStorage = new ExtendedStorage({ groupIdGenerator, messageIdGenerator });
 
 function App() {
 
@@ -130,7 +55,7 @@ function App() {
             <Container fluid className="p-4 flex-grow-1 position-relative overflow-hidden">
                 <Row className="h-100 pt-2 flex-nowrap">
                     <Col>
-                        <ExtendedChatProvider serviceFactory={serviceFactory} storage={extendedStorage} config={{
+                        <ExtendedChatProvider serviceFactory={serviceFactory} storage={userStorage} config={{
                             typingThrottleTime: 250,
                             typingDebounceTime: 900,
                             debounceTyping: true,

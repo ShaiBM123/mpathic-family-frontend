@@ -183,7 +183,7 @@ export const InterPersonalTopics = ({ topics, active, selected, selectedCategori
             'bg-warning text-white',
             'bg-info text-white']
 
-        return topicSelected ? 'bg-light text-dark' : bootstrap_color_cls[cardIdx % bootstrap_color_cls.length]
+        return topicSelected ? 'bg-white text-dark' : bootstrap_color_cls[cardIdx % bootstrap_color_cls.length]
     }, [topicSelected])
 
     let level_topics =

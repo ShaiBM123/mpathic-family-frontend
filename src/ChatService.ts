@@ -13,15 +13,16 @@ import {
 import { IStorage } from "@chatscope/use-chat/dist/interfaces";
 import { ChatEvent, MessageEvent, UserTypingEvent } from "@chatscope/use-chat/dist/events";
 import { ChatMessage } from "@chatscope/use-chat/dist/ChatMessage";
-import {OpenAIChatConversation} from "./OpenAIConversation"
+import {OpenAIChatConversation} from "./open_ai/OpenAIConversation"
 import {
   OpenAIBotMessage, 
   OpenAIMessageReceivedType, 
   OpenAIGeneratingMessageType
-} from './OpenAIInterfaces';
+} from './open_ai/OpenAITypes';
+import {OpenAIPromptManager} from "./open_ai/OpenAIPromptingManager";
 import {openAIModel} from "./data/data";
 // import { BasicStorage } from "@chatscope/use-chat";
-import {ExtendedChatState, ExtendedStorage } from "./data/ExtendedStorage";
+import {ExtendedStorage } from "./data/ExtendedStorage";
 // import 'dotenv/config'
 // console.log(process.env.REACT_APP_OPENAI_KEY)
 
@@ -54,11 +55,10 @@ type EventHandlers = {
 };
 
 
-
-
 export class ChatService implements IChatService {
   storage?: IStorage;
   updateState: UpdateState;
+  // openAIPromptMngr: OpenAIPromptManager;
   openAIChatConv: OpenAIChatConversation;
 
   eventHandlers: EventHandlers = {
@@ -70,12 +70,11 @@ export class ChatService implements IChatService {
     onUserTyping: () => {},
   };
 
-
   constructor(storage: IStorage, update: UpdateState) {
     this.storage = storage;
     this.updateState = update;
 
-    this.openAIChatConv = new OpenAIChatConversation(this.onOpenAIChatMessagesReceived)
+    this.openAIChatConv = new OpenAIChatConversation( this.onOpenAIChatMessagesReceived, storage, update)
 
     // For communication we use CustomEvent dispatched to the window object.
     // It allows you to simulate sending and receiving data from the server.
@@ -189,15 +188,13 @@ export class ChatService implements IChatService {
 
     // window.dispatchEvent(messageEvent);
 
-    const {phase, phaseTransition} = (this.storage as ExtendedStorage)?.getState();
-
     var intervalId = window.setInterval(
       function(msgIsGenerated: OpenAIGeneratingMessageType){
         msgIsGenerated(conversationId, openAIModel.name)
     }, 200, this.onOpenAIGeneratingMessage);
 
     // Async call
-    this.openAIChatConv.sendMessage(message, phase, phaseTransition, intervalId, conversationId, this)
+    this.openAIChatConv.sendMessage(message, intervalId, conversationId, this)
 
     // return message;
   }
