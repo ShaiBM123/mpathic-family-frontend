@@ -5,7 +5,7 @@ export interface UserFormData {
     firstName: string;
     lastName: string;
     gender: Gender;
-    age: number;
+    age: number | '';
 }
 
 interface UserFormProps {
@@ -17,14 +17,14 @@ export const UserForm: React.FC<UserFormProps> = ({ onSubmit }) => {
         firstName: '',
         lastName: '',
         gender: Gender.Other,
-        age: 0
+        age: ''
     });
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setUserFormData({
             ...userFormData,
-            [name]: name === 'age' ? Number(value) : value
+            [name]: name === 'age' ? (value === '' ? '' : Number(value)) : value
         });
     };
 
