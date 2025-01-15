@@ -36,6 +36,7 @@ import {
 import { Observation } from "./observation/Observation";
 import { FeelingsScale } from "./feelings-scale/FeelingsScale";
 import { TypingText } from "./typing-text/TypingText";
+import { completeUserPartOfSpeech } from "../open_ai/OpenAIPromptingManager"
 
 import "./typing-text/typing-text.css"
 
@@ -46,7 +47,7 @@ export const Chat = ({ user }: { user: User }) => {
     const {
         currentMessages, activeConversation, setActiveConversation, sendMessage, addMessage,
         getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping, setCurrentUser,
-        setTopic, setSubTopic, setPhaseAndTransition
+        setTopic, setSubTopic, setPhaseAndCount, phaseCount
     } = useExtendedChat();
 
     useEffect(() => {
@@ -83,10 +84,12 @@ export const Chat = ({ user }: { user: User }) => {
     // show chatbot introductory message on mount
     useEffect(() => {
         if (activeConversation && currentMessages.length === 0) {
-
+            let uName = user?.firstName;
+            let uGender = user?.data.gender;
+            let uPoS = completeUserPartOfSpeech(user);
             addChatBotMsg(
                 {
-                    message: "היי :) בחר.י נושא עליו תרצה.י לדבר או נושא שמעסיק אותך עכשיו",
+                    message: `היי ${uName} :) בחר${uPoS.Yod} נושא עליו תרצ${uPoS.YodOrHei} לדבר או נושא שמעסיק אותך עכשיו`,
                     id: "intro_msg_1"
                 },
                 MessageContentType.Other);
@@ -101,7 +104,7 @@ export const Chat = ({ user }: { user: User }) => {
                 },
                 MessageContentType.Other);
         }
-    }, [activeConversation, addChatBotMsg, currentMessages.length]);
+    }, [activeConversation, addChatBotMsg, currentMessages.length, user]);
 
     // Get current user data
     const [currentUserAvatar, currentUserName] = useMemo(() => {
@@ -187,6 +190,9 @@ export const Chat = ({ user }: { user: User }) => {
 
     const createMessageModel =
         (chat_msg: ChatMessage<MessageContentType>) => {
+            let uName = user?.firstName;
+            let uGender = user?.data.gender;
+            let uPoS = completeUserPartOfSpeech(user);
 
             let message_type;
             let message_payload;
@@ -245,8 +251,8 @@ export const Chat = ({ user }: { user: User }) => {
                                     obj.selected = true
                                     obj.selected_categories = selected_categories
                                     updateMessage(chat_msg)
-                                    setPhaseAndTransition(UserMessagePhase.PersonInConflictRelationship, true)
-                                    addChatBotMsg("מי האדם אליו את.ה מתייחס.ת (בת זוג, בן, אמא וכו’)?", MessageContentType.TextPlain)
+                                    setPhaseAndCount(UserMessagePhase.PersonInConflictRelationship, 0)
+                                    addChatBotMsg(`מי האדם אליו ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (בת זוג, בן, אמא וכו’)?`, MessageContentType.TextPlain)
                                     // doSend(msg) 
                                 }}
                             />
@@ -264,15 +270,15 @@ export const Chat = ({ user }: { user: User }) => {
                                     obj.isCorrect = true;
                                     obj.active = false;
                                     updateMessage(chat_msg);
-                                    addChatBotMsg('כעט בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה', MessageContentType.TextPlain)
-                                    setPhaseAndTransition(UserMessagePhase.FeelingsProbe, true)
+                                    addChatBotMsg(`כעט בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה`, MessageContentType.TextPlain)
+                                    setPhaseAndCount(UserMessagePhase.FeelingsProbe, 0)
                                 }}
                                 onNotAccurateClick={() => {
                                     obj.isCorrect = false;
                                     obj.active = false;
                                     updateMessage(chat_msg);
-                                    addChatBotMsg("בבקשה תדייק.י את מה שכתבתי. אגב, אני בכוונה מנסה להתנסח בצורה חסרת שיפוטיות, מכיוון שאני לוקח השראה מתקשורת מקרבת :) וחשוב לי להבין כרגע את העובדות. אני מדמיין שאני מצלם את הסיטואציה ומה המצלמה קולטת (היא לא קולטת רגש, אך נדבר גם על רגשות ממש עוד מעט)", MessageContentType.TextPlain)
-                                    setPhaseAndTransition(UserMessagePhase.DescriptionAnalysis, false)
+                                    addChatBotMsg(phaseCount === 0 ? `בבקשה תדייק.י את מה שכתבתי. אגב, אני בכוונה מנסה להתנסח בצורה חסרת שיפוטיות, מכיוון שאני לוקח השראה מתקשורת מקרבת :) וחשוב לי להבין כרגע את העובדות` : `בבקשה תדייק יותר`, MessageContentType.TextPlain)
+                                    setPhaseAndCount(UserMessagePhase.ObservationAnalysis, phaseCount + 1)
                                 }}
                             />
                     }

@@ -1,16 +1,14 @@
 import OpenAI from "openai";
 import { MessageContent } from "@chatscope/use-chat/dist/interfaces";
 import { MessageContentType, MessageDirection, MessageStatus } from "@chatscope/use-chat/dist/enums";
-import {ChatCompletionFunctionMessageParam, ChatModel} from "openai/resources";
 import { IStorage } from "@chatscope/use-chat/dist/interfaces";
 import {
         OpenAIBotMessage, 
         OpenAIMessageReceivedType, 
-        UserMessageContent, 
-        UserMessagePhase} from './OpenAITypes';
+        UserMessageContent
+    } from './OpenAITypes';
 import {ChatMessage} from "@chatscope/use-chat"; 
 import {openAIModel} from "../data/data";
-import {FeelingsArray} from '../components/feelings-scale/FeelingsScale';
 import {OpenAIPromptManager, SyestemPromptData} from './OpenAIPromptingManager';
 import { UpdateState } from "@chatscope/use-chat/dist/Types";
 import {ExtendedStorage } from "../data/ExtendedStorage";
@@ -292,9 +290,7 @@ export class OpenAIChatConversation{
     {
         let msg_content = user_message.content as UserMessageContent
         let msg = msg_content.user_text
-        // let msg_phase = msg_content.phase
-        // let phase_block
-        // let bot_messages_reply: Array<OpenAIBotMessage> = [];
+
         let bot_message_reply: OpenAIBotMessage = {
             index: 0, 
             refusal: true, 
@@ -305,7 +301,7 @@ export class OpenAIChatConversation{
             createdTime: user_message.createdTime,
             senderId: this.openAIUser, 
             id: user_message.id.concat('-1'), 
-            content: "" as unknown as MessageContent<MessageContentType.Other>
+            content: "Sorry I'm programmed up to that point" as unknown as MessageContent<MessageContentType.Other>
         };
 
         const constructBotMsgReply = ({
@@ -332,28 +328,32 @@ export class OpenAIChatConversation{
         try 
         {
             let prompt_data = this.promptMngr.buildSyestemPrompt()
+            
             this.promptMngr.addUserInputToHistory(msg)
             
-            const completion = await openai.beta.chat.completions.parse({
-                model: this.promptMngr.model,
-                messages: this.promptMngr.history as Array<any>,
-                response_format: prompt_data?.response_format,
-                max_tokens: prompt_data?.max_tokens,
-                temperature: prompt_data?.temperature,
-                user: user_message.senderId 
-            });
+            if (prompt_data)
+            {
+                const completion = await openai.beta.chat.completions.parse({
+                    model: this.promptMngr.model,
+                    messages: this.promptMngr.history as Array<any>,
+                    response_format: prompt_data?.response_format,
+                    max_tokens: prompt_data?.max_tokens,
+                    temperature: prompt_data?.temperature,
+                    user: user_message.senderId 
+                });
+                
+                const bot_choise = completion.choices[0]
+                let {parsed, refusal} = bot_choise?.message
             
-            const bot_choise = completion.choices[0]
-            const {parsed, refusal} = bot_choise?.message
-
-            let bot_reply = this.promptMngr.buildBotResponse({parsed, refusal})
-            bot_message_reply = constructBotMsgReply({
-                    msgIdx: 0, 
-                    msgRefusal: refusal ? true: false, 
-                    msgContent: bot_reply.content, 
-                    msgContentType: bot_reply.content_type, 
-                    msgMoreInfoRequired: bot_reply.more_info_required}
-            )
+                let bot_reply = this.promptMngr.buildBotResponse({parsed, refusal})
+                bot_message_reply = constructBotMsgReply({
+                        msgIdx: 0, 
+                        msgRefusal: refusal ? true: false, 
+                        msgContent: bot_reply.content, 
+                        msgContentType: bot_reply.content_type, 
+                        msgMoreInfoRequired: bot_reply.more_info_required}
+                )
+            }
 
         } catch (e: any) {
             // Handle edge cases

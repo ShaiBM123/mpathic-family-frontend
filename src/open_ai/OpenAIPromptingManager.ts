@@ -8,15 +8,31 @@ import { UserMessagePhase } from './OpenAITypes';
 import { UserInRelationshipData } from "../data/UserInRelationshipData";
 import { UpdateState } from "@chatscope/use-chat/dist/Types";
 import { MessageContentType } from "@chatscope/use-chat/dist/enums";
+import { User } from "@chatscope/use-chat";
 // import { MessageContent } from "@chatscope/use-chat/dist/interfaces";
 import {ChatModel} from "openai/resources";
 import { Gender } from '../data/data';
+import {FeelingsArray} from '../components/feelings-scale/FeelingsScale';
 
 export type SyestemPromptData = { 
     response_format: AutoParseableResponseFormat<zodInfer<ZodType>>,
     max_tokens: number,
     temperature: number 
 } | undefined
+
+export function completeUserPartOfSpeech(user: User) {
+    return{
+        sbj3rdPronoun: user.data.gender===Gender.Female? "היא":"הוא",
+        sbj2ndPronoun: user.data.gender===Gender.Female? "את":"אתה",
+        objPronoun: user.data.gender===Gender.Female? "לה":"לו",
+        possessiveAdj: user.data.gender===Gender.Female? "שלה":"שלו",
+        Taf: user.data.gender===Gender.Female? "ת":"",
+        Yod: user.data.gender===Gender.Female? "י":"",
+        VavOrHei: user.data.gender===Gender.Female? "ה":"ו",
+        YodOrHei: user.data.gender===Gender.Female? "י":"ה",
+        Hei: user.data.gender===Gender.Female? "ה":""
+    }
+}
 
 export class OpenAIPromptManager{
     private storage: ExtendedStorage;
@@ -35,18 +51,27 @@ export class OpenAIPromptManager{
         }]
     }
 
+
     buildSyestemPrompt = (): SyestemPromptData => 
     {
-        const {phase, phaseTransition, topic, subTopic, currentUser, userInRelationship} = this.storage?.getState();
-        let u_name = currentUser?.firstName;
-        let u_gender = currentUser?.data.gender;
+        const {phase, phaseCount, topic, subTopic, currentUser, userInRelationship} = this.storage?.getState();
         
+        let uName = currentUser?.firstName;
+        let uGender = currentUser?.data.gender;
+        let uPoS = completeUserPartOfSpeech(currentUser as User);
+
+        let u2Name = userInRelationship.firstName;
+        // let u2Gender = userInRelationship?.data?.gender;
+        let u2Relationship = userInRelationship.data?.relationship;
+        // let u2PoS = completeUserPartOfSpeech(userInRelationship as User);
+
         switch (phase) {
+
             case UserMessagePhase.PersonInConflictRelationship:
-                if(phaseTransition)
+                if(phaseCount === 0)
                 {
                     this.history.push(
-                        { role: "system", content: `במשפט הבא המשתמש${u_gender===Gender.Female? "ת":""} ${u_name} מתאר${u_gender===Gender.Female? "ת":""} אל מי ${u_gender===Gender.Female? "היא":"הוא"} מתייחס${u_gender===Gender.Female? "ת":""}, עליך לזהות את הקרבה של המשתמש${u_gender===Gender.Female? "ת":""} אל אותו אדם ואת מינו (זכר או נקבה)`});
+                        { role: "system", content: `במשפט הבא המשתמש${uPoS.Taf} ${uName} מתאר${uPoS.Taf} אל מי ${uPoS.sbj3rdPronoun} מתייחס${uPoS.Taf}, עליך לזהות את הקרבה של המשתמש${uPoS.Taf} אל אותו אדם ואת מינו (זכר או נקבה)`});
                 }
 
                 return {
@@ -56,11 +81,21 @@ export class OpenAIPromptManager{
                             z.object({
                                 relationship: z.union([
                                     z.enum([
-                                        "בן או בת משפחה", 
+                                        "בת משפחה", "בן משפחה",
+                                        "בת", "בן",
+                                        "נכדה", "נכד",
+                                        "בת דוד", "בן דוד",
+                                        "דודה", "דוד",
+                                        "אחות", "אח",
+                                        "אחיינית", "אחיין", 
                                         "אישה", "בעל", 
-                                        "חבר", "חברה", 
-                                        "ידיד", "ידידה",
-                                        "בוס", "עמית לעבודה",   
+                                        "חברה", "חבר", 
+                                        "ידידה", "ידיד",
+                                        "בוסית", "בוס", 
+                                        "עמיתה לעבודה", "עמית לעבודה",  
+                                        "שכנה", "שכן",
+                                        "מורה", "מורה", 
+                                        "מדריכה", "מדריך",
                                         "אחר"]), z.null()]), 
                                 gender: z.union([z.enum(["זכר", "נקבה"]), z.null()])
                             }), z.null()]),
@@ -70,10 +105,10 @@ export class OpenAIPromptManager{
                 };
      
             case UserMessagePhase.PersonInConflictName:
-                if(phaseTransition)
+                if(phaseCount === 0)
                 {
                     this.history.push(
-                        { role: "system", content: 'עליך לזהות בטקסט הבא את שמו הפרטי של האדם אליו המשתמש מתייחס'})
+                        { role: "system", content: `עליך לזהות בטקסט הבא את שמו הפרטי של האדם אליו ${uName} מתייחס`})
                 }
 
                 return {                    
@@ -85,10 +120,10 @@ export class OpenAIPromptManager{
                 };
 
             case UserMessagePhase.PersonInConflictNickname:
-                if(phaseTransition)
+                if(phaseCount === 0)
                 {
                     this.history.push(
-                        { role: "system", content: `עליך לזהות בטקסט הבא את כינוי החיבה של ${userInRelationship.firstName}`})
+                        { role: "system", content: `עליך לזהות בטקסט הבא את כינוי החיבה של ${u2Name}`})
                 }
 
                 return {
@@ -100,10 +135,10 @@ export class OpenAIPromptManager{
                 };
           
             case UserMessagePhase.PersonInConflictAge:
-                if(phaseTransition)
+                if(phaseCount === 0)
                 {
                     this.history.push(
-                        { role: "system", content: 'במשפט הבא עליך לזהות את גילו של אותו אדם'})
+                        { role: "system", content: `במשפט הבא עליך לזהות את גילו של ${u2Name}`})
                 }
 
                 return {
@@ -113,14 +148,14 @@ export class OpenAIPromptManager{
                     max_tokens: 200,
                     temperature: 0.7
                 };
-            case UserMessagePhase.DescriptionAnalysis:
-                if(phaseTransition)
+            case UserMessagePhase.ObservationAnalysis:
+                if(phaseCount === 0)
                 {
                     this.history.push(
-                        { role: "system", content: `בהנתן תיאור של המשתמש לגבי סיטואציה בנושא  ${topic} בכל מה שקשור ב ${subTopic} מול ${userInRelationship.firstName} ה${userInRelationship.data?.relationship} שלו נסח תצפית לפי הגישה של תקשורת מקרבת`},
+                        { role: "system", content: `בהנתן תיאור של ${uName} לגבי סיטואציה בנושא  ${topic} בכל מה שקשור ב ${subTopic} מול ${u2Name} ה${u2Relationship} ${uPoS.possessiveAdj} נסח תצפית לפי הגישה של תקשורת מקרבת`},
                         { role: "system", content: 'תצפית מוגדרת כהתמקדות במה שאנחנו רואים שומעים או מבחינים בו באופן אובייקטיבי מבלי להוסיף רגש, שיפוט, פרשנות או הערכה'},
-                        { role: "system", content: `אם התיאור של המשתמש מלא נסח תצפית אחרת בקש ממנו פרטים נוספים`},
-                        { role: "system", content: `המשתמש יכול להוסיף פרטים נוספים אם הוא לא מרוצה מהתצפית שהוצגה לו`})
+                        { role: "system", content: `אם התיאור של ${uName} מלא נסח תצפית אחרת בקש ${uGender===Gender.Female? "ממנה":"ממנו"} פרטים נוספים`},
+                        { role: "system", content: `${uName} ${uGender===Gender.Female? "יכולה":"יכול"} להוסיף פרטים נוספים אם ${uPoS.sbj3rdPronoun} לא מרוצה מהתצפית שהוצגה ${uPoS.objPronoun}`})
                 }
 
                 return {
@@ -131,23 +166,21 @@ export class OpenAIPromptManager{
                     max_tokens: 600,
                     temperature: 0.7
                 };
-            // case UserMessagePhase.RecurrentDescriptionAnalysis:
-            //     if(phaseTransition)
-            //     {
-            //         this.history.push( 
-            //             { role: "system", content: `המשתמש ${currentUser?.firstName} אינו מרוצה מהתצפית שיצרת בשלב הקודם , בהנתן המידע הנוסף שהוא נותן בפסקה הבאה צור מחדש תצפית על פי מודל תקשורת מקרבת`})
-            //     }
 
-            //     return {
-            //         response_format: zodResponseFormat( z.object({
-            //             observation: z.union([z.string(), z.null()]).describe("התצפית")
-            //         }), "recurrent observation"),                 
-            //         max_tokens: 500,
-            //         temperature: 0.7
-            //     };
             case UserMessagePhase.FeelingsProbe:
-
-                break;
+                if(phaseCount === 0)
+                    {
+                        this.history.push(
+                            { role: "system", content: `בהתבסס על התיאור של המשתמש${uPoS.Taf} ${uName}, מצא עד שלושה רגשות דומיננטיים המובעים בטקסט ותאר בקצרה את הלך הרוח מההבט הרגשי`})
+                    }
+                return {
+                    response_format: zodResponseFormat( z.object({
+                        feelings: FeelingsArray, 
+                        description: z.string()
+                    }), "feelings-intensities"),                 
+                    max_tokens: 600,
+                    temperature: 0.7
+                };
             case UserMessagePhase.FeelingsAnalysis:
 
                 break;
@@ -160,42 +193,67 @@ export class OpenAIPromptManager{
             default:
                 throw Error('Invalid User Message Phase');
         }
-
     }
 
-    addUserInputToHistory = (user_text: string)=>{
-        this.history.push({role: "user", content: user_text})
+    addUserInputToHistory = (userText: string)=>{
+        this.history.push({role: "user", content: userText})
     }
 
-    private updatePhase = (next_phase: UserMessagePhase, transition: boolean) => {
-        this.storage?.setPhase(next_phase);
-        this.storage?.setPhaseTransition(transition);
+    private updatePhase = (nextPhase: UserMessagePhase, phaseCount: number) => {
+        this.storage?.setPhase(nextPhase);
+        this.storage?.setPhaseCount(phaseCount);
     }
 
-    private phaseToInitialText = {
-        [UserMessagePhase.PersonInConflictRelationship] : "(' למי אתה מתייחס (בת זוג, אמא, וכד",
-        [UserMessagePhase.DescriptionAnalysis]: "תודה! תאר את הסיטואציה עליה אתה מדבר, מה קרה בעצם ? אני סקרן אז כמה שיותר פרטים בבקשה !",
-        [UserMessagePhase.PersonInConflictName]: "מה שמה ?",
-        [UserMessagePhase.PersonInConflictNickname]: "מהו כינוי החיבה שלה ?",
-        [UserMessagePhase.PersonInConflictAge]: "בת כמה היא ?",
-        [UserMessagePhase.FeelingsProbe]: "",
-        [UserMessagePhase.FeelingsAnalysis]: "",
-        [UserMessagePhase.NeedsProbe]: "",
-        [UserMessagePhase.TBD]: ""
+    private generateInitialFollowUpText = (phase: UserMessagePhase): string => {
+        const {currentUser, userInRelationship} = (this.storage as ExtendedStorage)?.getState();
+        let uPoS = completeUserPartOfSpeech(currentUser as User);
+        let u2PoS = completeUserPartOfSpeech(userInRelationship as User);
+    
+        switch (phase) {
+    
+            case UserMessagePhase.PersonInConflictRelationship:      
+                return ``;
+            case UserMessagePhase.ObservationAnalysis:
+                return `תודה! תאר${uPoS.Yod} את הסיטואציה עליה ${uPoS.sbj2ndPronoun} מדבר${uPoS.Taf}, מה קרה בעצם ? אני סקרן אז כמה שיותר פרטים בבקשה !`;
+            case UserMessagePhase.PersonInConflictName:
+                return `מה שמ${u2PoS.VavOrHei} ?`;
+            case UserMessagePhase.PersonInConflictNickname:
+                return `מהו כינוי החיבה של${u2PoS.VavOrHei} ?`;
+            case UserMessagePhase.PersonInConflictAge:
+                return `בת כמה ${u2PoS.sbj3rdPronoun} ?`;
+            case UserMessagePhase.FeelingsProbe:
+                return ``;
+            case UserMessagePhase.FeelingsAnalysis:
+                return ``;
+            case UserMessagePhase.NeedsProbe:
+                return ``;
+            case UserMessagePhase.TBD:
+                return ``;
+            default:
+                throw Error('Invalid User Message Phase');
+        }
     }
 
-    buildBotResponse = (
-        bot_msg: {parsed: Object | null, refusal: string | null}):
-
-        { content: Object, content_type: MessageContentType, more_info_required: boolean }  => 
+    buildBotResponse = (bot_msg: {parsed: Object | null, refusal: string | null})  => 
     {
-        const {phase, userInRelationship} = (this.storage as ExtendedStorage)?.getState();
+        const {phase, phaseCount, currentUser, userInRelationship} = (this.storage as ExtendedStorage)?.getState();
+
+        // let uName = currentUser?.firstName;
+        let uGender = currentUser?.data.gender;
+        let uPoS = completeUserPartOfSpeech(currentUser as User);
+
+        // let u2Name = userInRelationship.firstName;
+        let u2Gender = userInRelationship?.data?.gender;
+        // let u2Relationship = userInRelationship.data?.relationship;
+        let u2PoS = completeUserPartOfSpeech(userInRelationship as User);
 
         let info_required = true
-        let content: any = ""
+        let content: any = null
+        let assistant_msg = ""
         let content_type = MessageContentType.TextPlain
 
         if (bot_msg?.parsed) {
+
             let parsed_msg = Object(bot_msg.parsed)
 
             switch (phase) {
@@ -204,105 +262,113 @@ export class OpenAIPromptManager{
 
                     if(!parsed_msg.person_in_conflict_info)
                     {
-                        this.updatePhase(phase, false)
-                        content =  "(' לא הבנתי, למי בדיוק אתה מתייחס (בת זוג, אמא, וכד"
+                        this.updatePhase(phase, phaseCount+1)
+                        content =  `(' לא הבנתי, למי בדיוק ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (בת זוג, אמא, וכד`
                     } 
                     else {
                         let uir_data = userInRelationship.data as UserInRelationshipData
                         uir_data.relationship = parsed_msg.person_in_conflict_info.relationship;
-                        uir_data.gender = parsed_msg.person_in_conflict_info.gender;
+                        let gender = parsed_msg.person_in_conflict_info.gender; 
+                        uir_data.gender = 
+                            gender === "זכר" ? Gender.Male : 
+                            gender === "נקבה" ? Gender.Female : 
+                            Gender.Other;
                         userInRelationship.data = uir_data;
 
-                        info_required = false
-                        this.updatePhase(UserMessagePhase.PersonInConflictName, true)
-                        content = this.phaseToInitialText[UserMessagePhase.PersonInConflictName]
+                        info_required = false;
+                        this.updatePhase(UserMessagePhase.PersonInConflictName, 0);
+                        content = this.generateInitialFollowUpText(UserMessagePhase.PersonInConflictName);
                     }
-
+                    assistant_msg = content
                     break;
 
                 case UserMessagePhase.PersonInConflictName:
-                        if(! parsed_msg.name)
-                        {
-                            content = "לא הבנתי :-( רשום את שמה"  
-    
+                        if(! parsed_msg.name) {
+                            content = `לא הבנתי :-( ${uGender === Gender.Female ? "רשמי":"רשום"} את ${u2Gender === Gender.Female ? "שמה":"שמו"}`  
                         } else {
                             userInRelationship.firstName = parsed_msg.name;
 
                             info_required = false
-                            if(userInRelationship.data?.relationship === "בן או בת משפחה")
-                                {
-                                    this.updatePhase(UserMessagePhase.PersonInConflictAge, true)
-                                    content = this.phaseToInitialText[UserMessagePhase.PersonInConflictAge]
-                                }
-                                else if(["אישה", "בעל", "חבר", "חברה"].includes(
-                                    userInRelationship.data?.relationship as string))
-                                {
-                                    this.updatePhase(UserMessagePhase.PersonInConflictNickname, true)
-                                    content = this.phaseToInitialText[UserMessagePhase.PersonInConflictNickname]
-                                }
-                                else{
-        
-                                    this.updatePhase(UserMessagePhase.DescriptionAnalysis, true)
-                                    content = this.phaseToInitialText[UserMessagePhase.DescriptionAnalysis]
-                                }
-                        }
+                            if(["בת משפחה", "בן משפחה",
+                                "בת", "בן",
+                                "נכדה", "נכד",
+                                "בת דוד", "בן דוד",
+                                "דודה", "דוד",
+                                "אחות", "אח",
+                                "אחיינית", "אחיין", ].includes(
+                                userInRelationship.data?.relationship as string))
+                            {
+                                this.updatePhase(UserMessagePhase.PersonInConflictAge, 0)
+                                content = this.generateInitialFollowUpText(UserMessagePhase.PersonInConflictAge);
+                            }
+                            else if(["אישה", "בעל", "חבר", "חברה"].includes(
+                                userInRelationship.data?.relationship as string))
+                            {
+                                this.updatePhase(UserMessagePhase.PersonInConflictNickname, 0)
+                                content = this.generateInitialFollowUpText(UserMessagePhase.PersonInConflictNickname);
+                            }
+                            else{
     
+                                this.updatePhase(UserMessagePhase.ObservationAnalysis, 0)
+                                content = this.generateInitialFollowUpText(UserMessagePhase.ObservationAnalysis);
+                            }
+                        }
+                        assistant_msg = content
                         break;
 
                 case UserMessagePhase.PersonInConflictNickname:
-                    if(! parsed_msg.nickname)
-                    {
-                        content = "לא הבנתי אותך :-( רשום את כינוי החיבה שלה"  
+                    if(! parsed_msg.nickname) {
+                        content = `לא הבנתי אותך :-( ${uGender === Gender.Female ? "רשמי":"רשום"} את כינוי החיבה ${u2PoS.possessiveAdj}`  
 
                     } else {
                         (userInRelationship.data as UserInRelationshipData).nickName = parsed_msg.nickname;
                         info_required = false
-                        this.updatePhase(UserMessagePhase.DescriptionAnalysis, true)
-                        content = this.phaseToInitialText[UserMessagePhase.DescriptionAnalysis]
+                        this.updatePhase(UserMessagePhase.ObservationAnalysis, 0)
+                        content = this.generateInitialFollowUpText(UserMessagePhase.ObservationAnalysis);
                     }
-
+                    assistant_msg = content
                     break;
+
                 case UserMessagePhase.PersonInConflictAge:
-                    if(!parsed_msg.age)
-                    {
-                        content = "לא הבנתי אותך :-( מהו גילה ?"
+                    if(!parsed_msg.age) {
+                        content = `לא הבנתי אותך :-( מהו ${u2Gender === Gender.Female ? "גילה":"גילו"} ?`
 
                     } else {
                         (userInRelationship.data as UserInRelationshipData).age = parsed_msg.age;
                         info_required = false
-                        this.updatePhase(UserMessagePhase.DescriptionAnalysis, true)
-                        content = this.phaseToInitialText[UserMessagePhase.DescriptionAnalysis]
+                        this.updatePhase(UserMessagePhase.ObservationAnalysis, 0)
+                        content = this.generateInitialFollowUpText(UserMessagePhase.ObservationAnalysis);
                     }
-
+                    assistant_msg = content
                     break;
 
-                case UserMessagePhase.DescriptionAnalysis:
-                    if(!parsed_msg.observation){
+                case UserMessagePhase.ObservationAnalysis:
+                    if(!parsed_msg.observation) {
                         content = parsed_msg.request_for_more_info
+                        assistant_msg = content
                     } 
                     else {
                         info_required = false
                         content_type = MessageContentType.Other
-                        // this is a temporary phase because the user can decide he is satisfied 
+                        // this is a temporary phase because the user can decide he is not satisfied 
                         // with the given observation
-                        this.updatePhase(UserMessagePhase.FeelingsProbe, true)
+                        this.updatePhase(UserMessagePhase.FeelingsProbe, 0)
                         content = {observation: parsed_msg.observation, id: "observation", active: true, isCorrect: null}
+                        assistant_msg = parsed_msg.observation
                     }
                     break;
 
-                // case UserMessagePhase.RecurrentDescriptionAnalysis:
-
-                //     info_required = false
-                //     content_type = MessageContentType.Other
-                //     // this is a temporary phase because the user can decide he is satisfied 
-                //     // with the given observation
-                //     this.updatePhase(UserMessagePhase.RecurrentDescriptionAnalysis, false)
-                //     content = {observation: parsed_msg.observation, id: "observation", active: true, isCorrect: null}
-                    
-                //     break;
-
                 case UserMessagePhase.FeelingsProbe:
-    
+                    info_required = false
+                    content_type = MessageContentType.Other
+                    this.updatePhase(UserMessagePhase.TBD, 0)
+                    content = {...parsed_msg, id: "feelings", active: true}
+                    assistant_msg = `להערכתי ${uPoS.sbj2ndPronoun} מרגיש${uPoS.Hei} את התחושות הבאות בסולם של אחת עד עשר: 
+                                    ${Object(parsed_msg).feelings.map(
+                                        (s: Object)=>{
+                                            return ` ${Object(s).emotion_name} בעוצמה ${Object(s).emotion_intensity} `
+                                        }
+                                    ).join(' ')}` 
                     break;
                 case UserMessagePhase.FeelingsAnalysis:
     
@@ -322,14 +388,15 @@ export class OpenAIPromptManager{
             // handle refusal
             info_required = true 
             content = bot_msg.refusal
+            assistant_msg = content
         }
 
         this.storage?.setUserInRelationship(userInRelationship);
         this.updateState();
-        this.history.push({ role: 'assistant', content: content });
+        this.history.push({ role: 'assistant', content: assistant_msg } );
 
         if (info_required === true ){
-            this.updatePhase(phase, false)
+            this.updatePhase(phase, phaseCount+1)
         }
 
         return { content: content, content_type: content_type, more_info_required: info_required };

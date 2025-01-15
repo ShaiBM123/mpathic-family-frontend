@@ -8,7 +8,7 @@ import {
     ConversationRole,
     Participant,
     TypingUsersList } from "@chatscope/use-chat";
-    
+
 import { openAIModel, openAIConversationId } from "./data";
 import { UserInRelationshipData } from "../data/UserInRelationshipData";
 import { BasicStorage, BasicStorageParams } from "@chatscope/use-chat";
@@ -20,7 +20,7 @@ export interface ExtendedStorageParams extends Required<BasicStorageParams> {
 
 export type ExtendedChatState = {
     phase: UserMessagePhase, 
-    phaseTransition: boolean, 
+    phaseCount: number, 
     topic: string, 
     // setTopic: (topic: string) => void,
     subTopic: string,
@@ -47,8 +47,8 @@ export class ExtendedStorage<ConversationData = any>
   extends BasicStorage<ConversationData>{
 
     private phase: UserMessagePhase;
-    private phaseTransition: boolean;
-    private _phaseGroupID?: string; 
+    private phaseCount: number;
+    // private _phaseGroupID?: string; 
 
     private topic: string;
     private subTopic: string;
@@ -63,7 +63,7 @@ export class ExtendedStorage<ConversationData = any>
     constructor({ groupIdGenerator, messageIdGenerator }: ExtendedStorageParams) {
         super({ groupIdGenerator, messageIdGenerator })
         this.phase = UserMessagePhase.PersonInConflictRelationship;
-        this.phaseTransition = true;
+        this.phaseCount = 0;
         this.topic = '';
         this.subTopic = '';
 
@@ -79,8 +79,10 @@ export class ExtendedStorage<ConversationData = any>
         }));
         this.addConversation(createConversation(openAIConversationId, openAIModel.name));
 
-        this.userInRelationship = new User({
-            id: "972-00-0000000", // actual ID is a phone number,it will be detected once the main user will enter the phone number of the user in relationship
+        this.userInRelationship = new User<UserInRelationshipData>({
+            /* actual ID is a phone number,it will be detected once the main user will enter 
+            the phone number of the user in relationship */
+            id: "972-00-0000000", 
             presence: new Presence({ status: UserStatus.Unknown, description: "" }),
             firstName: "",
             lastName: "",
@@ -110,10 +112,10 @@ export class ExtendedStorage<ConversationData = any>
 
     /**
    * Sets current phase
-   * @param transition
+   * @param phaseCount
    */
-    setPhaseTransition(transition: boolean): void {
-        this.phaseTransition = transition;
+    setPhaseCount(phaseCount: number): void {
+        this.phaseCount = phaseCount;
     }
 
     /**
@@ -167,7 +169,7 @@ export class ExtendedStorage<ConversationData = any>
     getState(): ChatState & ExtendedChatState {
         return {...super.getState(), 
             phase: this.phase, 
-            phaseTransition: this.phaseTransition,
+            phaseCount: this.phaseCount,
             topic: this.topic,
             subTopic: this.subTopic,
             userInRelationship: this.userInRelationship

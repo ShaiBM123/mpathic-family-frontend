@@ -12,7 +12,8 @@ import { UserMessagePhase } from './open_ai/OpenAITypes';
 interface ExtendedChatContextProps {
     setTopic: (value: string) => void;
     setSubTopic: (value: string) => void;
-    setPhaseAndTransition: (phase: UserMessagePhase, transition: boolean) => void;
+    setPhaseAndCount: (phase: UserMessagePhase, phaseCount: number) => void;
+    phaseCount: number;
 }
 
 // Create a context for these properties
@@ -87,12 +88,13 @@ export const ExtendedChatProvider = <S extends IChatService>({
     /**
      * Sets current phase and transition
      * @param {UserMessagePhase} phase
-     * @param {boolean} transition
+     * @param {number} phaseCount
+     * 
      */
-    const setPhaseAndTransition = useCallback(
-        (phase: UserMessagePhase, transition: boolean) => {
+    const setPhaseAndCount = useCallback(
+        (phase: UserMessagePhase, phaseCount: number) => {
             storage.setPhase(phase);
-            storage.setPhaseTransition(transition);
+            storage.setPhaseCount(phaseCount);
             updateExtendedState();
         },
         [storage, updateExtendedState]
@@ -100,7 +102,7 @@ export const ExtendedChatProvider = <S extends IChatService>({
 
 
     const extendedContextValue: ExtendedChatContextProps = {
-        setTopic, setSubTopic, setPhaseAndTransition
+        setTopic, setSubTopic, setPhaseAndCount, phaseCount: state.phaseCount
     };
 
     // Render the original ChatProvider

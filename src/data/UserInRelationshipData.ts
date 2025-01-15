@@ -1,5 +1,5 @@
-import { UserId } from "@chatscope/use-chat";
-
+// import { UserId } from "@chatscope/use-chat";
+import {Gender} from "./data";
 
 // export enum Gender {
 //     Male = 1,
@@ -8,14 +8,14 @@ import { UserId } from "@chatscope/use-chat";
 
 export type UserInRelationshipParams = {
     relationship? : string;
-    gender? : string; 
+    gender? : Gender; 
     nickName? : string;
     age? : number;
 };
 
 export class UserInRelationshipData {
     relationship?: string;
-    gender? : string; 
+    gender? : Gender; 
     nickName?: string;
     age? : number;
 

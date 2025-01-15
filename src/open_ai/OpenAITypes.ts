@@ -11,7 +11,7 @@ export enum UserMessagePhase {
   PersonInConflictName = 2,
   PersonInConflictNickname = 3,
   PersonInConflictAge = 4,
-  DescriptionAnalysis = 5,
+  ObservationAnalysis = 5,
   FeelingsProbe = 6,
   FeelingsAnalysis = 7,
   NeedsProbe = 8,
