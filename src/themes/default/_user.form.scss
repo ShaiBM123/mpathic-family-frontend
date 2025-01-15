@@ -1,0 +1,89 @@
+$user-form-padding: 20px;
+$user-form-border-color: #ccc;
+$user-form-border-radius: 5px;
+$user-form-background-color: #f9f9f9;
+$user-form-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+$user-form-label-color: #333;
+$user-form-input-padding: 10px;
+$user-form-input-border-color: #ccc;
+$user-form-input-border-radius: 4px;
+$user-form-input-focus-border-color: #007BFF;
+$user-form-submit-button-background-color: #28a745;
+$user-form-submit-button-hover-background-color: #218838;
+$user-form-submit-button-color: white;
+$user-form-submit-button-font-size: 16px;
+$user-form-submit-button-padding: 10px;
+
+@mixin user-form-input {
+  width: 100%;
+  padding: $user-form-input-padding;
+  border: 1px solid $user-form-input-border-color;
+  border-radius: $user-form-input-border-radius;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: $user-form-input-focus-border-color;
+    outline: none;
+  }
+}
+
+.user-form-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: $user-form-padding;
+  border: 1px solid $user-form-border-color;
+  border-radius: $user-form-border-radius;
+  background-color: $user-form-background-color;
+  box-shadow: $user-form-box-shadow;
+  direction: rtl; // Support for RTL text
+  text-align: right;
+  justify-content: start!important;
+}
+
+.user-form-group {
+  margin-bottom: 15px;
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    color: $user-form-label-color;
+  }
+
+  input,
+  select {
+    @include user-form-input;
+  }
+}
+
+.user-form-submit-button {
+  width: 100%;
+  padding: $user-form-submit-button-padding;
+  background-color: $user-form-submit-button-background-color;
+  border: none;
+  border-radius: $user-form-input-border-radius;
+  color: $user-form-submit-button-color;
+  font-size: $user-form-submit-button-font-size;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $user-form-submit-button-hover-background-color;
+  }
+}
+
+@media (max-width: 600px) {
+  .user-form-container {
+    padding: 15px;
+  }
+
+  .user-form-group {
+    input,
+    select {
+      padding: 8px;
+    }
+  }
+
+  .user-form-submit-button {
+    padding: 8px;
+    font-size: 14px;
+  }
+}

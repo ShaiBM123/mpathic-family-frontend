@@ -90,6 +90,7 @@ export class OpenAIPromptManager{
                                         "אחיינית", "אחיין", 
                                         "אישה", "בעל", 
                                         "חברה", "חבר", 
+                                        "בת זוג", "בן זוג",
                                         "ידידה", "ידיד",
                                         "בוסית", "בוס", 
                                         "עמיתה לעבודה", "עמית לעבודה",  
@@ -301,7 +302,7 @@ export class OpenAIPromptManager{
                                 this.updatePhase(UserMessagePhase.PersonInConflictAge, 0)
                                 content = this.generateInitialFollowUpText(UserMessagePhase.PersonInConflictAge);
                             }
-                            else if(["אישה", "בעל", "חבר", "חברה"].includes(
+                            else if(["אישה", "בעל", "חברה", "חבר", "בת זוג", "בן זוג"].includes(
                                 userInRelationship.data?.relationship as string))
                             {
                                 this.updatePhase(UserMessagePhase.PersonInConflictNickname, 0)

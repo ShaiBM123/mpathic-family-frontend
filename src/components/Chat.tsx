@@ -27,7 +27,7 @@ import {
 import { MessageContent, User } from "@chatscope/use-chat";
 import { UserMessageContent, UserMessagePhase } from "../open_ai/OpenAITypes";
 // import { ReactTyped } from "react-typed";
-import { openAIModel, openAIConversationId } from "../data/data";
+import { Gender, openAIModel, openAIConversationId } from "../data/data";
 import {
     interPersonalTopicsDictionary,
     InterPersonalTopics,
@@ -252,7 +252,7 @@ export const Chat = ({ user }: { user: User }) => {
                                     obj.selected_categories = selected_categories
                                     updateMessage(chat_msg)
                                     setPhaseAndCount(UserMessagePhase.PersonInConflictRelationship, 0)
-                                    addChatBotMsg(`מי האדם אליו ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (בת זוג, בן, אמא וכו’)?`, MessageContentType.TextPlain)
+                                    addChatBotMsg(`מי האדם אליו ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (${uGender === Gender.Male ? "בת זוג" : "בן זוג"}, אמא וכו)?`, MessageContentType.TextPlain)
                                     // doSend(msg) 
                                 }}
                             />

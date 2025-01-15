@@ -1,6 +1,8 @@
+import otherAvatar from "../assets/User1.svg";
 import femaleAvatar from "../assets/User3.svg";
 import maleAvatar from "../assets/User7.svg";
 import openAIAvatar from "../assets/openAI.svg";
+
 import { nanoid } from "nanoid";
 
 export enum Gender {
@@ -9,11 +11,12 @@ export enum Gender {
   Other = "אחר"
 };
 
-export const userModel = {
-  name: "Shai",
-  avatar: maleAvatar,
-  gender: Gender.Male
-};
+export const avatars = {
+  [Gender.Male]: maleAvatar,
+  [Gender.Female]: femaleAvatar,
+  [Gender.Other]: otherAvatar
+}
+
 
 export const openAIModel = {
   name: "OpenAI",
@@ -22,4 +25,4 @@ export const openAIModel = {
 
 export const openAIConversationId = nanoid();
 
-export const users = [userModel, openAIModel];
+// export const users = [openAIModel];
