@@ -96,6 +96,7 @@ export const Chat = ({ user }: { user: User }) => {
 
                 addChatBotMsg(
                     {
+                        active: true,
                         id: "user_first_registration_form"
                     }, MessageContentType.Other);
             }
@@ -264,7 +265,7 @@ export const Chat = ({ user }: { user: User }) => {
                                     return [Object(c).message]
                                 }}
                                 onStringTyped={() => {
-                                    scrollToTop()
+                                    // scrollToTop()
                                 }}
                             />
                     }
@@ -276,6 +277,7 @@ export const Chat = ({ user }: { user: User }) => {
                                 active={obj.active}
                                 selected={obj.selected}
                                 selectedCategories={obj.selected_categories}
+                                doOnRender={scrollToTop}
                                 onTopicSelection={(selected_categories) => {
 
                                     if (selected_categories.level === TopicCategoryLevel.Level_1) {

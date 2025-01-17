@@ -153,6 +153,7 @@ export interface InterPersonalTopicsProps {
     selected: boolean;
     active: boolean;
     onTopicSelection: (selectedCategories: ICategories) => void;
+    doOnRender: () => void;
 }
 
 interface ICategories {
@@ -161,7 +162,7 @@ interface ICategories {
     topics_titles: Array<string>;
 }
 
-export const InterPersonalTopics = ({ topics, active, selected, selectedCategories, onTopicSelection }: InterPersonalTopicsProps) => {
+export const InterPersonalTopics = ({ topics, active, selected, selectedCategories, doOnRender, onTopicSelection }: InterPersonalTopicsProps) => {
 
     const [categories, setCategories] =
         useState<ICategories>(selected ?
@@ -197,6 +198,10 @@ export const InterPersonalTopics = ({ topics, active, selected, selectedCategori
                             (topics[categories.topics_key[TopicCategoryLevel.Level_1]]
                                 .sub_categories as DctType)[categories.topics_key[TopicCategoryLevel.Level_2]]
                     } : {};
+
+    useEffect(() => {
+        doOnRender()
+    }, [doOnRender])
 
     useEffect(() => {
         if (topicSelected && active) {
