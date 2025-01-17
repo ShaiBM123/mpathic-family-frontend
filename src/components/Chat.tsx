@@ -60,11 +60,29 @@ export const Chat = ({ user }: { user: User }) => {
         setActiveConversation(openAIConversationId)
     }, [setActiveConversation]);
 
+
     const scrollToTop = useCallback(() => {
-        document.getElementsByClassName('cs-message-group')[0]?.scrollIntoView(
-            { behavior: 'auto', block: 'start' })
+        const timer = setTimeout(() => {
+            const msgGroup = document.getElementsByClassName('cs-message-group')[0];
+
+            if (!msgGroup) {
+                return;
+            }
+
+            msgGroup.scrollIntoView({ behavior: 'auto', block: 'start' });
+
+        }, 50);
+
+        return () => clearTimeout(timer);
 
     }, [])
+
+    // const scrollToTop = useCallback(() => {
+    //     document.getElementsByClassName('cs-message-group')[0]?.scrollIntoView(
+    //         { behavior: 'auto', block: 'start' })
+
+    // }, [])
+
     const scrollToBottom = useCallback(() => {
         document.getElementsByClassName('cs-message-list__scroll-to')[0]?.scrollIntoView(
             { behavior: 'auto', block: 'end' })
