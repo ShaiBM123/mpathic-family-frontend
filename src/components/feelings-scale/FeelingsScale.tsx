@@ -1,14 +1,14 @@
-import {useState} from "react";
+import { useState } from "react";
 import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
 import { z } from 'zod';
 // import { zodResponseFormat } from 'openai/helpers/zod';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSquareXmark, faSquarePlus, faSquareMinus } from '@fortawesome/free-solid-svg-icons'
-import {DropdownFeelingSelector, HebFeelings} from './FeelingsDropdown'
+import { DropdownFeelingSelector, HebFeelings } from './FeelingsDropdown'
 
-export const FeelingIntensityEnum = z.enum(["1", "2" , "3", "4", "5", "6", "7", "8", "9", "10"]);
+export const FeelingIntensityEnum = z.enum(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]);
 // const FeelingIntensityEnum = z.nativeEnum(FeelingIntensityEnum);
-export type FeelingIntensityEnumType = z.infer<typeof FeelingIntensityEnum>; 
+export type FeelingIntensityEnumType = z.infer<typeof FeelingIntensityEnum>;
 export const Feeling = z.object({
     emotion_name: z.string(),
     emotion_intensity: FeelingIntensityEnum,
@@ -17,7 +17,7 @@ export const FeelingsArray = z.array(Feeling)
 export type FeelingsArrayType = z.infer<typeof FeelingsArray>;
 // export const FeelingsResponseFormat = zodResponseFormat(z.object({feelings: FeelingsArray, description: z.string()}), "feelings-intensities")
 
- 
+
 // export enum FeelingIntensity {
 //     No = 0,
 //     Negligible = 1,
@@ -32,105 +32,155 @@ export type FeelingsArrayType = z.infer<typeof FeelingsArray>;
 //     ExtremelyHigh = 10
 // }
 
+
+interface FeelingsScaleBarProps {
+    intensity: FeelingIntensityEnumType;
+    onRescale: (new_intensity: FeelingIntensityEnumType) => void;
+}
+
+const FeelingsScaleBar = ({ intensity, onRescale }: FeelingsScaleBarProps) => {
+    // const [value, setValue] = useState(intensity);
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        // setValue(event.target.value as FeelingIntensityEnumType);
+        onRescale(event.target.value as FeelingIntensityEnumType)
+    };
+
+    const getBackgroundColor = (value: FeelingIntensityEnumType) => {
+        switch (value) {
+            case "1": return 'rgba(51, 51, 255, 1)'; // Medium Blue
+            case "2": return 'rgba(102, 102, 255, 1)'; // Light Blue
+            case "3": return 'rgba(153, 153, 255, 1)'; // Very Light Blue
+            case "4": return 'rgba(255, 255, 153, 1)'; // Light Yellow
+            case "5": return 'rgba(255, 255, 102, 1)'; // Yellow
+            case "6": return 'rgba(255, 204, 51, 1)'; // Yellow-Orange
+            case "7": return 'rgba(255, 153, 51, 1)'; // Light Orange
+            case "8": return 'rgba(255, 102, 0, 1)'; // Orange
+            case "9": return 'rgba(255, 51, 51, 1)'; // Light Red
+            case "10": return 'rgba(204, 0, 0, 1)'; // Red
+            default: return 'rgba(51, 51, 255, 1)'; // Default to Blue
+        }
+    };
+
+    return (
+        <Container className="feelings-scale-container">
+            <Row className="justify-content-center">
+                <Col xs={12} md={8} lg={6}>
+                    <Form>
+                        <Form.Group controlId="feelingsScale">
+                            <Form.Control
+                                type="range"
+                                min="1"
+                                step="1"
+                                max="10"
+                                value={intensity}
+                                onChange={handleChange}
+                                style={{ background: getBackgroundColor(intensity) }}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Col>
+            </Row>
+        </Container>
+    );
+};
+
 export interface FeelingsScaleProps {
     feelings: FeelingsArrayType;
     active: Boolean;
-    onRescaleDone: ( feelings: FeelingsArrayType, promptMsg: string ) => void ; 
+    onRescaleDone: (feelings: FeelingsArrayType, promptMsg: string) => void;
 }
 
-export const FeelingsScale = ({feelings, active, onRescaleDone}: FeelingsScaleProps) => {
+export const FeelingsScale = ({ feelings, active, onRescaleDone }: FeelingsScaleProps) => {
     const [scales, setScales] = useState(feelings);
     const [addingFeeling, setAddingFeeling] = useState(false);
     // const itemsRef = useRef(new Array());
     const composePromptMsg = () => {
-        let msg = scales.map((s)=>{return ` ${s.emotion_name} בעוצמה ${s.emotion_intensity} `}).join(' ')
+        let msg = scales.map((s) => { return ` ${s.emotion_name} בעוצמה ${s.emotion_intensity} ` }).join(' ')
         return `אני מרגיש את התחושות הבאות בסולם של אחת עד עשר: ${msg}`
     }
 
-    return(
-		<Container 
+    return (
+        <Container
             className={`${active ? "enabled" : "disabled"} feelings-container`}
-			// bsPrefix="container d-flex flex-column justify-content-center align-items-center"
-            >
+        // bsPrefix="container d-flex flex-column justify-content-center align-items-center"
+        >
 
             <Card>
                 {active &&
-                    <Card.Header>
-                        
-                        { addingFeeling ?
+                    <Card.Title>
+
+                        {addingFeeling ?
                             <Row>
-                                <Col sm={1}>
-                                    <FontAwesomeIcon 
-                                        icon={faSquareMinus} size={'lg'}
-                                        onClick={() => {setAddingFeeling(false)}}/>
-                                </Col> 
-                                <Col sm={7}>
+                                <Col xs={1} md={1}>
+                                    <FontAwesomeIcon
+                                        icon={faSquareMinus} size={'1x'}
+                                        onClick={() => { setAddingFeeling(false) }} />
+                                </Col>
+                                <Col xs={10} md={10}>
                                     <DropdownFeelingSelector onClick={
-                                        (e)=>{
+                                        (e) => {
                                             const feeling_name = HebFeelings.find(f => f.id === Number(e.currentTarget.id))?.feeling_name
-                                            if(feeling_name)
-                                            {
+                                            if (feeling_name) {
                                                 console.log(feeling_name)
 
                                                 let new_scales = scales.concat([{
-                                                    emotion_name: feeling_name, 
+                                                    emotion_name: feeling_name,
                                                     emotion_intensity: "5" as FeelingIntensityEnumType
                                                 }])
                                                 setScales(new_scales)
                                                 setAddingFeeling(false)
                                             }
-                                        }}/>
-                                </Col> 
+                                        }} />
+                                </Col>
                             </Row> :
                             <Row>
-                                <Col sm={1}>
-                                    <FontAwesomeIcon icon={faSquarePlus} size={'lg'}
-                                        onClick={() => {setAddingFeeling(true)}}
+                                <Col xs={1}>
+                                    <FontAwesomeIcon icon={faSquarePlus} size={'1x'}
+                                        onClick={() => { setAddingFeeling(true) }}
                                     />
-                                </Col> 
+                                </Col>
                             </Row>
                         }
 
-                    </Card.Header>
+                    </Card.Title>
                 }
 
                 <Card.Body>
                     {scales.length > 0 ?
 
-                        scales.map((f, i) => 
-                            <div className={"feeling-block"} key = {i}>
+                        scales.map((f, i) =>
+                            <div className={"feeling-block"} key={i}>
                                 <div className={"feeling-head"} >
                                     {active &&
-                                        <FontAwesomeIcon icon={faSquareXmark} size={'1x'} style={{paddingLeft: "10px"}}
+                                        <FontAwesomeIcon icon={faSquareXmark} size={'1x'} style={{ paddingLeft: "10px" }}
                                             onClick={() => {
-                                                let new_scales = scales.filter((s, s_idx)=>{return s_idx !== i})
+                                                let new_scales = scales.filter((s, s_idx) => { return s_idx !== i })
                                                 setScales(new_scales)
-                                                }}/> 
+                                            }} />
                                     }
                                     {f.emotion_name}
                                 </div>
                                 <div>
-                                    <Form>
-                                        <Form.Control className={'emotion-level-'+f.emotion_intensity} type="range" key={i}  
-                                            min={1} step={1} max={10} value={f.emotion_intensity} 
-                                            onChange={(event) => 
-                                                {
-                                                    let new_scales = scales.map((s)=>{
-                                                        return s.emotion_name === f.emotion_name ? 
-                                                            {
-                                                                emotion_name: s.emotion_name, 
-                                                                emotion_intensity: event.target.value as FeelingIntensityEnumType
-                                                            } : s})
-                                                    setScales(new_scales)
-                                                    console.log(event.target.value)
-                                                }}
-                                        />
-                                    </Form>
+                                    <FeelingsScaleBar
+                                        intensity={f.emotion_intensity}
+                                        onRescale={
+                                            (new_intensity: FeelingIntensityEnumType) => {
+                                                let new_scales = scales.map((s) => {
+                                                    return s.emotion_name === f.emotion_name ?
+                                                        {
+                                                            emotion_name: s.emotion_name,
+                                                            emotion_intensity: new_intensity
+                                                        } : s
+                                                })
+                                                setScales(new_scales)
+                                            }}
+                                    />
                                 </div>
                             </div>
-                        ) : 
+                        ) :
 
-                        <Card.Subtitle> 
+                        <Card.Subtitle>
                             {'לא נבחרו רגשות'}
                         </Card.Subtitle>
                     }
@@ -138,14 +188,14 @@ export const FeelingsScale = ({feelings, active, onRescaleDone}: FeelingsScalePr
 
                 {active &&
                     <Card.Footer className="text-muted">
-                        <Button variant="info" size="sm" className="bg-white text-dark border-dark rounded" 
-                        onClick={() => {onRescaleDone(scales, composePromptMsg())}} >
-                            {process.env.REACT_APP_RTL ==='yes' ? 'אישור': 'Ok'}
+                        <Button variant="info" size="sm" className="bg-white text-dark border-dark rounded"
+                            onClick={() => { onRescaleDone(scales, composePromptMsg()) }} >
+                            {process.env.REACT_APP_RTL === 'yes' ? 'אישור' : 'Ok'}
                         </Button>
-                    </Card.Footer> 
-                }     
+                    </Card.Footer>
+                }
             </Card>
- 
+
         </Container>
 
     )
