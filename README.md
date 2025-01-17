@@ -9,6 +9,8 @@ first time EC2 flow:
 sudo apt-get update -y
 cd ~
 
+sudo apt install nginx -y
+
 <!-- The following commands might be ignored since the react build process carried outside the Ubuntu instance
 
 curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
@@ -20,8 +22,9 @@ git clone https://github.com/ShaiBM123/mpathic-family-frontend.git
 -->
 
 sudo mkdir -p /var/www/vhosts/mpathic-family/frontend/
-sudo chmod –R 755 /var/www/vhosts/mpathic-family/frontend/
-sudo chown –R www-data:www-data /var/www/vhosts/mpathic-family/frontend/
+sudo usermod -a -G www-data ubuntu
+sudo chown -R ubuntu:www-data /var/www/vhosts/mpathic-family/frontend/
+sudo chmod -R 755 /var/www/vhosts/mpathic-family/frontend/
 
 npm run build (on local machine)
 
@@ -71,7 +74,7 @@ sudo systemctl status nginx
 sudo systemctl enable nginx
 
 sudo systemctl restart nginx
-sudo nginx –t (check the output on cmd – it should be successfull)
+sudo nginx -t (check the output on cmd – it should be successfull)
 
 BUILD INFO:
 node v16.20.2
