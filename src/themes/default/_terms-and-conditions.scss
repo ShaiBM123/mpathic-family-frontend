@@ -1,0 +1,56 @@
+.terms-container {
+    padding: 20px;
+    max-width: 600px;
+    margin: 20px auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    direction: rtl;
+    text-align: right;
+
+    @media (max-width: 600px) {
+        padding: 15px;
+        margin: 10px;
+    }
+}
+
+.terms-content {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+
+    @media (max-width: 600px) {
+        max-height: 200px;
+    }
+}
+
+.terms-checkbox-container {
+    display: flex;
+    align-items: center;
+
+    @media (max-width: 600px) {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.terms-accept-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 600px) {
+        width: 100%;
+        padding: 10px;
+    }
+}

@@ -3,7 +3,6 @@ import { Gender } from '../../data/data';
 
 export interface UserFormData {
     firstName: string;
-    lastName: string;
     gender: Gender;
     age: number | '';
 }
@@ -15,7 +14,6 @@ interface UserFormProps {
 export const UserForm: React.FC<UserFormProps> = ({ onSubmit }) => {
     const [userFormData, setUserFormData] = useState<UserFormData>({
         firstName: '',
-        lastName: '',
         gender: Gender.Other,
         age: ''
     });
@@ -41,16 +39,6 @@ export const UserForm: React.FC<UserFormProps> = ({ onSubmit }) => {
                     type="text"
                     name="firstName"
                     value={userFormData.firstName}
-                    onChange={handleChange}
-                    required
-                />
-            </div>
-            <div className="user-form-group">
-                <label>שם משפחתך</label>
-                <input
-                    type="text"
-                    name="lastName"
-                    value={userFormData.lastName}
                     onChange={handleChange}
                     required
                 />

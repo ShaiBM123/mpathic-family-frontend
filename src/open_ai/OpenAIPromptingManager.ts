@@ -21,17 +21,22 @@ export type SyestemPromptData = {
 } | undefined
 
 export function completeUserPartOfSpeech(user: User) {
-    return{
-        sbj3rdPronoun: user.data.gender===Gender.Female? "היא":"הוא",
-        sbj2ndPronoun: user.data.gender===Gender.Female? "את":"אתה",
-        objPronoun: user.data.gender===Gender.Female? "לה":"לו",
-        possessiveAdj: user.data.gender===Gender.Female? "שלה":"שלו",
-        Taf: user.data.gender===Gender.Female? "ת":"",
-        Yod: user.data.gender===Gender.Female? "י":"",
-        VavOrHei: user.data.gender===Gender.Female? "ה":"ו",
-        YodOrHei: user.data.gender===Gender.Female? "י":"ה",
-        Hei: user.data.gender===Gender.Female? "ה":""
+    let gender = user?.data?.gender;
+    if (gender)
+    {
+        return{
+            sbj3rdPronoun: user.data.gender===Gender.Female? "היא":"הוא",
+            sbj2ndPronoun: user.data.gender===Gender.Female? "את":"אתה",
+            objPronoun: user.data.gender===Gender.Female? "לה":"לו",
+            possessiveAdj: user.data.gender===Gender.Female? "שלה":"שלו",
+            Taf: user.data.gender===Gender.Female? "ת":"",
+            Yod: user.data.gender===Gender.Female? "י":"",
+            VavOrHei: user.data.gender===Gender.Female? "ה":"ו",
+            YodOrHei: user.data.gender===Gender.Female? "י":"ה",
+            Hei: user.data.gender===Gender.Female? "ה":""
+        }
     }
+    return {}
 }
 
 export class OpenAIPromptManager{

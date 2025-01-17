@@ -25,7 +25,7 @@ import { Gender, avatars } from "./data/data";
 import { AutoDraft } from "@chatscope/use-chat/dist/enums/AutoDraft";
 
 import { UserForm } from "./components/user-form/UserForm";
-
+import { TermsAndConditions } from "./components/website-terms-and-conditions/TermsAndConditions";
 // sendMessage and addMessage methods can automagically generate id for messages and groups
 // This allows you to omit doing this manually, but you need to provide a message generator
 // The message id generator is a function that receives message and returns id for this message
@@ -38,23 +38,15 @@ const serviceFactory = (storage: IStorage, updateState: UpdateState) => {
     return new ChatService(storage, updateState);
 };
 
-// const user = new User({
-//     id: "972-50-7632123", // should be the phone number
-//     presence: new Presence({ status: UserStatus.Available, description: "" }),
-//     firstName: "שי",
-//     lastName: "בן מיכאל",
-//     username: userModel.name,
-//     email: "shaibenmichael@gmail.com",
-//     avatar: userModel.avatar,
-//     bio: "CTO and Co-Founder at Mpathic",
-//     data: userModel
-// });
+const user = new User({
+    id: "000-00-0000000", // should be the phone number
+});
 
 
 const userStorage = new ExtendedStorage({ groupIdGenerator, messageIdGenerator });
 
 function App() {
-    const [user, setUser] = useState<User | null>(null);
+    const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
 
     return (
         <div className="mpathic-app h-100 d-flex flex-column overflow-hidden">
@@ -67,18 +59,10 @@ function App() {
                             debounceTyping: true,
                             autoDraft: AutoDraft.Save | AutoDraft.Restore
                         }}>
-                            {user ?
+                            {termsAccepted ?
                                 <Chat user={user} /> :
-                                <UserForm onSubmit={(data) => {
-                                    setUser(new User({
-                                        id: "000-00-0000000", // should be the phone number
-                                        presence: new Presence({ status: UserStatus.Available, description: "" }),
-                                        firstName: data.firstName,
-                                        lastName: data.lastName,
-                                        username: "MainUser",
-                                        data: { age: data.age, gender: data.gender },
-                                        avatar: avatars[data.gender],
-                                    }))
+                                <TermsAndConditions onAccept={(accepted) => {
+                                    setTermsAccepted(accepted)
                                 }} />
                             }
                         </ExtendedChatProvider>

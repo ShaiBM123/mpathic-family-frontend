@@ -27,7 +27,7 @@ import {
 import { MessageContent, User } from "@chatscope/use-chat";
 import { UserMessageContent, UserMessagePhase } from "../open_ai/OpenAITypes";
 // import { ReactTyped } from "react-typed";
-import { Gender, openAIModel, openAIConversationId } from "../data/data";
+import { Gender, avatars, openAIModel, openAIConversationId } from "../data/data";
 import {
     interPersonalTopicsDictionary,
     InterPersonalTopics,
@@ -37,6 +37,7 @@ import { Observation } from "./observation/Observation";
 import { FeelingsScale } from "./feelings-scale/FeelingsScale";
 import { TypingText } from "./typing-text/TypingText";
 import { completeUserPartOfSpeech } from "../open_ai/OpenAIPromptingManager"
+import { UserForm } from "./user-form/UserForm";
 
 import "./typing-text/typing-text.css"
 
@@ -47,6 +48,7 @@ export const Chat = ({ user }: { user: User }) => {
     const {
         currentMessages, activeConversation, setActiveConversation, sendMessage, addMessage,
         getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping, setCurrentUser,
+        currentUser, removeMessagesFromConversation,
         setTopic, setSubTopic, setPhaseAndCount, phaseCount
     } = useExtendedChat();
 
@@ -84,27 +86,40 @@ export const Chat = ({ user }: { user: User }) => {
     // show chatbot introductory message on mount
     useEffect(() => {
         if (activeConversation && currentMessages.length === 0) {
-            let uName = user?.firstName;
-            let uGender = user?.data.gender;
-            let uPoS = completeUserPartOfSpeech(user);
-            addChatBotMsg(
-                {
-                    message: `היי ${uName} :) בחר${uPoS.Yod} נושא עליו תרצ${uPoS.YodOrHei} לדבר או נושא שמעסיק אותך עכשיו`,
-                    id: "intro_msg_1"
-                },
-                MessageContentType.Other);
 
-            addChatBotMsg(
-                {
-                    ...interPersonalTopicsDictionary,
-                    active: true,
-                    selected: false,
-                    selected_categories: null,
-                    id: "inter_personal_topics"
-                },
-                MessageContentType.Other);
+            if (!currentUser?.data) {
+                addChatBotMsg(
+                    {
+                        message: `תחילה כמה שאלות קטנות שאוכל לתקשר איתך בבהירות`,
+                        id: "user_first_registration_msg"
+                    }, MessageContentType.Other);
+
+                addChatBotMsg(
+                    {
+                        id: "user_first_registration_form"
+                    }, MessageContentType.Other);
+            }
+            else {
+                let uName = currentUser?.firstName;
+                let uPoS = completeUserPartOfSpeech(currentUser);
+
+                addChatBotMsg(
+                    {
+                        message: `היי ${uName} :) בחר${uPoS.Yod} נושא עליו תרצ${uPoS.YodOrHei} לדבר או נושא שמעסיק אותך עכשיו`,
+                        id: "intro_msg"
+                    }, MessageContentType.Other);
+
+                addChatBotMsg(
+                    {
+                        ...interPersonalTopicsDictionary,
+                        active: true,
+                        selected: false,
+                        selected_categories: null,
+                        id: "inter_personal_topics"
+                    }, MessageContentType.Other);
+            }
         }
-    }, [activeConversation, addChatBotMsg, currentMessages.length, user]);
+    }, [activeConversation, addChatBotMsg, currentMessages.length, currentUser]);
 
     // Get current user data
     const [currentUserAvatar, currentUserName] = useMemo(() => {
@@ -190,8 +205,8 @@ export const Chat = ({ user }: { user: User }) => {
 
     const createMessageModel =
         (chat_msg: ChatMessage<MessageContentType>) => {
-            let uName = user?.firstName;
-            let uGender = user?.data.gender;
+            // let uName = user?.firstName;
+            let uGender = user?.data?.gender;
             let uPoS = completeUserPartOfSpeech(user);
 
             let message_type;
@@ -212,11 +227,35 @@ export const Chat = ({ user }: { user: User }) => {
                 else if (chat_msg.status === MessageStatus.DeliveredToDevice &&
                     chat_msg.contentType === MessageContentType.Other) {
 
+                    message_type = "custom";
                     let obj = Object(chat_msg.content)
 
-                    if (obj.id === "intro_msg_1") {
+                    if (obj.id === "user_first_registration_msg") {
 
-                        message_type = "custom";
+                        // a separate module should be implemented instaed displaying just typed text 
+                        message_payload =
+                            <TypingText
+                                chatMsg={chat_msg}
+                                chatMsgContentToStrings={(c: Object) => {
+                                    return [Object(c).message]
+                                }}
+                                onStringTyped={() => {
+                                    scrollToTop()
+                                }}
+                            />
+                    }
+                    else if (obj.id === "user_first_registration_form") {
+                        message_payload =
+                            <UserForm onSubmit={(data) => {
+                                user.firstName = data.firstName;
+                                user.data = { age: data.age, gender: data.gender };
+                                user.avatar = avatars[data.gender];
+                                setCurrentUser(user)
+                                removeMessagesFromConversation(activeConversation?.id as string)
+                            }} />
+                    }
+                    else if (obj.id === "intro_msg") {
+
                         // a separate module should be implemented instaed displaying just typed text 
                         message_payload =
                             <TypingText
@@ -231,7 +270,6 @@ export const Chat = ({ user }: { user: User }) => {
                     }
                     else if (obj.id === "inter_personal_topics") {
 
-                        message_type = "custom";
                         message_payload =
                             <InterPersonalTopics
                                 topics={obj.major_categories}
@@ -259,7 +297,6 @@ export const Chat = ({ user }: { user: User }) => {
                     }
                     else if (obj.id === "observation") {
 
-                        message_type = "custom";
                         // a separate module should be implemented instaed displaying just typed text 
                         message_payload =
                             <Observation
@@ -284,7 +321,6 @@ export const Chat = ({ user }: { user: User }) => {
                     }
                     else if (obj.id === "feelings") {
 
-                        message_type = "custom";
                         message_payload =
                             <FeelingsScale feelings={obj.feelings} active={obj.active}
                                 onRescaleDone={(new_feelings, prompt_msg) => {
@@ -307,7 +343,7 @@ export const Chat = ({ user }: { user: User }) => {
                     chat_msg.contentType === MessageContentType.Other) {
 
                     let obj = Object(chat_msg.content)
-                    if (obj.id === "intro_msg_1") {
+                    if (["intro_msg", "user_first_registration_msg"].includes(obj.id)) {
                         message_type = "text";
                         message_payload = obj.message;
                     }
