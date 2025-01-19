@@ -13,6 +13,7 @@ interface ExtendedChatContextProps {
     setTopic: (value: string) => void;
     setSubTopic: (value: string) => void;
     setPhaseAndCount: (phase: UserMessagePhase, phaseCount: number) => void;
+    removeMessageFromActiveConversation: (messageId: string) => void;
     phaseCount: number;
 }
 
@@ -100,9 +101,16 @@ export const ExtendedChatProvider = <S extends IChatService>({
         [storage, updateExtendedState]
     );
 
+    const removeMessageFromActiveConversation = useCallback(
+        (messageId: string): void => {
+            storage.removeMessageFromActiveConversation(messageId);
+            updateExtendedState();
+        }, [storage, updateExtendedState]
+    );
 
     const extendedContextValue: ExtendedChatContextProps = {
-        setTopic, setSubTopic, setPhaseAndCount, phaseCount: state.phaseCount
+        setTopic, setSubTopic, setPhaseAndCount, removeMessageFromActiveConversation,
+        phaseCount: state.phaseCount
     };
 
     // Render the original ChatProvider

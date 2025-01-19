@@ -134,37 +134,25 @@ export class ExtendedStorage<ConversationData = any>
         this.userInRelationship = user;
     }
 
-    // THIS LOGIC MIGHT BE REMOVED  
-    // addMessage(
-    //     message: ChatMessage<MessageContentType>,
-    //     conversationId: ConversationId,
-    //     generateId = false): ChatMessage<MessageContentType> {
+    removeMessageFromActiveConversation(messageId: string): void {
+        let activeConversation = super.getState().activeConversation;
 
-    //     let resultMsg = super.addMessage(message, conversationId, generateId)
+        if(activeConversation)
+        {
+            let filtered_groups = super.getState().currentMessages.map((g) => {
+                return g.messages.filter((msg) => msg.id !== messageId);
 
-    //     const { currentMessages } = super.getState();
-    //     const lastGroup = currentMessages[currentMessages.length - 1];
-    //     if(lastGroup.senderId ===  openAIModel.name && lastGroup.id !== this._phaseGroupID)
-    //     {
-    //         // this.phaseTransition = false;
-    //         let bot_msg = message as OpenAIBotMessage;
-    //         if(bot_msg.more_info_required !== undefined)
-    //         {
-    //             this._phaseGroupID = lastGroup.id;
-    //             if(bot_msg.more_info_required === false)
-    //             {
-    //                 this.setPhase(this.phase + 1);
-    //                 this.phaseTransition = true;
-    //             }
-    //             else if(bot_msg.more_info_required === true)
-    //             {
-    //                 this.phaseTransition = false;
-    //             }
-    //         }
-    //     }
+            })
 
-    //     return resultMsg;
-    // }
+            this.removeMessagesFromConversation(activeConversation.id);
+
+            for (const grp of filtered_groups){
+                for (const msg of grp){
+                    this.addMessage(msg, activeConversation.id);
+                }
+            }
+        }
+    }
 
     getState(): ChatState & ExtendedChatState {
         return {...super.getState(), 
