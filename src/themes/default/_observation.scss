@@ -18,12 +18,12 @@
     transform: scale(1.05);
 }
 
-.observation-button-group {
+.observation-icon-group {
     display: flex;
-    gap: 10px;
-    margin-bottom: 5px;
+    gap: 20px; // Increased horizontal gap between reactive icons
+    margin-bottom: 20px;
 }
 
-// .observation-button {
-//     border-radius: 50px; // Adjust the value to make the corners more rounded
-// }
+.is-correct-icon, .is-incorrect-icon {
+    margin-bottom: 10px; // Added margin to the bottom of non-reactive icons
+}
