@@ -329,7 +329,7 @@ export const Chat = ({ user }: { user: User }) => {
                                     addUserMsg(`הסיטואציה קשורה לנושא ${topic} בכל מה שקשור ב ${subTopic}`);
 
                                     setPhaseAndCount(UserMessagePhase.PersonInConflictIdentity, 0)
-                                    addChatBotMsg(`מי האדם אליו ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (${uGender === Gender.Male ? "בת זוג" : "בן זוג"}, אח אחות וכו)? ומה שמו/שמה`, MessageContentType.TextPlain)
+                                    addChatBotMsg(`מי האדם אליו ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (לדוגמא ${uGender === Gender.Male ? "בת זוג" : "בן זוג"}, אח אחות וכולי) ומה שמו/שמה ?`, MessageContentType.TextPlain)
                                 }}
                             />
                     }

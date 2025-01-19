@@ -49,7 +49,9 @@ export class OpenAIPromptManager{
         acquaintances: {[key: string]: string[]}, 
         friends: {[key: string]: string[]}, 
         work: {[key: string]: string[]}, 
-        school: {[key: string]: string[]}};
+        school: {[key: string]: string[]},
+        other: {[key: string]: string[]}
+    };
 
     constructor(storage: ExtendedStorage, update: UpdateState) {
         this.storage = storage;
@@ -76,6 +78,10 @@ export class OpenAIPromptManager{
             school: {
                 [Gender.Female] : ["מורה", "מדריכה", "מנהלת", "מרצה", "רכזת"], 
                 [Gender.Male] : ["מורה", "מדריך", "מנהל","מרצה", "רכז"]   
+            },
+            other: {
+                [Gender.Female] : ["לא ידוע"], 
+                [Gender.Male] : ["לא ידוע"]   
             }
         };
 
@@ -105,7 +111,7 @@ export class OpenAIPromptManager{
                 if(phaseCount === 0)
                 {
                     this.history.push(
-                        { role: "system", content: `בטקסט הבא המשתמש${uPoS.Taf} ${uName} מתאר${uPoS.Taf} אל מי ${uPoS.sbj3rdPronoun} מתייחס${uPoS.Taf}, עליך לזהות את הקרבה של המשתמש${uPoS.Taf} אל אותו אדם, את מינו (זכר או נקבה) ואת השם הפרטי שלו או שלה`});
+                        { role: "system", content: `בטקסט הבא המשתמש${uPoS.Taf} ${uName} מתאר${uPoS.Taf} אל מי ${uPoS.sbj3rdPronoun} מתייחס${uPoS.Taf}, במידה וניתן עליך לזהות את הקרבה של המשתמש${uPoS.Taf} אל אותו אדם, את מינו (זכר או נקבה) ואת השם הפרטי שלו או שלה`});
                 }
                 
                 return {
@@ -118,25 +124,32 @@ export class OpenAIPromptManager{
                                     z.object({
                                         gender_of_person_in_conflict: z.enum(["נקבה"]), 
                                         relationship_to_person_in_conflict: 
+                                        // z.union([
                                             z.enum([
                                                 this.relationships.family[Gender.Female], 
                                                 this.relationships.acquaintances[Gender.Female], 
                                                 this.relationships.friends[Gender.Female], 
                                                 this.relationships.work[Gender.Female], 
-                                                this.relationships.school[Gender.Female]
-                                            ].flat() as [string, ...string[]]).describe(`הקרבה אל הגברת, הבחורה או הילדה אליה המשתמש${uPoS.Taf} מתייחס${uPoS.Taf}`)
+                                                this.relationships.school[Gender.Female],
+                                                this.relationships.other[Gender.Female]
+                                            ].flat() as [string, ...string[]]).describe(`הקרבה אל הגברת, הבחורה או הילדה אליה המשתמש${uPoS.Taf} מתייחס${uPoS.Taf}`), 
+                                            // z.null()]),
                                     }), 
                                     z.object({
                                         gender_of_person_in_conflict: z.enum(["זכר"]), 
                                         relationship_to_person_in_conflict: 
+                                        // z.union([
                                             z.enum([
                                                 this.relationships.family[Gender.Male], 
                                                 this.relationships.acquaintances[Gender.Male], 
                                                 this.relationships.friends[Gender.Male], 
                                                 this.relationships.work[Gender.Male], 
-                                                this.relationships.school[Gender.Male]
+                                                this.relationships.school[Gender.Male],
+                                                this.relationships.other[Gender.Male]
                                             ].flat() as [string, ...string[]]).describe(`הקרבה אל האדון, הבחור או הילד אליו המשתמש${uPoS.Taf} מתייחס${uPoS.Taf}`)
-                                    }), z.null()]),
+                                            // z.null()]),
+
+                                        }), z.null()]),
                                     
                                     name:  z.union([z.string().describe("שם פרטי"), z.null()])
 
@@ -288,8 +301,6 @@ export class OpenAIPromptManager{
             switch (phase) {
 
                 case UserMessagePhase.PersonInConflictIdentity:
-                    // gender_of_person_in_conflict
-                    // relationship_to_person_in_conflict
 
                     if(!parsed_msg.person_in_conflict_info)
                     {
@@ -298,7 +309,7 @@ export class OpenAIPromptManager{
                     }
                     else if(!parsed_msg.person_in_conflict_info.relationship) {
                         this.updatePhase(phase, phaseCount+1)
-                        content =  ` לא הבנתי, למי ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (בת זוג, אמא, וכד)`
+                        content =  ` לא הבנתי, למי ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (${uGender === Gender.Male ? "בת":"בן"} זוג, אח, אחות וכד)`
                     
                     }else if(!parsed_msg.person_in_conflict_info.name) {
                         this.updatePhase(phase, phaseCount+1)
