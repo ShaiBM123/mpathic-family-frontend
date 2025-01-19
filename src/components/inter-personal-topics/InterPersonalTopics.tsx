@@ -64,7 +64,7 @@ export const interPersonalTopicsDictionary = {
 
         [IP1stCategory.LeisureTime]: {
             title: 'זמן פנאי ומסכים',
-            icon: FASolidIcons.faFutbol,
+            icon: FASolidIcons.faComputer,
             sub_categories: {
                 [IP2ndCategory.Other]: { title: 'אחר', description: 'נושא חופשי' },
                 [IP2ndCategory.Issue1]: { title: 'זמני מסך' },
