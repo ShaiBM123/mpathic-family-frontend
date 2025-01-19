@@ -328,8 +328,8 @@ export const Chat = ({ user }: { user: User }) => {
                                     removeMessageFromActiveConversation(chat_msg.id)
                                     addUserMsg(`הסיטואציה קשורה לנושא ${topic} בכל מה שקשור ב ${subTopic}`);
 
-                                    setPhaseAndCount(UserMessagePhase.PersonInConflictRelationship, 0)
-                                    addChatBotMsg(`מי האדם אליו ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (${uGender === Gender.Male ? "בת זוג" : "בן זוג"}, אח אחות וכו)?`, MessageContentType.TextPlain)
+                                    setPhaseAndCount(UserMessagePhase.PersonInConflictIdentity, 0)
+                                    addChatBotMsg(`מי האדם אליו ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (${uGender === Gender.Male ? "בת זוג" : "בן זוג"}, אח אחות וכו)? ומה שמו/שמה`, MessageContentType.TextPlain)
                                 }}
                             />
                     }

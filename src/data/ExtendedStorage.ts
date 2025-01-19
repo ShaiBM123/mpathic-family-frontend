@@ -62,7 +62,7 @@ export class ExtendedStorage<ConversationData = any>
    */
     constructor({ groupIdGenerator, messageIdGenerator }: ExtendedStorageParams) {
         super({ groupIdGenerator, messageIdGenerator })
-        this.phase = UserMessagePhase.PersonInConflictRelationship;
+        this.phase = UserMessagePhase.PersonInConflictIdentity;
         this.phaseCount = 0;
         this.topic = '';
         this.subTopic = '';
@@ -166,6 +166,6 @@ export class ExtendedStorage<ConversationData = any>
 
     resetState(): void {
         super.resetState();
-        this.phase = UserMessagePhase.PersonInConflictRelationship;
+        this.phase = UserMessagePhase.PersonInConflictIdentity;
     }
 }

@@ -7,15 +7,15 @@ export enum OpenAIContentType {
 }
 
 export enum UserMessagePhase {
-  PersonInConflictRelationship = 1,
-  PersonInConflictName = 2,
-  PersonInConflictNickname = 3,
-  PersonInConflictAge = 4,
-  ObservationAnalysis = 5,
-  FeelingsProbe = 6,
-  FeelingsAnalysis = 7,
-  NeedsProbe = 8,
-  TBD = 9
+  PersonInConflictIdentity = 1,
+  // PersonInConflictName = 2,
+  PersonInConflictNickname = 2,
+  PersonInConflictAge = 3,
+  ObservationAnalysis = 4,
+  FeelingsProbe = 5,
+  FeelingsAnalysis = 6,
+  NeedsProbe = 7,
+  TBD = 999
 }
 
 export interface UserMessageContent extends MessageContent<MessageContentType> {

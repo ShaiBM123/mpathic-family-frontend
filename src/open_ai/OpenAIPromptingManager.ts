@@ -44,11 +44,40 @@ export class OpenAIPromptManager{
     private updateState: UpdateState;
     model: (string & {}) | ChatModel;
     history: Array<{role: string, content: string }>;
+    private relationships: {
+        family: {[key: string]: string[]}, 
+        acquaintances: {[key: string]: string[]}, 
+        friends: {[key: string]: string[]}, 
+        work: {[key: string]: string[]}, 
+        school: {[key: string]: string[]}};
 
     constructor(storage: ExtendedStorage, update: UpdateState) {
         this.storage = storage;
         this.updateState = update;
         this.model ="gpt-4o-mini"; 
+        
+        this.relationships = {
+            family: {
+                [Gender.Female] : ["בת משפחה", "בת", "נכדה", "בת דוד", "דודה", "אחות", "אחיינית",  "אישה", "גרושה"], 
+                [Gender.Male] : ["בן משפחה", "בן", "נכד", "בן דוד", "דוד", "אח", "אחיין", "בעל", "גרוש"]
+            }, 
+            acquaintances: {
+                [Gender.Female] : ["ידידה", "שכנה"], 
+                [Gender.Male] : ["ידיד", "שכן"]
+            }, 
+            friends: {
+                [Gender.Female] : ["חברה", "בת זוג"], 
+                [Gender.Male] : ["חבר", "בן זוג"]
+            },
+            work: {
+                [Gender.Female] : ["בוסית", "עמיתה לעבודה"], 
+                [Gender.Male] : ["בוס", "עמית לעבודה"]
+            },
+            school: {
+                [Gender.Female] : ["מורה", "מדריכה", "מנהלת", "מרצה", "רכזת"], 
+                [Gender.Male] : ["מורה", "מדריך", "מנהל","מרצה", "רכז"]   
+            }
+        };
 
         this.history = [{
             role: "system",
@@ -72,55 +101,49 @@ export class OpenAIPromptManager{
 
         switch (phase) {
 
-            case UserMessagePhase.PersonInConflictRelationship:
+            case UserMessagePhase.PersonInConflictIdentity:
                 if(phaseCount === 0)
                 {
                     this.history.push(
-                        { role: "system", content: `במשפט הבא המשתמש${uPoS.Taf} ${uName} מתאר${uPoS.Taf} אל מי ${uPoS.sbj3rdPronoun} מתייחס${uPoS.Taf}, עליך לזהות את הקרבה של המשתמש${uPoS.Taf} אל אותו אדם ואת מינו (זכר או נקבה)`});
+                        { role: "system", content: `בטקסט הבא המשתמש${uPoS.Taf} ${uName} מתאר${uPoS.Taf} אל מי ${uPoS.sbj3rdPronoun} מתייחס${uPoS.Taf}, עליך לזהות את הקרבה של המשתמש${uPoS.Taf} אל אותו אדם, את מינו (זכר או נקבה) ואת השם הפרטי שלו או שלה`});
                 }
-
+                
                 return {
                     
                     response_format: zodResponseFormat( z.object({
                         person_in_conflict_info: z.union([
                             z.object({
-                                relationship: z.union([
-                                    z.enum([
-                                        "בת משפחה", "בן משפחה",
-                                        "בת", "בן",
-                                        "נכדה", "נכד",
-                                        "בת דוד", "בן דוד",
-                                        "דודה", "דוד",
-                                        "אחות", "אח",
-                                        "אחיינית", "אחיין", 
-                                        "אישה", "בעל", 
-                                        "חברה", "חבר", 
-                                        "בת זוג", "בן זוג",
-                                        "ידידה", "ידיד",
-                                        "בוסית", "בוס", 
-                                        "עמיתה לעבודה", "עמית לעבודה",  
-                                        "שכנה", "שכן",
-                                        "מורה", "מורה", 
-                                        "מדריכה", "מדריך",
-                                        "אחר"]), z.null()]), 
-                                gender: z.union([z.enum(["זכר", "נקבה"]), z.null()])
-                            }), z.null()]),
-                    }), "relationship_to_the_person_in_conflict"),                 
-                    max_tokens: 200,
-                    temperature: 0.7
-                };
-     
-            case UserMessagePhase.PersonInConflictName:
-                if(phaseCount === 0)
-                {
-                    this.history.push(
-                        { role: "system", content: `עליך לזהות בטקסט הבא את שמו הפרטי של האדם אליו ${uName} מתייחס`})
-                }
+                                relationship:
+                                z.union([
+                                    z.object({
+                                        gender_of_person_in_conflict: z.enum(["נקבה"]), 
+                                        relationship_to_person_in_conflict: 
+                                            z.enum([
+                                                this.relationships.family[Gender.Female], 
+                                                this.relationships.acquaintances[Gender.Female], 
+                                                this.relationships.friends[Gender.Female], 
+                                                this.relationships.work[Gender.Female], 
+                                                this.relationships.school[Gender.Female]
+                                            ].flat() as [string, ...string[]]).describe(`הקרבה אל הגברת, הבחורה או הילדה אליה המשתמש${uPoS.Taf} מתייחס${uPoS.Taf}`)
+                                    }), 
+                                    z.object({
+                                        gender_of_person_in_conflict: z.enum(["זכר"]), 
+                                        relationship_to_person_in_conflict: 
+                                            z.enum([
+                                                this.relationships.family[Gender.Male], 
+                                                this.relationships.acquaintances[Gender.Male], 
+                                                this.relationships.friends[Gender.Male], 
+                                                this.relationships.work[Gender.Male], 
+                                                this.relationships.school[Gender.Male]
+                                            ].flat() as [string, ...string[]]).describe(`הקרבה אל האדון, הבחור או הילד אליו המשתמש${uPoS.Taf} מתייחס${uPoS.Taf}`)
+                                    }), z.null()]),
+                                    
+                                    name:  z.union([z.string().describe("שם פרטי"), z.null()])
 
-                return {                    
-                    response_format: zodResponseFormat( z.object({
-                        name:  z.union([z.string(), z.null()]).describe("שם פרטי"),
-                    }), "name_of_the_person_in_conflict"),                 
+                            }), z.null()]),
+
+                    }), "person_in_conflict"), 
+
                     max_tokens: 200,
                     temperature: 0.7
                 };
@@ -217,12 +240,12 @@ export class OpenAIPromptManager{
     
         switch (phase) {
     
-            case UserMessagePhase.PersonInConflictRelationship:      
+            case UserMessagePhase.PersonInConflictIdentity:      
                 return ``;
             case UserMessagePhase.ObservationAnalysis:
                 return `תודה! תאר${uPoS.Yod} את הסיטואציה עליה ${uPoS.sbj2ndPronoun} מדבר${uPoS.Taf}, מה קרה בעצם ? אני סקרן אז כמה שיותר פרטים בבקשה !`;
-            case UserMessagePhase.PersonInConflictName:
-                return `מה שמ${u2PoS.VavOrHei} ?`;
+            // case UserMessagePhase.PersonInConflictName:
+            //     return `מה שמ${u2PoS.VavOrHei} ?`;
             case UserMessagePhase.PersonInConflictNickname:
                 return `מהו כינוי החיבה של${u2PoS.VavOrHei} ?`;
             case UserMessagePhase.PersonInConflictAge:
@@ -264,63 +287,56 @@ export class OpenAIPromptManager{
 
             switch (phase) {
 
-                case UserMessagePhase.PersonInConflictRelationship:
+                case UserMessagePhase.PersonInConflictIdentity:
+                    // gender_of_person_in_conflict
+                    // relationship_to_person_in_conflict
 
                     if(!parsed_msg.person_in_conflict_info)
                     {
                         this.updatePhase(phase, phaseCount+1)
-                        content =  `(' לא הבנתי, למי בדיוק ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (בת זוג, אמא, וכד`
-                    } 
+                        content =  `לא הצלחתי להבין, למי בדיוק ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} ומה שמו או שמה`
+                    }
+                    else if(!parsed_msg.person_in_conflict_info.relationship) {
+                        this.updatePhase(phase, phaseCount+1)
+                        content =  ` לא הבנתי, למי ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (בת זוג, אמא, וכד)`
+                    
+                    }else if(!parsed_msg.person_in_conflict_info.name) {
+                        this.updatePhase(phase, phaseCount+1)
+                        let gender_of_pic = parsed_msg.person_in_conflict_info.relationship.gender_of_person_in_conflict
+                        content =`${uGender === Gender.Female ? "רשמי":"רשום"} את ${gender_of_pic === Gender.Female ? "שמה":"שמו"}`;
+                    }
                     else {
                         let uir_data = userInRelationship.data as UserInRelationshipData
-                        uir_data.relationship = parsed_msg.person_in_conflict_info.relationship;
-                        let gender = parsed_msg.person_in_conflict_info.gender; 
+                        uir_data.relationship = parsed_msg.person_in_conflict_info.relationship.relationship_to_person_in_conflict;
+                        let gender = parsed_msg.person_in_conflict_info.relationship.gender_of_person_in_conflict; 
                         uir_data.gender = 
                             gender === "זכר" ? Gender.Male : 
                             gender === "נקבה" ? Gender.Female : 
                             Gender.Other;
                         userInRelationship.data = uir_data;
+                        userInRelationship.firstName = parsed_msg.person_in_conflict_info.name;
 
                         info_required = false;
-                        this.updatePhase(UserMessagePhase.PersonInConflictName, 0);
-                        content = this.generateInitialFollowUpText(UserMessagePhase.PersonInConflictName);
+                        if([this.relationships.family[Gender.Female], this.relationships.family[Gender.Male]].flat().includes(
+                            userInRelationship.data?.relationship as string))
+                        {
+                            this.updatePhase(UserMessagePhase.PersonInConflictAge, 0)
+                            content = this.generateInitialFollowUpText(UserMessagePhase.PersonInConflictAge);
+                        }
+                        else if([this.relationships.friends[Gender.Female], this.relationships.friends[Gender.Male]].flat().includes(
+                            userInRelationship.data?.relationship as string))
+                        {
+                            this.updatePhase(UserMessagePhase.PersonInConflictNickname, 0)
+                            content = this.generateInitialFollowUpText(UserMessagePhase.PersonInConflictNickname);
+                        }
+                        else{
+
+                            this.updatePhase(UserMessagePhase.ObservationAnalysis, 0)
+                            content = this.generateInitialFollowUpText(UserMessagePhase.ObservationAnalysis);
+                        }
                     }
                     assistant_msg = content
                     break;
-
-                case UserMessagePhase.PersonInConflictName:
-                        if(! parsed_msg.name) {
-                            content = `לא הבנתי :-( ${uGender === Gender.Female ? "רשמי":"רשום"} את ${u2Gender === Gender.Female ? "שמה":"שמו"}`  
-                        } else {
-                            userInRelationship.firstName = parsed_msg.name;
-
-                            info_required = false
-                            if(["בת משפחה", "בן משפחה",
-                                "בת", "בן",
-                                "נכדה", "נכד",
-                                "בת דוד", "בן דוד",
-                                "דודה", "דוד",
-                                "אחות", "אח",
-                                "אחיינית", "אחיין", ].includes(
-                                userInRelationship.data?.relationship as string))
-                            {
-                                this.updatePhase(UserMessagePhase.PersonInConflictAge, 0)
-                                content = this.generateInitialFollowUpText(UserMessagePhase.PersonInConflictAge);
-                            }
-                            else if(["אישה", "בעל", "חברה", "חבר", "בת זוג", "בן זוג"].includes(
-                                userInRelationship.data?.relationship as string))
-                            {
-                                this.updatePhase(UserMessagePhase.PersonInConflictNickname, 0)
-                                content = this.generateInitialFollowUpText(UserMessagePhase.PersonInConflictNickname);
-                            }
-                            else{
-    
-                                this.updatePhase(UserMessagePhase.ObservationAnalysis, 0)
-                                content = this.generateInitialFollowUpText(UserMessagePhase.ObservationAnalysis);
-                            }
-                        }
-                        assistant_msg = content
-                        break;
 
                 case UserMessagePhase.PersonInConflictNickname:
                     if(! parsed_msg.nickname) {
