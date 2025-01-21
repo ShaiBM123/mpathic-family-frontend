@@ -249,6 +249,7 @@ export class OpenAIPromptManager{
     private generateInitialFollowUpText = (phase: UserMessagePhase): string => {
         const {currentUser, userInRelationship} = (this.storage as ExtendedStorage)?.getState();
         let uPoS = completeUserPartOfSpeech(currentUser as User);
+        let u2Gender = userInRelationship?.data?.gender;
         let u2PoS = completeUserPartOfSpeech(userInRelationship as User);
     
         switch (phase) {
@@ -262,7 +263,7 @@ export class OpenAIPromptManager{
             case UserMessagePhase.PersonInConflictNickname:
                 return `מהו כינוי החיבה של${u2PoS.VavOrHei} ?`;
             case UserMessagePhase.PersonInConflictAge:
-                return `בת כמה ${u2PoS.sbj3rdPronoun} ?`;
+                return `${u2Gender === Gender.Female ? "בת":"בן"} כמה ${u2PoS.sbj3rdPronoun} ?`;
             case UserMessagePhase.FeelingsProbe:
                 return ``;
             case UserMessagePhase.FeelingsAnalysis:

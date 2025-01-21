@@ -345,7 +345,7 @@ export const Chat = ({ user }: { user: User }) => {
                                     obj.isCorrect = true;
                                     obj.active = false;
                                     updateMessage(chat_msg);
-                                    addChatBotMsg(`כעט בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה`, MessageContentType.TextPlain)
+                                    addChatBotMsg(`כעת בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה`, MessageContentType.TextPlain)
                                     setPhaseAndCount(UserMessagePhase.FeelingsProbe, 0)
                                 }}
                                 onNotAccurateClick={() => {
