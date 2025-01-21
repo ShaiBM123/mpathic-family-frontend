@@ -21,14 +21,10 @@ export const Observation: React.FC<ObservationProps> = ({ text, onCorrectClick, 
             </Card>
             {isCorrect === true ? (
                 <FontAwesomeIcon className="is-correct-icon" icon={faCircleCheck} style={{ color: 'green', fontSize: '2rem' }} />
-
-            ) : isCorrect === false ? (
-                <FontAwesomeIcon className="is-incorrect-icon" icon={faCircleQuestion} style={{ color: 'red', fontSize: '2rem' }} />
-
-            ) : (
+            ) : isCorrect === null && (
                 <div className="observation-icon-group">
-                    <FontAwesomeIcon icon={faCircleCheck} style={{ color: 'green', fontSize: '2rem', cursor: 'pointer' }} onClick={onCorrectClick} />
-                    <FontAwesomeIcon icon={faCircleQuestion} style={{ color: 'red', fontSize: '2rem', cursor: 'pointer' }} onClick={onNotAccurateClick} />
+                    <FontAwesomeIcon icon={faCircleCheck} style={{ color: 'green', fontSize: '3rem', cursor: 'pointer' }} onClick={onCorrectClick} />
+                    <button className="is-incorrect-button" onClick={onNotAccurateClick} >לא מדוייק</button>
                 </div>
             )}
         </div>

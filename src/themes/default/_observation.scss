@@ -10,7 +10,7 @@
 }
 
 .observation-text-display {
-    margin-bottom: 10px;
+    margin-bottom: 0; // Default to no margin
     transition: transform 0.3s ease;
 }
 
@@ -18,12 +18,28 @@
     transform: scale(1.05);
 }
 
-.observation-icon-group {
-    display: flex;
-    gap: 20px; // Increased horizontal gap between reactive icons
+.observation-text-display + .observation-icon-group,
+.observation-text-display + .is-correct-icon {
+    margin-top: 10px;
     margin-bottom: 20px;
 }
 
-.is-correct-icon, .is-incorrect-icon {
-    margin-bottom: 10px; // Added margin to the bottom of non-reactive icons
+.observation-icon-group {
+    display: flex;
+    gap: 20px; // Increased horizontal gap between reactive icons
+}
+
+.is-incorrect-button {
+    width: 3rem;
+    height: 3rem;
+    background-color: white; // Changed background color to white
+    border: 1px solid black; // Added thin black border
+    border-radius: 50%;
+    cursor: pointer;
+    color: black; // Added text color
+    font-size: 0.75rem; // Adjusted font size to fit inside the button
+    font-weight: bold; // Made the text bold
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
