@@ -11,6 +11,16 @@ export enum Gender {
   Other = "אחר"
 };
 
+export enum RelationshipCategory {
+  Family = "משפחה",
+  FamilyD2 = "משפחה מדרגה 2",
+  Friends = "חברים",
+  Acquaintances = "מכרים",
+  Work = "עבודה",
+  School = "לימודים",
+  Other = "אחר"
+};
+
 export const avatars = {
   [Gender.Male]: maleAvatar,
   [Gender.Female]: femaleAvatar,

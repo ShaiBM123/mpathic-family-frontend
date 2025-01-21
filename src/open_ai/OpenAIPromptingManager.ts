@@ -11,7 +11,8 @@ import { MessageContentType } from "@chatscope/use-chat/dist/enums";
 import { User } from "@chatscope/use-chat";
 // import { MessageContent } from "@chatscope/use-chat/dist/interfaces";
 import {ChatModel} from "openai/resources";
-import { Gender } from '../data/data';
+import { RelationshipCategory, Gender } from '../data/data';
+import {relationships} from './PersonalRelationships';
 import {FeelingsArray} from '../components/feelings-scale/FeelingsScale';
 
 export type SyestemPromptData = { 
@@ -44,53 +45,17 @@ export class OpenAIPromptManager{
     private updateState: UpdateState;
     model: (string & {}) | ChatModel;
     history: Array<{role: string, content: string }>;
-    private relationships: {
-        family: {[key: string]: string[]}, 
-        acquaintances: {[key: string]: string[]}, 
-        friends: {[key: string]: string[]}, 
-        work: {[key: string]: string[]}, 
-        school: {[key: string]: string[]},
-        other: {[key: string]: string[]}
-    };
 
     constructor(storage: ExtendedStorage, update: UpdateState) {
         this.storage = storage;
         this.updateState = update;
         this.model ="gpt-4o-mini"; 
-        
-        this.relationships = {
-            family: {
-                [Gender.Female] : ["בת משפחה", "בת", "נכדה", "בת דוד", "דודה", "אחות", "אחיינית",  "אישה", "גרושה"], 
-                [Gender.Male] : ["בן משפחה", "בן", "נכד", "בן דוד", "דוד", "אח", "אחיין", "בעל", "גרוש"]
-            }, 
-            acquaintances: {
-                [Gender.Female] : ["ידידה", "שכנה"], 
-                [Gender.Male] : ["ידיד", "שכן"]
-            }, 
-            friends: {
-                [Gender.Female] : ["חברה", "בת זוג"], 
-                [Gender.Male] : ["חבר", "בן זוג"]
-            },
-            work: {
-                [Gender.Female] : ["בוסית", "עמיתה לעבודה"], 
-                [Gender.Male] : ["בוס", "עמית לעבודה"]
-            },
-            school: {
-                [Gender.Female] : ["מורה", "מדריכה", "מנהלת", "מרצה", "רכזת"], 
-                [Gender.Male] : ["מורה", "מדריך", "מנהל","מרצה", "רכז"]   
-            },
-            other: {
-                [Gender.Female] : ["לא ידוע"], 
-                [Gender.Male] : ["לא ידוע"]   
-            }
-        };
 
         this.history = [{
             role: "system",
             content: "אתה מטפל בשיטת התקשורת המקרבת התפקיד שלך הוא לסייע למשתמשים ליישב בעיות בין אישיות בצורה אמפתית בשפה העברית.",
         }]
     }
-
 
     buildSyestemPrompt = (): SyestemPromptData => 
     {
@@ -125,32 +90,19 @@ export class OpenAIPromptManager{
                                         gender_of_person_in_conflict: z.enum(["נקבה"]), 
                                         relationship_to_person_in_conflict: 
                                         // z.union([
-                                            z.enum([
-                                                this.relationships.family[Gender.Female], 
-                                                this.relationships.acquaintances[Gender.Female], 
-                                                this.relationships.friends[Gender.Female], 
-                                                this.relationships.work[Gender.Female], 
-                                                this.relationships.school[Gender.Female],
-                                                this.relationships.other[Gender.Female]
-                                            ].flat() as [string, ...string[]]).describe(`הקרבה אל הגברת, הבחורה או הילדה אליה המשתמש${uPoS.Taf} מתייחס${uPoS.Taf}`), 
+                                            z.enum(relationships({gender: Gender.Female}) as [string, ...string[]])
+                                            .describe(`הקרבה אל הגברת, הבחורה או הילדה אליה המשתמש${uPoS.Taf} מתייחס${uPoS.Taf}`), 
                                             // z.null()]),
                                     }), 
                                     z.object({
                                         gender_of_person_in_conflict: z.enum(["זכר"]), 
                                         relationship_to_person_in_conflict: 
                                         // z.union([
-                                            z.enum([
-                                                this.relationships.family[Gender.Male], 
-                                                this.relationships.acquaintances[Gender.Male], 
-                                                this.relationships.friends[Gender.Male], 
-                                                this.relationships.work[Gender.Male], 
-                                                this.relationships.school[Gender.Male],
-                                                this.relationships.other[Gender.Male]
-                                            ].flat() as [string, ...string[]]).describe(`הקרבה אל האדון, הבחור או הילד אליו המשתמש${uPoS.Taf} מתייחס${uPoS.Taf}`)
+                                            z.enum(relationships({gender: Gender.Male}) as [string, ...string[]])
+                                            .describe(`הקרבה אל האדון, הבחור או הילד אליו המשתמש${uPoS.Taf} מתייחס${uPoS.Taf}`)
                                             // z.null()]),
-
-                                        }), z.null()]),
-                                    
+                                    }), z.null()]),
+                                    gender_of_person_in_conflict: z.enum(["זכר","נקבה"]),
                                     name:  z.union([z.string().describe("שם פרטי"), z.null()])
 
                             }), z.null()]),
@@ -170,7 +122,7 @@ export class OpenAIPromptManager{
 
                 return {
                     response_format: zodResponseFormat( z.object({ 
-                        nickname:  z.union([z.string(), z.null()]).describe("כינוי חיבה"),
+                        nickname:  z.union([z.string().describe("כינוי חיבה"), z.null()]),
                     }), "nickname_of_the_person_in_conflict"),                 
                     max_tokens: 200,
                     temperature: 0.7
@@ -185,7 +137,7 @@ export class OpenAIPromptManager{
 
                 return {
                     response_format: zodResponseFormat( z.object({
-                        age: z.union([z.number(), z.null()]),
+                        age: z.union([z.number().describe("גיל"), z.null()]),
                     }), "age_of_the_person_in_conflict"),                 
                     max_tokens: 200,
                     temperature: 0.7
@@ -196,14 +148,15 @@ export class OpenAIPromptManager{
                     this.history.push(
                         { role: "system", content: `בהנתן תיאור של ${uName} לגבי סיטואציה בנושא  ${topic} בכל מה שקשור ב ${subTopic} מול ${u2Name} ה${u2Relationship} ${uPoS.possessiveAdj} נסח תצפית לפי הגישה של תקשורת מקרבת`},
                         { role: "system", content: 'תצפית מוגדרת כהתמקדות במה שאנחנו רואים שומעים או מבחינים בו באופן אובייקטיבי מבלי להוסיף רגש, שיפוט, פרשנות או הערכה'},
-                        { role: "system", content: `אם התיאור של ${uName} מלא נסח תצפית אחרת בקש ${uGender===Gender.Female? "ממנה":"ממנו"} פרטים נוספים`},
-                        { role: "system", content: `${uName} ${uGender===Gender.Female? "יכולה":"יכול"} להוסיף פרטים נוספים אם ${uPoS.sbj3rdPronoun} לא מרוצה מהתצפית שהוצגה ${uPoS.objPronoun}`})
+                        { role: "system", content: `נסח את התצפית בגוף שני כך שהניסוח פונה ל ${uName}`},
+                        // { role: "system", content: `${uName} ${uGender===Gender.Female? "יכולה":"יכול"} להוסיף פרטים נוספים אם ${uPoS.sbj3rdPronoun} לא מרוצה מהתצפית שהוצגה ${uPoS.objPronoun}`}
+                    )
                 }
 
                 return {
                     response_format: zodResponseFormat( z.object({
-                        request_for_more_info: z.union([z.string(), z.null()]).describe("בקשה למידע נוסף להשלמת ניסוח התצפית"), 
-                        observation: z.union([z.string(), z.null()]).describe("התצפית")
+                        request_for_more_info: z.union([z.string().describe("בקשה למידע נוסף להשלמת ניסוח התצפית"), z.null()]), 
+                        observation: z.union([z.string().describe("התצפית"), z.null()])
                     }), "observation"),                 
                     max_tokens: 600,
                     temperature: 0.7
@@ -258,8 +211,6 @@ export class OpenAIPromptManager{
                 return ``;
             case UserMessagePhase.ObservationAnalysis:
                 return `תודה! תאר${uPoS.Yod} את הסיטואציה עליה ${uPoS.sbj2ndPronoun} מדבר${uPoS.Taf}, מה קרה בעצם ? אני סקרן אז כמה שיותר פרטים בבקשה !`;
-            // case UserMessagePhase.PersonInConflictName:
-            //     return `מה שמ${u2PoS.VavOrHei} ?`;
             case UserMessagePhase.PersonInConflictNickname:
                 return `מהו כינוי החיבה של${u2PoS.VavOrHei} ?`;
             case UserMessagePhase.PersonInConflictAge:
@@ -292,8 +243,10 @@ export class OpenAIPromptManager{
 
         let info_required = true
         let content: any = null
-        let assistant_msg = ""
+        let assistant_msg;
         let content_type = MessageContentType.TextPlain
+
+        let next_phase = null;
 
         if (bot_msg?.parsed) {
 
@@ -314,13 +267,13 @@ export class OpenAIPromptManager{
                     
                     }else if(!parsed_msg.person_in_conflict_info.name) {
                         this.updatePhase(phase, phaseCount+1)
-                        let gender_of_pic = parsed_msg.person_in_conflict_info.relationship.gender_of_person_in_conflict
+                        let gender_of_pic = parsed_msg.person_in_conflict_info.gender_of_person_in_conflict
                         content =`${uGender === Gender.Female ? "רשמי":"רשום"} את ${gender_of_pic === Gender.Female ? "שמה":"שמו"}`;
                     }
                     else {
                         let uir_data = userInRelationship.data as UserInRelationshipData
                         uir_data.relationship = parsed_msg.person_in_conflict_info.relationship.relationship_to_person_in_conflict;
-                        let gender = parsed_msg.person_in_conflict_info.relationship.gender_of_person_in_conflict; 
+                        let gender = parsed_msg.person_in_conflict_info.gender_of_person_in_conflict; 
                         uir_data.gender = 
                             gender === "זכר" ? Gender.Male : 
                             gender === "נקבה" ? Gender.Female : 
@@ -329,22 +282,25 @@ export class OpenAIPromptManager{
                         userInRelationship.firstName = parsed_msg.person_in_conflict_info.name;
 
                         info_required = false;
-                        if([this.relationships.family[Gender.Female], this.relationships.family[Gender.Male]].flat().includes(
+
+                        if(relationships({category: RelationshipCategory.Family}).includes(
                             userInRelationship.data?.relationship as string))
                         {
-                            this.updatePhase(UserMessagePhase.PersonInConflictAge, 0)
-                            content = this.generateInitialFollowUpText(UserMessagePhase.PersonInConflictAge);
+                            next_phase = UserMessagePhase.PersonInConflictAge;
+                            this.updatePhase(next_phase, 0);
+                            content = this.generateInitialFollowUpText(next_phase);
                         }
-                        else if([this.relationships.friends[Gender.Female], this.relationships.friends[Gender.Male]].flat().includes(
+                        else if(relationships({category: RelationshipCategory.Friends}).includes(
                             userInRelationship.data?.relationship as string))
                         {
-                            this.updatePhase(UserMessagePhase.PersonInConflictNickname, 0)
-                            content = this.generateInitialFollowUpText(UserMessagePhase.PersonInConflictNickname);
+                            next_phase = UserMessagePhase.PersonInConflictNickname;
+                            this.updatePhase(next_phase, 0);
+                            content = this.generateInitialFollowUpText(next_phase);
                         }
                         else{
-
-                            this.updatePhase(UserMessagePhase.ObservationAnalysis, 0)
-                            content = this.generateInitialFollowUpText(UserMessagePhase.ObservationAnalysis);
+                            next_phase = UserMessagePhase.ObservationAnalysis;
+                            this.updatePhase(next_phase, 0);
+                            content = this.generateInitialFollowUpText(next_phase);
                         }
                     }
                     assistant_msg = content
@@ -357,8 +313,9 @@ export class OpenAIPromptManager{
                     } else {
                         (userInRelationship.data as UserInRelationshipData).nickName = parsed_msg.nickname;
                         info_required = false
-                        this.updatePhase(UserMessagePhase.ObservationAnalysis, 0)
-                        content = this.generateInitialFollowUpText(UserMessagePhase.ObservationAnalysis);
+                        next_phase = UserMessagePhase.ObservationAnalysis;
+                        this.updatePhase(next_phase, 0)
+                        content = this.generateInitialFollowUpText(next_phase);
                     }
                     assistant_msg = content
                     break;
@@ -370,8 +327,18 @@ export class OpenAIPromptManager{
                     } else {
                         (userInRelationship.data as UserInRelationshipData).age = parsed_msg.age;
                         info_required = false
-                        this.updatePhase(UserMessagePhase.ObservationAnalysis, 0)
-                        content = this.generateInitialFollowUpText(UserMessagePhase.ObservationAnalysis);
+                        if(relationships({category: RelationshipCategory.Family}).includes(
+                            userInRelationship.data?.relationship as string))
+                        {
+                            next_phase = UserMessagePhase.PersonInConflictNickname;
+                            this.updatePhase(next_phase, 0)
+                            content = this.generateInitialFollowUpText(next_phase);
+                        }
+                        else{
+                            next_phase = UserMessagePhase.ObservationAnalysis;
+                            this.updatePhase(next_phase, 0)
+                            content = this.generateInitialFollowUpText(next_phase);
+                        }
                     }
                     assistant_msg = content
                     break;
@@ -388,7 +355,8 @@ export class OpenAIPromptManager{
                         // with the given observation
                         this.updatePhase(UserMessagePhase.FeelingsProbe, 0)
                         content = {observation: parsed_msg.observation, id: "observation", active: true, isCorrect: null}
-                        assistant_msg = parsed_msg.observation
+                        // assistange message is generated once the user approves the observation
+                        // assistant_msg = ?
                     }
                     break;
 
@@ -427,8 +395,10 @@ export class OpenAIPromptManager{
 
         this.storage?.setUserInRelationship(userInRelationship);
         this.updateState();
-        this.history.push({ role: 'assistant', content: assistant_msg } );
 
+        if(assistant_msg){
+            this.history.push({ role: 'assistant', content: assistant_msg } );
+        }
         if (info_required === true ){
             this.updatePhase(phase, phaseCount+1)
         }
