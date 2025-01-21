@@ -308,7 +308,7 @@ export const Chat = ({ user }: { user: User }) => {
                                 selectedCategories={obj.selected_categories}
                                 doOnRender={scrollToTop}
                                 onTopicSelection={(selected_categories) => {
-                                    let topic = '';
+                                    let topic = ' כללי';
                                     let subTopic = '';
 
                                     if (selected_categories.level === TopicCategoryLevel.Level_1) {
@@ -321,12 +321,9 @@ export const Chat = ({ user }: { user: User }) => {
                                         setTopic(topic)
                                         setSubTopic(subTopic)
                                     }
-                                    // obj.active = false
-                                    // obj.selected = true
-                                    // obj.selected_categories = selected_categories
-                                    // updateMessage(chat_msg)
+
                                     removeMessageFromActiveConversation(chat_msg.id)
-                                    addUserMsg(`הסיטואציה קשורה לנושא ${topic} בכל מה שקשור ב ${subTopic}`);
+                                    addUserMsg(["", "נושא חופשי"].includes(topic) ? `הסיטואציה קשורה לנושא כללי` : `הסיטואציה קשורה לנושא ${topic}` + (["", "נושא חופשי"].includes(subTopic) ? `` : ` ובפרט לגבי ${subTopic}`));
 
                                     setPhaseAndCount(UserMessagePhase.PersonInConflictIdentity, 0)
                                     addChatBotMsg(`מי האדם אליו ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (לדוגמא ${uGender === Gender.Male ? "בת זוג" : "בן זוג"}, אח אחות וכולי) ומה שמו/שמה ?`, MessageContentType.TextPlain)
