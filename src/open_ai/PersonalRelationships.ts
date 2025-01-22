@@ -34,8 +34,8 @@ const _relationships: {
         [Gender.Male] : ["מורה", "מדריך", "מנהל","מרצה", "רכז"]   
     },
     other: {
-        [Gender.Female] : ["לא ידוע", "גרושה"], 
-        [Gender.Male] : ["לא ידוע", "גרוש"]   
+        [Gender.Female] : ["לא ידוע", "גרושה", "אקסית"], 
+        [Gender.Male] : ["לא ידוע", "גרוש", "אקס"]   
     }
 };
 
