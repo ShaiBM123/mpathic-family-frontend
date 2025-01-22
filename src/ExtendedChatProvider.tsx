@@ -12,9 +12,10 @@ import { UserMessagePhase } from './open_ai/OpenAITypes';
 interface ExtendedChatContextProps {
     setTopic: (value: string) => void;
     setSubTopic: (value: string) => void;
+    phaseCount: number;
     setPhaseAndCount: (phase: UserMessagePhase, phaseCount: number) => void;
     removeMessageFromActiveConversation: (messageId: string) => void;
-    phaseCount: number;
+    addOpenAIHistoryText: (role: "user" | "assistant" | "system", txt: string) => void;
 }
 
 // Create a context for these properties
@@ -42,7 +43,6 @@ export const useExtendedChat = () => {
 interface ExtendedChatProviderProps<S extends IChatService> extends ChatProviderProps<S> {
     // New or extended properties
     storage: ExtendedStorage; // override
-
 }
 
 export const ExtendedChatProvider = <S extends IChatService>({
@@ -108,8 +108,13 @@ export const ExtendedChatProvider = <S extends IChatService>({
         }, [storage, updateExtendedState]
     );
 
+    const addOpenAIHistoryText = useCallback((role: "user" | "assistant" | "system", txt: string) => {
+        storage.addOpenAIHistoryText(role, txt);
+        updateExtendedState();
+    }, [storage, updateExtendedState])
+
     const extendedContextValue: ExtendedChatContextProps = {
-        setTopic, setSubTopic, setPhaseAndCount, removeMessageFromActiveConversation,
+        setTopic, setSubTopic, setPhaseAndCount, removeMessageFromActiveConversation, addOpenAIHistoryText,
         phaseCount: state.phaseCount
     };
 

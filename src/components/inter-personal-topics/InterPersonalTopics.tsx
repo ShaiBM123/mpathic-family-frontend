@@ -41,7 +41,7 @@ export const interPersonalTopicsDictionary = {
             title: 'לוחות זמנים ומטלות בית',
             icon: FASolidIcons.faHouseUser,
             sub_categories: {
-                [IP2ndCategory.Other]: { title: 'אחר', description: 'נושא חופשי' },
+                [IP2ndCategory.Other]: { title: 'אחר', description: '' },
                 [IP2ndCategory.Issue1]: { title: 'שינויים בלוחות זמנים שנקבעו' },
                 [IP2ndCategory.Issue2]: { title: 'תפקידים ואחריות בבית' },
                 [IP2ndCategory.Issue3]: { title: 'ביצוע מטלות' },
@@ -53,7 +53,7 @@ export const interPersonalTopicsDictionary = {
             title: 'לימודים ובי"ס',
             icon: FASolidIcons.faBookReader,
             sub_categories: {
-                [IP2ndCategory.Other]: { title: 'אחר', description: 'נושא חופשי' },
+                [IP2ndCategory.Other]: { title: 'אחר', description: '' },
                 [IP2ndCategory.Issue1]: { title: 'שיעורי בית' },
                 [IP2ndCategory.Issue2]: { title: 'ציונים ומבחנים' },
                 [IP2ndCategory.Issue3]: { title: 'הגעה לבית הספר' },
@@ -66,7 +66,7 @@ export const interPersonalTopicsDictionary = {
             title: 'זמן פנאי ומסכים',
             icon: FASolidIcons.faComputer,
             sub_categories: {
-                [IP2ndCategory.Other]: { title: 'אחר', description: 'נושא חופשי' },
+                [IP2ndCategory.Other]: { title: 'אחר', description: '' },
                 [IP2ndCategory.Issue1]: { title: 'זמני מסך' },
                 [IP2ndCategory.Issue2]: { title: 'טלפון נייד ורשתות חברתיות' },
                 [IP2ndCategory.Issue3]: { title: 'מפגש משפחתי' },
@@ -80,7 +80,7 @@ export const interPersonalTopicsDictionary = {
             title: 'תקשורת ומערכות יחסים',
             icon: FASolidIcons.faUserFriends,
             sub_categories: {
-                [IP2ndCategory.Other]: { title: 'אחר', description: 'נושא חופשי' },
+                [IP2ndCategory.Other]: { title: 'אחר', description: '' },
                 [IP2ndCategory.Issue1]: { title: 'קונפליקט לא פטור' },
                 [IP2ndCategory.Issue2]: { title: 'העלאת נושא מסויים' },
                 [IP2ndCategory.Issue3]: { title: 'התעניינות בנושא מסויים' },
@@ -93,7 +93,7 @@ export const interPersonalTopicsDictionary = {
             title: 'נושאים כלכליים',
             icon: FASolidIcons.faMoneyBill,
             sub_categories: {
-                [IP2ndCategory.Other]: { title: 'אחר', description: 'נושא חופשי' },
+                [IP2ndCategory.Other]: { title: 'אחר', description: '' },
                 [IP2ndCategory.Issue1]: { title: 'דמי כיס' },
                 [IP2ndCategory.Issue2]: { title: 'קבלה / קנייה של משהוא' },
                 [IP2ndCategory.Issue3]: { title: 'קשיים כלכליים' },
@@ -104,7 +104,7 @@ export const interPersonalTopicsDictionary = {
             title: 'מרחב ופרטיות',
             icon: FASolidIcons.faPeopleRoof,
             sub_categories: {
-                [IP2ndCategory.Other]: { title: 'אחר', description: 'נושא חופשי' },
+                [IP2ndCategory.Other]: { title: 'אחר', description: '' },
                 [IP2ndCategory.Issue1]: { title: 'פרטיות בבית' },
                 [IP2ndCategory.Issue2]: { title: 'טלפון נייד ורשתות חברתיות' },
                 [IP2ndCategory.Issue3]: { title: 'זמן עם עצמי' },
@@ -116,7 +116,7 @@ export const interPersonalTopicsDictionary = {
             title: 'בריאות',
             icon: FASolidIcons.faHeartbeat,
             sub_categories: {
-                [IP2ndCategory.Other]: { title: 'אחר', description: 'נושא חופשי' },
+                [IP2ndCategory.Other]: { title: 'אחר', description: '' },
                 [IP2ndCategory.Issue1]: { title: 'תזונה והרגלי אכילה' },
                 [IP2ndCategory.Issue2]: { title: 'שינה' },
                 [IP2ndCategory.Issue3]: { title: 'פעילות גופנית' },
@@ -128,7 +128,7 @@ export const interPersonalTopicsDictionary = {
         [IP1stCategory.Other]: {
             title: 'אחר',
             icon: FASolidIcons.faQuestion,
-            description: 'נושא חופשי',
+            description: '',
             sub_categories: {
                 [IP2ndCategory.Other]: { title: 'אחר', description: 'כל נושא אחר' }
             }

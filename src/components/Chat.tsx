@@ -49,7 +49,8 @@ export const Chat = ({ user }: { user: User }) => {
         currentMessages, activeConversation, setActiveConversation, sendMessage, addMessage,
         getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping, setCurrentUser,
         currentUser, removeMessagesFromConversation,
-        setTopic, setSubTopic, setPhaseAndCount, removeMessageFromActiveConversation, phaseCount
+        setTopic, setSubTopic, setPhaseAndCount, removeMessageFromActiveConversation, addOpenAIHistoryText,
+        phaseCount
     } = useExtendedChat();
 
     useEffect(() => {
@@ -84,9 +85,7 @@ export const Chat = ({ user }: { user: User }) => {
     // }, [])
 
     const scrollToBottom = useCallback(() => {
-        document.getElementsByClassName('cs-message-list__scroll-to')[0]?.scrollIntoView(
-            { behavior: 'auto', block: 'end' })
-
+        document.getElementsByClassName('cs-message-list__scroll-to')[0]?.scrollIntoView({ behavior: 'auto', block: 'end' })
     }, [])
 
     const addChatBotMsg = useCallback((content: unknown, contentType: MessageContentType) => {
@@ -323,7 +322,9 @@ export const Chat = ({ user }: { user: User }) => {
                                     }
 
                                     removeMessageFromActiveConversation(chat_msg.id)
-                                    addUserMsg(["", "נושא חופשי"].includes(topic) ? `הסיטואציה קשורה לנושא כללי` : `הסיטואציה קשורה לנושא ${topic}` + (["", "נושא חופשי"].includes(subTopic) ? `` : ` ובפרט לגבי ${subTopic}`));
+                                    addUserMsg(
+                                        topic === '' ? `הסיטואציה קשורה לנושא כללי` : `הסיטואציה קשורה לנושא ${topic}`
+                                            + (subTopic === '' ? `` : ` ובפרט לגבי ${subTopic}`));
 
                                     setPhaseAndCount(UserMessagePhase.PersonInConflictIdentity, 0)
                                     addChatBotMsg(`מי האדם אליו ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (לדוגמא ${uGender === Gender.Male ? "בת זוג" : "בן זוג"}, אח אחות וכולי) ומה שמו/שמה ?`, MessageContentType.TextPlain)
@@ -341,6 +342,7 @@ export const Chat = ({ user }: { user: User }) => {
                                 onCorrectClick={() => {
                                     obj.isCorrect = true;
                                     obj.active = false;
+                                    addOpenAIHistoryText("assistant", obj.observation);
                                     updateMessage(chat_msg);
                                     addChatBotMsg(`כעת בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה`, MessageContentType.TextPlain)
                                     setPhaseAndCount(UserMessagePhase.FeelingsProbe, 0)

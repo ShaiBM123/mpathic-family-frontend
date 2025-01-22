@@ -25,7 +25,8 @@ export type ExtendedChatState = {
     // setTopic: (topic: string) => void,
     subTopic: string,
     // setSubTopic: (subTopic: string) => void
-    userInRelationship: User<UserInRelationshipData>
+    userInRelationship: User<UserInRelationshipData>,
+    openAIHistory: Array<{role: string, content: string}>
 }
 
 function createConversation(id: ConversationId, name: string): Conversation {
@@ -54,6 +55,7 @@ export class ExtendedStorage<ConversationData = any>
     private subTopic: string;
 
     private userInRelationship: User;
+    readonly openAIHistory: Array<{role: "user" | "assistant" | "system", content: string}>
 
      /**
    * Constructor
@@ -92,6 +94,11 @@ export class ExtendedStorage<ConversationData = any>
             bio: "",
             data: new UserInRelationshipData({})
         });
+
+        this.openAIHistory = [{
+            role: "system", 
+            content: "אתה מטפל בשיטת התקשורת המקרבת התפקיד שלך הוא לסייע למשתמשים ליישב בעיות בין אישיות בצורה אמפתית בשפה העברית."
+        }];
     }   
     
     /**
@@ -134,6 +141,15 @@ export class ExtendedStorage<ConversationData = any>
         this.userInRelationship = user;
     }
 
+        /**
+   * Sets current phase
+   * @param role
+   * @param txt
+   */
+    addOpenAIHistoryText(role: "user" | "assistant" | "system", txt: string): void {
+        this.openAIHistory.push({role: role, content: txt});
+    }
+
     removeMessageFromActiveConversation(messageId: string): void {
         let activeConversation = super.getState().activeConversation;
 
@@ -160,7 +176,8 @@ export class ExtendedStorage<ConversationData = any>
             phaseCount: this.phaseCount,
             topic: this.topic,
             subTopic: this.subTopic,
-            userInRelationship: this.userInRelationship
+            userInRelationship: this.userInRelationship,
+            openAIHistory: this.openAIHistory
         }
     }
 

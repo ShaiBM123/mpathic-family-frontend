@@ -15,7 +15,8 @@ export enum UserMessagePhase {
   FeelingsProbe = 5,
   FeelingsAnalysis = 6,
   NeedsProbe = 7,
-  TBD = 999
+  TBD = 999,
+  Unknown = 1000
 }
 
 export interface UserMessageContent extends MessageContent<MessageContentType> {

@@ -9,7 +9,7 @@ import {
     } from './OpenAITypes';
 import {ChatMessage} from "@chatscope/use-chat"; 
 import {openAIModel} from "../data/data";
-import {OpenAIPromptManager, SyestemPromptData} from './OpenAIPromptingManager';
+import {OpenAIPromptManager} from './OpenAIPromptingManager';
 import { UpdateState } from "@chatscope/use-chat/dist/Types";
 import {ExtendedStorage } from "../data/ExtendedStorage";
 
@@ -27,15 +27,14 @@ export type BotMsgReplyProps =  {
 }
 
 export class OpenAIChatConversation{
-    // msgPhaseBlocks: { [key in UserMessagePhase]?: any}  
+    storage: ExtendedStorage;
     promptMngr: OpenAIPromptManager;
-    // messages: Array<ChatCompletionMessageParam>;
-    // model: (string & {}) | ChatModel;
     messageReceived: OpenAIMessageReceivedType;
     openAIUser: string;
 
     constructor(messageReceived: OpenAIMessageReceivedType, storage: IStorage, update: UpdateState) {
-        this.promptMngr = new OpenAIPromptManager(storage as ExtendedStorage, update);
+        this.storage = storage as ExtendedStorage;
+        this.promptMngr = new OpenAIPromptManager(this.storage, update);
 
         // this.msgPhaseBlocks = {
         //     [UserMessagePhase.GeneralDescriptionAnalysis]: {   
@@ -329,13 +328,13 @@ export class OpenAIChatConversation{
         {
             let prompt_data = this.promptMngr.buildSyestemPrompt()
             
-            this.promptMngr.addUserInputToHistory(msg)
+            this.promptMngr.addUserInputToOpenAIHistory(msg)
             
             if (prompt_data)
             {
                 const completion = await openai.beta.chat.completions.parse({
                     model: this.promptMngr.model,
-                    messages: this.promptMngr.history as Array<any>,
+                    messages: this.storage.openAIHistory,
                     response_format: prompt_data?.response_format,
                     max_tokens: prompt_data?.max_tokens,
                     temperature: prompt_data?.temperature,

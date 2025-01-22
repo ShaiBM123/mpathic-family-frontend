@@ -44,17 +44,11 @@ export class OpenAIPromptManager{
     private storage: ExtendedStorage;
     private updateState: UpdateState;
     model: (string & {}) | ChatModel;
-    history: Array<{role: string, content: string }>;
 
     constructor(storage: ExtendedStorage, update: UpdateState) {
         this.storage = storage;
         this.updateState = update;
         this.model ="gpt-4o-mini"; 
-
-        this.history = [{
-            role: "system",
-            content: "אתה מטפל בשיטת התקשורת המקרבת התפקיד שלך הוא לסייע למשתמשים ליישב בעיות בין אישיות בצורה אמפתית בשפה העברית.",
-        }]
     }
 
     buildSyestemPrompt = (): SyestemPromptData => 
@@ -75,8 +69,10 @@ export class OpenAIPromptManager{
             case UserMessagePhase.PersonInConflictIdentity:
                 if(phaseCount === 0)
                 {
-                    this.history.push(
-                        { role: "system", content: `בטקסט הבא המשתמש${uPoS.Taf} ${uName} מתאר${uPoS.Taf} אל מי ${uPoS.sbj3rdPronoun} מתייחס${uPoS.Taf}, במידה וניתן עליך לזהות את הקרבה של המשתמש${uPoS.Taf} אל אותו אדם, את מינו (זכר או נקבה) ואת השם הפרטי שלו או שלה`});
+                    this.storage.addOpenAIHistoryText(
+                        "system", 
+                        `בטקסט הבא המשתמש${uPoS.Taf} ${uName} מתאר${uPoS.Taf} אל מי ${uPoS.sbj3rdPronoun} מתייחס${uPoS.Taf}, במידה וניתן עליך לזהות את הקרבה של המשתמש${uPoS.Taf} אל אותו אדם, את מינו (זכר או נקבה) ואת השם הפרטי שלו או שלה`);
+
                 }
                 
                 return {
@@ -103,7 +99,7 @@ export class OpenAIPromptManager{
                                             // z.null()]),
                                     }), z.null()]),
                                     gender_of_person_in_conflict: z.enum(["זכר","נקבה"]),
-                                    name:  z.union([z.string().describe("שם פרטי"), z.null()])
+                                    first_name:  z.union([z.string().describe("שם פרטי"), z.null()])
 
                             }), z.null()]),
 
@@ -116,8 +112,7 @@ export class OpenAIPromptManager{
             case UserMessagePhase.PersonInConflictNickname:
                 if(phaseCount === 0)
                 {
-                    this.history.push(
-                        { role: "system", content: `עליך לזהות בטקסט הבא את כינוי החיבה של ${u2Name}`})
+                    this.storage.addOpenAIHistoryText("system", `עליך לזהות בטקסט הבא את כינוי החיבה של ${u2Name}`)
                 }
 
                 return {
@@ -131,8 +126,7 @@ export class OpenAIPromptManager{
             case UserMessagePhase.PersonInConflictAge:
                 if(phaseCount === 0)
                 {
-                    this.history.push(
-                        { role: "system", content: `במשפט הבא עליך לזהות את גילו של ${u2Name}`})
+                    this.storage.addOpenAIHistoryText("system", `במשפט הבא עליך לזהות את גילו של ${u2Name}`)
                 }
 
                 return {
@@ -145,12 +139,15 @@ export class OpenAIPromptManager{
             case UserMessagePhase.ObservationAnalysis:
                 if(phaseCount === 0)
                 {
-                    this.history.push(
-                        { role: "system", content: `בהנתן תיאור של ${uName} לגבי סיטואציה בנושא  ${topic} בכל מה שקשור ב ${subTopic} מול ${u2Name} ה${u2Relationship} ${uPoS.possessiveAdj} נסח תצפית לפי הגישה של תקשורת מקרבת`},
-                        { role: "system", content: 'תצפית מוגדרת כהתמקדות במה שאנחנו רואים שומעים או מבחינים בו באופן אובייקטיבי מבלי להוסיף רגש, שיפוט, פרשנות או הערכה'},
-                        { role: "system", content: `נסח את התצפית בגוף שני כך שהניסוח פונה ל ${uName}`},
-                        // { role: "system", content: `${uName} ${uGender===Gender.Female? "יכולה":"יכול"} להוסיף פרטים נוספים אם ${uPoS.sbj3rdPronoun} לא מרוצה מהתצפית שהוצגה ${uPoS.objPronoun}`}
-                    )
+                    this.storage.addOpenAIHistoryText("system", 
+                        `בהנתן התיאור של ${uName} לגבי סיטואציה` +
+                        (topic === "" ? `` : ` בנושא ${topic}`) + 
+                        (subTopic === "" ?`` : ` ובפרט לגבי ${subTopic}`) +
+                        ` מול ${u2Name} ה${u2Relationship} ${uPoS.possessiveAdj} נסח תצפית לפי הגישה של תקשורת מקרבת`);
+                    this.storage.addOpenAIHistoryText("system", 
+                        'תצפית מוגדרת כהתמקדות במה שאנחנו רואים שומעים או מבחינים בו באופן אובייקטיבי מבלי להוסיף רגש, שיפוט, פרשנות או הערכה');    
+                    this.storage.addOpenAIHistoryText("system", 
+                        `נסח את התצפית בגוף שני כך שהניסוח פונה ל ${uName}`);
                 }
 
                 return {
@@ -164,10 +161,10 @@ export class OpenAIPromptManager{
 
             case UserMessagePhase.FeelingsProbe:
                 if(phaseCount === 0)
-                    {
-                        this.history.push(
-                            { role: "system", content: `בהתבסס על התיאור של המשתמש${uPoS.Taf} ${uName}, מצא עד שלושה רגשות דומיננטיים המובעים בטקסט ותאר בקצרה את הלך הרוח מההבט הרגשי`})
-                    }
+                {
+                    this.storage.addOpenAIHistoryText("system", 
+                        `בהתבסס על התיאור של המשתמש${uPoS.Taf} ${uName}, מצא עד שלושה רגשות דומיננטיים המובעים בטקסט ותאר בקצרה את הלך הרוח מההבט הרגשי`);
+                }
                 return {
                     response_format: zodResponseFormat( z.object({
                         feelings: FeelingsArray, 
@@ -190,8 +187,8 @@ export class OpenAIPromptManager{
         }
     }
 
-    addUserInputToHistory = (userText: string)=>{
-        this.history.push({role: "user", content: userText})
+    addUserInputToOpenAIHistory = (userText: string)=>{
+        this.storage.addOpenAIHistoryText("user", userText);
     }
 
     private updatePhase = (nextPhase: UserMessagePhase, phaseCount: number) => {
@@ -265,7 +262,7 @@ export class OpenAIPromptManager{
                         this.updatePhase(phase, phaseCount+1)
                         content =  ` לא הבנתי, למי ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (${uGender === Gender.Male ? "בת":"בן"} זוג, אח, אחות וכד)`
                     
-                    }else if(!parsed_msg.person_in_conflict_info.name) {
+                    }else if(!parsed_msg.person_in_conflict_info.first_name) {
                         this.updatePhase(phase, phaseCount+1)
                         let gender_of_pic = parsed_msg.person_in_conflict_info.gender_of_person_in_conflict
                         content =`${uGender === Gender.Female ? "רשמי":"רשום"} את ${gender_of_pic === Gender.Female ? "שמה":"שמו"}`;
@@ -279,7 +276,7 @@ export class OpenAIPromptManager{
                             gender === "נקבה" ? Gender.Female : 
                             Gender.Other;
                         userInRelationship.data = uir_data;
-                        userInRelationship.firstName = parsed_msg.person_in_conflict_info.name;
+                        userInRelationship.firstName = parsed_msg.person_in_conflict_info.first_name;
 
                         info_required = false;
 
@@ -313,6 +310,7 @@ export class OpenAIPromptManager{
                     } else {
                         (userInRelationship.data as UserInRelationshipData).nickName = parsed_msg.nickname;
                         info_required = false
+
                         next_phase = UserMessagePhase.ObservationAnalysis;
                         this.updatePhase(next_phase, 0)
                         content = this.generateInitialFollowUpText(next_phase);
@@ -327,6 +325,7 @@ export class OpenAIPromptManager{
                     } else {
                         (userInRelationship.data as UserInRelationshipData).age = parsed_msg.age;
                         info_required = false
+
                         if(relationships({category: RelationshipCategory.Family}).includes(
                             userInRelationship.data?.relationship as string))
                         {
@@ -351,9 +350,9 @@ export class OpenAIPromptManager{
                     else {
                         info_required = false
                         content_type = MessageContentType.Other
-                        // this is a temporary phase because the user can decide he is not satisfied 
-                        // with the given observation
-                        this.updatePhase(UserMessagePhase.FeelingsProbe, 0)
+                        // phase is unknown at that point because the user can decide he is not 
+                        // satisfied with the given observation and keep feeding more information
+                        this.updatePhase(UserMessagePhase.Unknown, 0)
                         content = {observation: parsed_msg.observation, id: "observation", active: true, isCorrect: null}
                         // assistange message is generated once the user approves the observation
                         // assistant_msg = ?
@@ -397,7 +396,7 @@ export class OpenAIPromptManager{
         this.updateState();
 
         if(assistant_msg){
-            this.history.push({ role: 'assistant', content: assistant_msg } );
+            this.storage.addOpenAIHistoryText("assistant", assistant_msg);
         }
         if (info_required === true ){
             this.updatePhase(phase, phaseCount+1)
