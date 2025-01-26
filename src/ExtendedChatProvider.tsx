@@ -4,16 +4,27 @@ import {
     useChat as useOriginalChat,
     ChatProvider as BaseChatProvider,
 } from "@chatscope/use-chat";
-import type { IChatService } from "@chatscope/use-chat";
-import { ChatProviderProps } from "@chatscope/use-chat";
+
+import type {
+    IChatService,
+    IStorage,
+    UpdateState,
+    ChatProviderProps
+} from "@chatscope/use-chat";
+
+
 import { ExtendedStorage, ExtendedChatState } from './data/ExtendedStorage';
 import { UserMessagePhase } from './open_ai/OpenAITypes';
+
+export enum PhaseOperation { StartNewPhase = 1, KeepPhaseAndIncrement = 2, KeepPhase = 3 }
 
 interface ExtendedChatContextProps {
     setTopic: (value: string) => void;
     setSubTopic: (value: string) => void;
     phaseCount: number;
-    setPhaseAndCount: (phase: UserMessagePhase, phaseCount: number) => void;
+    moreUserInputRequired: boolean;
+    setMoreUserInputRequired: (moreInputRequired: boolean) => void;
+    setPhase: (phase: UserMessagePhase) => void;
     removeMessageFromActiveConversation: (messageId: string) => void;
     addOpenAIHistoryText: (role: "user" | "assistant" | "system", txt: string) => void;
 }
@@ -89,17 +100,37 @@ export const ExtendedChatProvider = <S extends IChatService>({
     /**
      * Sets current phase and transition
      * @param {UserMessagePhase} phase
-     * @param {number} phaseCount
      * 
      */
-    const setPhaseAndCount = useCallback(
-        (phase: UserMessagePhase, phaseCount: number) => {
-            storage.setPhase(phase);
-            storage.setPhaseCount(phaseCount);
+    const setPhase = useCallback(
+        (phase: UserMessagePhase) => {
+
+            if (storage.getState().phase === phase) {
+
+                storage.setPhaseCount(storage.getState().phaseCount + 1);
+            }
+            else {
+                storage.setPhase(phase);
+                storage.setPhaseCount(0);
+            }
+
             updateExtendedState();
         },
         [storage, updateExtendedState]
     );
+
+    /**
+    * Set to wether more user input is required to complete the phase 
+    * @param {boolean} moreInputRequired
+    */
+    const setMoreUserInputRequired = useCallback(
+        (moreInputRequired: boolean) => {
+            storage.setMoreUserInputRequired(moreInputRequired);
+            updateExtendedState();
+        },
+        [storage, updateExtendedState]
+    );
+
 
     const removeMessageFromActiveConversation = useCallback(
         (messageId: string): void => {
@@ -114,14 +145,23 @@ export const ExtendedChatProvider = <S extends IChatService>({
     }, [storage, updateExtendedState])
 
     const extendedContextValue: ExtendedChatContextProps = {
-        setTopic, setSubTopic, setPhaseAndCount, removeMessageFromActiveConversation, addOpenAIHistoryText,
-        phaseCount: state.phaseCount
+        setTopic, setSubTopic, setPhase, setMoreUserInputRequired,
+        removeMessageFromActiveConversation, addOpenAIHistoryText,
+        moreUserInputRequired: state.moreUserInputRequired, phaseCount: state.phaseCount
+    };
+
+    // Create serviceFactory
+    const extendedServiceFactory = (storage: IStorage, updateState: UpdateState) => {
+        return serviceFactory(storage, () => {
+            updateState();
+            updateExtendedState();
+        })
     };
 
     // Render the original ChatProvider
     return (
         <extendedContext.Provider value={extendedContextValue}>
-            <BaseChatProvider serviceFactory={serviceFactory} storage={storage} config={config}>
+            <BaseChatProvider serviceFactory={extendedServiceFactory} storage={storage} config={config}>
                 {children} {/* Pass children to maintain existing component structure */}
             </BaseChatProvider>
         </extendedContext.Provider>

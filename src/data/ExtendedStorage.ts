@@ -20,11 +20,10 @@ export interface ExtendedStorageParams extends Required<BasicStorageParams> {
 
 export type ExtendedChatState = {
     phase: UserMessagePhase, 
-    phaseCount: number, 
+    phaseCount: number,
+    moreUserInputRequired: boolean, 
     topic: string, 
-    // setTopic: (topic: string) => void,
     subTopic: string,
-    // setSubTopic: (subTopic: string) => void
     userInRelationship: User<UserInRelationshipData>,
     openAIHistory: Array<{role: string, content: string}>
 }
@@ -49,6 +48,7 @@ export class ExtendedStorage<ConversationData = any>
 
     private phase: UserMessagePhase;
     private phaseCount: number;
+    private moreUserInputRequired: boolean;
     // private _phaseGroupID?: string; 
 
     private topic: string;
@@ -64,8 +64,10 @@ export class ExtendedStorage<ConversationData = any>
    */
     constructor({ groupIdGenerator, messageIdGenerator }: ExtendedStorageParams) {
         super({ groupIdGenerator, messageIdGenerator })
-        this.phase = UserMessagePhase.PersonInConflictIdentity;
+        this.phase = UserMessagePhase.Start;
         this.phaseCount = 0;
+        this.moreUserInputRequired = true;
+
         this.topic = '';
         this.subTopic = '';
 
@@ -133,6 +135,16 @@ export class ExtendedStorage<ConversationData = any>
         this.phase = phase;
     }
 
+
+    /**
+   * Sets current moreUserInputRequired
+   * @param moreInputRequired
+   */
+    setMoreUserInputRequired(moreInputRequired: boolean): void {
+        this.moreUserInputRequired = moreInputRequired;
+    }
+    
+    
     /**
      * Sets current (logged in) user object
      * @param user
@@ -174,6 +186,7 @@ export class ExtendedStorage<ConversationData = any>
         return {...super.getState(), 
             phase: this.phase, 
             phaseCount: this.phaseCount,
+            moreUserInputRequired: this.moreUserInputRequired,
             topic: this.topic,
             subTopic: this.subTopic,
             userInRelationship: this.userInRelationship,

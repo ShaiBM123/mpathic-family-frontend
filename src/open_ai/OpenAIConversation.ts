@@ -5,7 +5,8 @@ import { IStorage } from "@chatscope/use-chat/dist/interfaces";
 import {
         OpenAIBotMessage, 
         OpenAIMessageReceivedType, 
-        UserMessageContent
+        UserMessageContent, 
+        MsgContentData
     } from './OpenAITypes';
 import {ChatMessage} from "@chatscope/use-chat"; 
 import {openAIModel} from "../data/data";
@@ -18,12 +19,12 @@ const openai = new OpenAI({
     dangerouslyAllowBrowser: true
 });
 
+
 export type BotMsgReplyProps =  {
     msgIdx: number,
     msgRefusal: boolean, 
     msgContent: object|string | null,
-    msgContentType: MessageContentType,
-    msgMoreInfoRequired: boolean
+    msgContentType: MessageContentType
 }
 
 export class OpenAIChatConversation{
@@ -290,30 +291,29 @@ export class OpenAIChatConversation{
         let msg_content = user_message.content as UserMessageContent
         let msg = msg_content.user_text
 
-        let bot_message_reply: OpenAIBotMessage = {
-            index: 0, 
-            refusal: true, 
-            more_info_required: true,
-            status: MessageStatus.DeliveredToDevice, 
-            direction: MessageDirection.Incoming,
-            contentType: MessageContentType.TextPlain, 
-            createdTime: user_message.createdTime,
-            senderId: this.openAIUser, 
-            id: user_message.id.concat('-1'), 
-            content: "Sorry I'm programmed up to that point" as unknown as MessageContent<MessageContentType.Other>
-        };
+        let bot_message_replys: Array<OpenAIBotMessage> = [] 
+        // = {
+        //     index: 0, 
+        //     // refusal: true, 
+        //     // more_info_required: true,
+        //     status: MessageStatus.DeliveredToDevice, 
+        //     direction: MessageDirection.Incoming,
+        //     contentType: MessageContentType.TextPlain, 
+        //     createdTime: user_message.createdTime,
+        //     senderId: this.openAIUser, 
+        //     id: user_message.id.concat('-1'), 
+        //     content: "Sorry I'm programmed up to that point" as unknown as MessageContent<MessageContentType.Other>
+        // };
 
         const constructBotMsgReply = ({
             msgIdx,
             msgRefusal, 
             msgContent,
-            msgContentType,
-            msgMoreInfoRequired}: BotMsgReplyProps) => {
+            msgContentType}: BotMsgReplyProps) => {
 
             return  {
                 index: msgIdx, 
                 refusal: msgRefusal, 
-                more_info_required: msgMoreInfoRequired,
                 status: MessageStatus.DeliveredToDevice, 
                 direction: MessageDirection.Incoming,
                 contentType: msgContentType, 
@@ -344,14 +344,16 @@ export class OpenAIChatConversation{
                 const bot_choise = completion.choices[0]
                 let {parsed, refusal} = bot_choise?.message
             
-                let bot_reply = this.promptMngr.buildBotResponse({parsed, refusal})
-                bot_message_reply = constructBotMsgReply({
-                        msgIdx: 0, 
+                let bot_replys = this.promptMngr.buildBotResponse({parsed, refusal})
+
+                bot_message_replys = bot_replys.map((data: MsgContentData, idx: number) => {
+                    return constructBotMsgReply({
+                        msgIdx: idx, 
                         msgRefusal: refusal ? true: false, 
-                        msgContent: bot_reply.content, 
-                        msgContentType: bot_reply.content_type, 
-                        msgMoreInfoRequired: bot_reply.more_info_required}
-                )
+                        msgContent: data.content, 
+                        msgContentType: data.content_type as MessageContentType}
+                    )
+                });
             }
 
         } catch (e: any) {
@@ -364,16 +366,15 @@ export class OpenAIChatConversation{
               console.log("An error occurred: ", e.message);
             }
 
-            bot_message_reply = constructBotMsgReply({
+            bot_message_replys = [constructBotMsgReply({
                 msgIdx: 0, 
                 msgRefusal: true, 
                 msgContent: 'מתנצלים, משהוא השתבש :-(', 
-                msgContentType: MessageContentType.TextPlain, 
-                msgMoreInfoRequired: true}
-            )
+                msgContentType: MessageContentType.TextPlain}
+            )]
         }
         finally {
-            return [bot_message_reply];
+            return bot_message_replys;
         }
     }
 

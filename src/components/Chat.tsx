@@ -49,8 +49,8 @@ export const Chat = ({ user }: { user: User }) => {
         currentMessages, activeConversation, setActiveConversation, sendMessage, addMessage,
         getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping, setCurrentUser,
         currentUser, removeMessagesFromConversation,
-        setTopic, setSubTopic, setPhaseAndCount, removeMessageFromActiveConversation, addOpenAIHistoryText,
-        phaseCount
+        setTopic, setSubTopic, setPhase, removeMessageFromActiveConversation, addOpenAIHistoryText,
+        phaseCount, moreUserInputRequired
     } = useExtendedChat();
 
     useEffect(() => {
@@ -326,7 +326,7 @@ export const Chat = ({ user }: { user: User }) => {
                                         topic === '' ? `הסיטואציה קשורה לנושא כללי` : `הסיטואציה קשורה לנושא ${topic}`
                                             + (subTopic === '' ? `` : ` ובפרט לגבי ${subTopic}`));
 
-                                    setPhaseAndCount(UserMessagePhase.PersonInConflictIdentity, 0)
+                                    setPhase(UserMessagePhase.PersonInConflictIdentity)
                                     addChatBotMsg(`מי האדם אליו ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (לדוגמא ${uGender === Gender.Male ? "בת זוג" : "בן זוג"}, אח אחות וכולי) ומה שמו/שמה ?`, MessageContentType.TextPlain)
                                 }}
                             />
@@ -345,14 +345,14 @@ export const Chat = ({ user }: { user: User }) => {
                                     addOpenAIHistoryText("assistant", obj.observation);
                                     updateMessage(chat_msg);
                                     addChatBotMsg(`כעת בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה`, MessageContentType.TextPlain)
-                                    setPhaseAndCount(UserMessagePhase.FeelingsProbe, 0)
+                                    setPhase(UserMessagePhase.FeelingsProbe)
                                 }}
                                 onNotAccurateClick={() => {
                                     obj.isCorrect = false;
                                     obj.active = false;
                                     updateMessage(chat_msg);
-                                    addChatBotMsg(phaseCount === 0 ? `בבקשה תדייק.י את מה שכתבתי. אגב, אני בכוונה מנסה להתנסח בצורה חסרת שיפוטיות, מכיוון שאני לוקח השראה מתקשורת מקרבת :) וחשוב לי להבין כרגע את העובדות` : `בבקשה תדייק יותר`, MessageContentType.TextPlain)
-                                    setPhaseAndCount(UserMessagePhase.ObservationAnalysis, phaseCount + 1)
+                                    addChatBotMsg(phaseCount <= 1 ? `בבקשה תדייק.י את מה שכתבתי. אגב, אני בכוונה מנסה להתנסח בצורה חסרת שיפוטיות, מכיוון שאני לוקח השראה מתקשורת מקרבת :) וחשוב לי להבין כרגע את העובדות` : `בבקשה תדייק יותר`, MessageContentType.TextPlain)
+                                    setPhase(UserMessagePhase.ObservationAnalysis)
                                 }}
                             />
                     }
