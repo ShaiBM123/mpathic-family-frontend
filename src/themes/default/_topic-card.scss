@@ -1,0 +1,46 @@
+.topic-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1rem 0;
+    transition: transform 0.2s ease-in-out;
+
+    &:hover {
+        transform: scale(1.05);
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        font-size: 1.25rem;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .card-body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        background-color: #ffa726; // Darker orange background
+
+        .card-img {
+            max-width: 75px; // Shrink the SVG image
+            max-height: 75px; // Shrink the SVG image
+        }
+    }
+
+    @media (max-width: 576px) {
+        .card-header {
+            font-size: 1rem;
+        }
+
+        .card-body {
+            padding: 0.5rem;
+
+            .card-img {
+                max-width: 50px; // Further shrink the SVG image for mobile
+                max-height: 50px; // Further shrink the SVG image for mobile
+            }
+        }
+    }
+}
