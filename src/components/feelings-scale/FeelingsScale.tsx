@@ -108,7 +108,7 @@ export const FeelingsScale = ({ feelings, active, onRescaleDone }: FeelingsScale
 
             <Card>
                 {active &&
-                    <Card.Title>
+                    <Card.Header>
 
                         {addingFeeling ?
                             <Row>
@@ -143,7 +143,7 @@ export const FeelingsScale = ({ feelings, active, onRescaleDone }: FeelingsScale
                             </Row>
                         }
 
-                    </Card.Title>
+                    </Card.Header>
                 }
 
                 <Card.Body>
@@ -187,7 +187,7 @@ export const FeelingsScale = ({ feelings, active, onRescaleDone }: FeelingsScale
                 </Card.Body>
 
                 {active &&
-                    <Card.Footer className="text-muted">
+                    <Card.Footer className=" d-flex justify-content-center text-muted">
                         <Button variant="info" size="sm" className="bg-white text-dark border-dark rounded"
                             onClick={() => { onRescaleDone(scales, composePromptMsg()) }} >
                             {process.env.REACT_APP_RTL === 'yes' ? 'אישור' : 'Ok'}
