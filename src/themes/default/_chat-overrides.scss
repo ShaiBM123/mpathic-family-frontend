@@ -22,16 +22,100 @@
     {
         // padding: 0 1.2em 0 0.8em; <-- the original values
         padding-right: 0.2em;
+
+        .#{$prefix}-message-group  {
+
+            &--incoming
+            {
+                .cs-message-group  {
+        
+                    &__avatar{
+        
+                        display: none;
+                    }
+                }
+            }
+
+            &--outgoing
+            {   
+                max-width: 100%;
+
+                .cs-message-group  {
+
+                    &__messages  {
+        
+                        .cs-message {
+        
+                            .cs-message__content {
+                                // border-radius: 0.7em 0 0 0.7em;
+                                // color: rgba(0, 0, 0, 0.87);
+                                background-color: rgba(0, 0, 0, 0.03);
+                            }
+                        }
+                    }  
+                }
+            }
+        }
     }
 }
 
-.cs-message-group--incoming .cs-message-group__avatar {
-    margin-right: 0px; 
+
+.cs-message-group--outgoing .cs-message-group__messages .cs-message:only-child .cs-message__content {
+    border-radius: 0.7em 0.7em 0 0.7em;
 }
 
-.cs-message-group--outgoing .cs-message-group__avatar {
-    margin-left: 0px;
+// .mpathic-app .#{$prefix}-message-group  {
+
+//     &--outgoing
+//     {
+//         .cs-message-group  {
+
+//             &__messages  {
+
+//                 .cs-message {
+
+//                     .cs-message__content {
+//                         // border-radius: 0.7em 0 0 0.7em;
+//                         // color: rgba(0, 0, 0, 0.87);
+//                         background-color: rgba(0, 0, 0, 0.03);
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
+
+// .mpathic-app .#{$prefix}-message-group  {
+
+//     &--incoming
+//     {
+//         .cs-message-group  {
+
+//             &__avatar{
+
+//                 display: none;
+//             }
+//         }
+//     }
+// }
+
+.cs-avatar > img {
+    width: 75%;
+    height: 75%;
 }
+
+.cs-message-group__avatar {
+    justify-content: flex-start;
+}
+
+// .cs-message-group--incoming .cs-message-group__avatar {
+//     margin-right: 0px; 
+// }
+
+// .cs-message-group--outgoing .cs-message-group__avatar {
+//     margin-left: 3px;
+// }
 
 @media (min-width: 576px) {
     .mpathic-app .#{$prefix}-message-list {
