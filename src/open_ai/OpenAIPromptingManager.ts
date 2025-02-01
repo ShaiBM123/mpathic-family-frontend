@@ -71,7 +71,7 @@ export class OpenAIPromptManager{
                 {
                     this.storage.addOpenAIHistoryText(
                         "system", 
-                        `בטקסט הבא המשתמש${uPoS.Taf} ${uName} מתאר${uPoS.Taf} אל מי ${uPoS.sbj3rdPronoun} מתייחס${uPoS.Taf}, במידה וניתן עליך לזהות את הקרבה של המשתמש${uPoS.Taf} אל אותו אדם, את מינו (זכר או נקבה) ואת השם הפרטי שלו או שלה`);
+                        `בטקסט הבא המשתמש${uPoS.Taf} ${uName} מתאר${uPoS.Taf} אל מי ${uPoS.sbj3rdPronoun} מתייחס${uPoS.Taf}, עליך לזהות את הקרבה של המשתמש${uPoS.Taf} אל אותו אדם, את מינו (זכר או נקבה) ואת השם הפרטי שלו או שלה`);
                 }
                 
                 return {
@@ -105,7 +105,7 @@ export class OpenAIPromptManager{
                     }), "person_in_conflict"), 
 
                     max_tokens: 200,
-                    temperature: 0.7
+                    temperature: 0.1
                 };
 
             case UserMessagePhase.PersonInConflictNickname:
