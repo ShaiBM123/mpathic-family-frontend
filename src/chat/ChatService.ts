@@ -13,16 +13,16 @@ import {
 import { IStorage } from "@chatscope/use-chat/dist/interfaces";
 import { ChatEvent, MessageEvent, UserTypingEvent } from "@chatscope/use-chat/dist/events";
 import { ChatMessage } from "@chatscope/use-chat/dist/ChatMessage";
-import {OpenAIChatConversation} from "./open_ai/OpenAIConversation"
+import {OpenAIChatConversation} from "../open_ai/OpenAIConversation"
 import {
   OpenAIBotMessage, 
   OpenAIMessageReceivedType, 
   OpenAIGeneratingMessageType
-} from './open_ai/OpenAITypes';
-import {OpenAIPromptManager} from "./open_ai/OpenAIPromptingManager";
-import {openAIModel} from "./data/data";
+} from '../open_ai/OpenAITypes';
+// import {OpenAIPromptManager} from "../open_ai/OpenAIPromptingManager";
+import {openAIModel} from "../data/data";
 // import { BasicStorage } from "@chatscope/use-chat";
-import {ExtendedStorage } from "./data/ExtendedStorage";
+// import {ExtendedStorage } from "../data/ExtendedStorage";
 // import 'dotenv/config'
 // console.log(process.env.REACT_APP_OPENAI_KEY)
 

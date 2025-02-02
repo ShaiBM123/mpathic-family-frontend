@@ -15,7 +15,7 @@ import {
     MessageModel
 } from "@chatscope/chat-ui-kit-react";
 
-import { useExtendedChat } from "../ExtendedChatProvider";
+import { useExtendedChat } from "./ExtendedChatProvider";
 import {
     // useChat,
     ChatMessage,
@@ -32,15 +32,15 @@ import {
     interPersonalTopicsDictionary,
     InterPersonalTopics,
     TopicCategoryLevel
-} from "./inter-personal-topics/InterPersonalTopics";
-import { Observation } from "./observation/Observation";
-import { FeelingsScale } from "./feelings-scale/FeelingsScale";
-import { TypingText } from "./typing-text/TypingText";
+} from "../components/inter-personal-topics/InterPersonalTopics";
+import { Observation } from "../components/observation/Observation";
+import { FeelingsScale } from "../components/feelings-scale/FeelingsScale";
+import { TypingText } from "../components/typing-text/TypingText";
 import { completeUserPartOfSpeech } from "../open_ai/OpenAIPromptingManager"
-import { UserForm } from "./user-form/UserForm";
+import { UserForm } from "../components/user-form/UserForm";
 
 import mpathicTitle from "../assets/mpathic-family-title.svg";
-import "./typing-text/typing-text.css"
+import "../components/typing-text/typing-text.css"
 
 
 export const Chat = ({ user }: { user: User }) => {

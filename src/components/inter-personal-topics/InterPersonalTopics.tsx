@@ -9,7 +9,7 @@ import * as FASolidIcons from "@fortawesome/free-solid-svg-icons";
 // import * as FABrandIcons from "@fortawesome/free-brands-svg-icons";
 // import * as FARegularIcons from "@fortawesome/free-regular-svg-icons";
 import { getSVGURI } from "../../AppUtils";
-import { useExtendedChat } from "../../ExtendedChatProvider";
+// import { useExtendedChat } from "../../ExtendedChatProvider";
 
 enum IP1stCategory {
     None,

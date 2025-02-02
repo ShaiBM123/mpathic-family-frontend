@@ -6,7 +6,7 @@ import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 
 import { useState } from 'react';
 import { ExtendedStorage } from "./data/ExtendedStorage";
-import { ExtendedChatProvider } from './ExtendedChatProvider';
+import { ExtendedChatProvider } from './chat/ExtendedChatProvider';
 import {
     // BasicStorage,
     ChatMessage,
@@ -17,8 +17,8 @@ import {
     User,
     UserStatus
 } from "@chatscope/use-chat";
-import { ChatService } from "./ChatService";
-import { Chat } from "./components/Chat";
+import { ChatService } from "./chat/ChatService";
+import { Chat } from "./chat/Chat";
 import { nanoid } from "nanoid";
 import { Col, Container, Row } from "react-bootstrap";
 import { Gender, avatars } from "./data/data";

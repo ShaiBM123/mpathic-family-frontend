@@ -13,8 +13,8 @@ import type {
 } from "@chatscope/use-chat";
 
 
-import { ExtendedStorage, ExtendedChatState } from './data/ExtendedStorage';
-import { UserMessagePhase } from './open_ai/OpenAITypes';
+import { ExtendedStorage, ExtendedChatState } from '../data/ExtendedStorage';
+import { UserMessagePhase } from '../open_ai/OpenAITypes';
 
 export enum PhaseOperation { StartNewPhase = 1, KeepPhaseAndIncrement = 2, KeepPhase = 3 }
 
