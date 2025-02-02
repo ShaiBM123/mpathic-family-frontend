@@ -39,6 +39,7 @@ import { TypingText } from "./typing-text/TypingText";
 import { completeUserPartOfSpeech } from "../open_ai/OpenAIPromptingManager"
 import { UserForm } from "./user-form/UserForm";
 
+import mpathicTitle from "../assets/mpathic-family-title.svg";
 import "./typing-text/typing-text.css"
 
 
@@ -140,18 +141,18 @@ export const Chat = ({ user }: { user: User }) => {
     }, [activeConversation, addChatBotMsg, currentMessages.length, currentUser]);
 
     // Get current user data
-    const [currentUserAvatar, currentUserName] = useMemo(() => {
-        if (activeConversation) {
-            const participant = activeConversation.participants.length > 0 ? activeConversation.participants[0] : undefined;
-            if (participant) {
-                const user = getUser(participant.id);
-                if (user) {
-                    return [<Avatar src={user.avatar} />, user.username]
-                }
-            }
-        }
-        return [undefined, undefined];
-    }, [activeConversation, getUser]);
+    // const [currentUserAvatar, currentUserName] = useMemo(() => {
+    //     if (activeConversation) {
+    //         const participant = activeConversation.participants.length > 0 ? activeConversation.participants[0] : undefined;
+    //         if (participant) {
+    //             const user = getUser(participant.id);
+    //             if (user) {
+    //                 return [<Avatar src={user.avatar} />, user.username]
+    //             }
+    //         }
+    //     }
+    //     return [undefined, undefined];
+    // }, [activeConversation, getUser]);
 
     const handleChange = (value: string) => {
         // Send typing indicator to the active conversation
@@ -404,13 +405,13 @@ export const Chat = ({ user }: { user: User }) => {
             return model as MessageModel;
         };
 
-    const oppositeMsgDirection = useCallback(
-        (d: MessageDirection) => {
-            if (d === MessageDirection.Incoming)
-                return MessageDirection.Outgoing
-            else return MessageDirection.Incoming
-        }, []
-    )
+    // const oppositeMsgDirection = useCallback(
+    //     (d: MessageDirection) => {
+    //         if (d === MessageDirection.Incoming)
+    //             return MessageDirection.Outgoing
+    //         else return MessageDirection.Incoming
+    //     }, []
+    // )
 
     const toHoldTextInput = () => {
 
@@ -439,8 +440,7 @@ export const Chat = ({ user }: { user: User }) => {
 
             <ChatContainer>
                 {activeConversation && <ConversationHeader>
-                    {currentUserAvatar}
-                    <ConversationHeader.Content userName={currentUserName} />
+                    {<Avatar size="fluid" src={mpathicTitle} />}
                 </ConversationHeader>}
 
                 <MessageList
@@ -452,23 +452,18 @@ export const Chat = ({ user }: { user: User }) => {
 
                     {activeConversation && currentMessages.map((g) =>
                         <MessageGroup key={g.id}
-                            direction={rtl === 'yes' ?
-                                oppositeMsgDirection(g.direction) : g.direction}>
+                            direction={g.direction}>
                             <Avatar src={user.id === g.senderId ? user.avatar : getUser(g.senderId)?.avatar} />
                             <MessageGroup.Messages>
                                 {g.messages.map((m: ChatMessage<MessageContentType>) =>
                                     <Message
                                         key={m.id}
                                         model={createMessageModel(m)}
-                                        className={(
-                                            (rtl === 'yes' ? "rtl-message" : "") +
-                                            ` ${getMsgCustomizedContentClasses(m)}`
-                                        ).trim()} />)}
+                                        className={(`${getMsgCustomizedContentClasses(m)}`).trim()} />)}
                             </MessageGroup.Messages>
                         </MessageGroup>)}
                 </MessageList>
                 <MessageInput
-                    className={rtl === 'yes' ? "rtl-message" : ""}
                     value={currentMessage}
                     onChange={handleChange}
                     onSend={handleSend}

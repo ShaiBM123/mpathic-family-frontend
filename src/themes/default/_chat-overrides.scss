@@ -12,93 +12,139 @@
 @import "@chatscope/chat-ui-kit-styles/themes/default/main";
 
 
-.mpathic-app .#{$prefix}-message {
-    display: block;
-}
+// .mpathic-app .#{$prefix}-message {
+//     display: block;
+// }
 
-.mpathic-app .#{$prefix}-message-list {
-    // Because message in group cant have max-width, only if its direct child of list
-    &__scroll-wrapper 
-    {
-        // padding: 0 1.2em 0 0.8em; <-- the original values
-        padding-right: 0.2em;
+// .mpathic-app .#{$prefix}-message-input {
+//     @include right-to-left();
+// }
 
-        .#{$prefix}-message-group  {
 
-            &--incoming
-            {
-                .cs-message-group  {
+.mpathic-app { 
+    
+    .#{$prefix}-conversation-header{
+
+        padding: 0.6em 0.5em 0.3em 0.5em;
+
+        &__avatar{
+            width: 100%;
+            text-align: center;
+            margin-right: 0px;
+            order: 1;
+        }
+    }
+
+    .#{$prefix}-message-group {
+        margin: 9px 0 0 0;
+    }
+
+    .#{$prefix}-message {
+        display: block;
+
+        // &__content {
+  
+        // }
         
-                    &__avatar{
-        
-                        display: none;
-                    }
-                }
-            }
+    }
 
-            &--outgoing
-            {   
-                max-width: 100%;
+    .#{$prefix}-message-input {
+        @include right-to-left();
+    }
 
-                .cs-message-group  {
+    .#{$prefix}-message-list {
 
-                    &__messages  {
-        
-                        .cs-message {
-        
-                            .cs-message__content {
-                                // border-radius: 0.7em 0 0 0.7em;
-                                // color: rgba(0, 0, 0, 0.87);
-                                background-color: rgba(0, 0, 0, 0.03);
+        // Because message in group cant have max-width, only if its direct child of list
+        &__scroll-wrapper 
+        {
+            // padding: 0 1.2em 0 0.8em; <-- the original values
+            padding-right: 0.2em;
+
+            .#{$prefix}-message-group  {
+
+                &--outgoing
+                {
+                    margin-right: auto;
+                    margin-left: unset;
+                    justify-content: flex-start;
+
+                    .cs-message-group  {
+            
+                        &__messages {
+            
+                            .cs-message {
+                                @include right-to-left();
+
+                                &__content{
+                                    background-color: rgba(69, 203, 246, 0.25);
+                                }
+
+                                &:only-child .cs-message__content {
+                                    border-radius: 0.7em 0.7em 0.7em 0.7em;
+                                }
                             }
                         }
-                    }  
+
+                        &__avatar {
+                            order: 0;
+                            margin-left: 0px;
+                            display: none;
+                        }
+
+                        &__content {
+                            order: 1;
+                        }
+                    }
+                }
+
+                &--incoming
+                {   
+                    max-width: 100%;
+                    margin-left: auto;
+                    margin-right: unset;
+                    justify-content: flex-end;
+
+                    .cs-message-group  {
+
+                        &__messages  {
+            
+                            .cs-message {
+                                @include right-to-left();
+
+                                .cs-message__content {
+                                    // border-radius: 0.7em 0 0 0.7em;
+                                    // color: rgba(0, 0, 0, 0.87);
+                                    background-color: rgba(0, 0, 0, 0.03);
+                                }
+
+                                &:only-child .cs-message__content {
+                                    border-radius: 0.7em 0 0.7em 0.7em;
+                                }
+
+                                // THIS PART SHOULD BE MOVED INTO A SEPARATE FILE FOR THE DROPDOWN
+                                & .dropdown-menu ul {
+
+                                    @include right-to-left(); 
+                                    padding-inline-start: 0px;
+                                    padding-inline-end: 40px;
+                                }
+                            }
+                        }
+                        
+                        &__avatar{
+                            @include right-to-left();
+                            margin-right: 5px;
+                            order: 1;
+                        }
+                        &__content {
+                            order: 0;
+                        }
+                    }
                 }
             }
         }
     }
 }
-
-
-.cs-message-group--outgoing .cs-message-group__messages .cs-message:only-child .cs-message__content {
-    border-radius: 0.7em 0.7em 0 0.7em;
-}
-
-// .mpathic-app .#{$prefix}-message-group  {
-
-//     &--outgoing
-//     {
-//         .cs-message-group  {
-
-//             &__messages  {
-
-//                 .cs-message {
-
-//                     .cs-message__content {
-//                         // border-radius: 0.7em 0 0 0.7em;
-//                         // color: rgba(0, 0, 0, 0.87);
-//                         background-color: rgba(0, 0, 0, 0.03);
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
-
-
-// .mpathic-app .#{$prefix}-message-group  {
-
-//     &--incoming
-//     {
-//         .cs-message-group  {
-
-//             &__avatar{
-
-//                 display: none;
-//             }
-//         }
-//     }
-// }
 
 .cs-avatar > img {
     width: 75%;
@@ -109,13 +155,6 @@
     justify-content: flex-start;
 }
 
-// .cs-message-group--incoming .cs-message-group__avatar {
-//     margin-right: 0px; 
-// }
-
-// .cs-message-group--outgoing .cs-message-group__avatar {
-//     margin-left: 3px;
-// }
 
 @media (min-width: 576px) {
     .mpathic-app .#{$prefix}-message-list {
@@ -126,30 +165,4 @@
             max-width: 50%;
         }
     }
-}
-
-.mpathic-app{
-    // override styles
-    & .#{$prefix}-conversation__info {
-        min-height: 1.5em;
-    }
-
-    & .#{$prefix}-message.rtl-message {
-        @include right-to-left();
-
-        & .dropdown-menu ul {
-
-            @include right-to-left(); 
-            padding-inline-start: 0px;
-            padding-inline-end: 40px;
-        }
-    }
-
-    & .#{$prefix}-message-input.rtl-message {
-        @include right-to-left();
-    }
-
-    // & .#{$prefix}-message.card-message {
-    //     text-align: center;
-    // }
 }
