@@ -4,10 +4,25 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { usePromiseTracker } from "react-promise-tracker";
+import { ProgressBar } from "react-loader-spinner";
+import { CookiesProvider } from "react-cookie";
+import { InstallPromptProvider } from "./components/InstallPromptContext";
+
+let ClientId =
+  "768133513066-ui5rbtuorts5bupqdjnegv9gsg2ai9jq.apps.googleusercontent.com";
+
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <GoogleOAuthProvider clientId={ClientId}>
+    <CookiesProvider>
+      <InstallPromptProvider>
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      </InstallPromptProvider>
+    </CookiesProvider>
+  </GoogleOAuthProvider>,
   document.getElementById('root')
 );
 

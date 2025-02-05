@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
-import {
-    // Container, Row, Col, Form, Button, CardDeck,
-    Card, CardColumns
-} from "react-bootstrap";
+// import {
+//     // Container, Row, Col, Form, Button, CardDeck,
+//     Card, CardColumns
+// } from "react-bootstrap";
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 // import { faArrowRight, faCircle, faCheck } from '@fortawesome/free-solid-svg-icons'
 import * as FASolidIcons from "@fortawesome/free-solid-svg-icons";
@@ -214,12 +214,11 @@ export const InterPersonalTopics = ({ topics, active, selected, selectedCategori
 
         <div className={topicSelected ? "disabled" : "enabled"}>
 
-            <CardColumns>
+            <div className="row row-cols-1 row-cols-md-3 g-4">
                 {
                     categories.level === TopicCategoryLevel.Level_1 && !topicSelected &&
 
-                    <Card
-                        bsPrefix={`card topic-card go-back-card bg-light text-dark`}
+                    <div className="card h-100 topic-card go-back-card bg-light text-dark"
                         onClick={(evt: any) => {
                             setCategories({
                                 level: TopicCategoryLevel.Level_0,
@@ -227,10 +226,12 @@ export const InterPersonalTopics = ({ topics, active, selected, selectedCategori
                                 topics_titles: []
                             })
                         }}>
-                        <Card.Body>
-                            <Card.Img variant="bottom" src={`${getSVGURI(FASolidIcons.faArrowRight)}`} />
-                        </Card.Body>
-                    </Card>
+                        <div className="card-body">
+                            <div>
+                                <img className="card-img-bottom" src={`${getSVGURI(FASolidIcons.faArrowRight)}`} alt="" />
+                            </div>
+                        </div>
+                    </div>
                 }
 
                 {Object.entries(level_topics).map(([t_key, t_dct], idx) => {
@@ -244,8 +245,8 @@ export const InterPersonalTopics = ({ topics, active, selected, selectedCategori
                         [...categories.topics_titles, caption] : [...categories.topics_titles];
 
                     return (
-                        <Card
-                            bsPrefix={`card topic-card ${getCardColorCls(idx)}`} key={t_key}
+                        <div className={`card h-100 topic-card ${getCardColorCls(idx)}`} key={t_key}
+
                             onClick={(evt: any) => {
 
                                 if (
@@ -262,35 +263,37 @@ export const InterPersonalTopics = ({ topics, active, selected, selectedCategori
 
                             }} >
 
-                            <Card.Body>
+                            <div className="card-body">
                                 {topicSelected ?
                                     <>
-                                        <Card.Title>
+                                        <div className="card-title h5">
                                             {topics_titles[0]}
-                                        </Card.Title>
+                                        </div>
                                         {
                                             categories.level === TopicCategoryLevel.Level_2 &&
-                                            <Card.Text>
+                                            <div>
                                                 {topics_titles[1]}
-                                            </Card.Text>
+                                            </div>
                                         }
                                     </>
                                     :
                                     <>
-                                        <Card.Title>
+                                        <div className="card-title h5">
                                             <small>
                                                 {t_dct.title}
                                             </small>
-                                        </Card.Title>
-                                        {t_dct.icon && <Card.Img variant="bottom" src={`${getSVGURI(t_dct.icon)}`} />}
+                                        </div>
+                                        {t_dct.icon &&
+                                            <img className="card-img-bottom" src={`${getSVGURI(t_dct.icon)}`} alt="" />}
                                     </>
                                 }
-                            </Card.Body>
-                        </Card>
+                            </div>
+                        </div>
                     )
                 }
                 )}
-            </CardColumns>
+
+            </div>
         </div>
 
     )

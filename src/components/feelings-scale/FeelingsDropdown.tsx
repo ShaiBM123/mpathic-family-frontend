@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import Dropdown from "react-bootstrap/Dropdown";
-// import FormControl from "react-bootstrap/FormControl";
-import { Button } from "react-bootstrap";
+// import Dropdown from "react-bootstrap/Dropdown";
+// import { Button } from "react-bootstrap";
 
 interface IFeeling {
   id: number;
@@ -85,45 +84,52 @@ export const HebFeelings: IFeeling[] = [
 
 
 export const DropdownFeelingSelector =
-  ({ onClick }: { onClick?: React.MouseEventHandler }) => {
-    const [selectedFeeling, setSelectedFeeling] = useState(0);
+  ({ onSelect }: { onSelect?: (feeling_name: string | null) => void }) => {
+    const [selectedFeeling, setSelectedFeeling] = useState("");
 
-    const getSelectedFeeling = () => {
-      const feeling: IFeeling | undefined = HebFeelings.find(f => f.id === selectedFeeling);
-      return feeling
-        ? 'הוסף ' + feeling.feeling_name
+    const getCaption = () => {
+      return selectedFeeling
+        ? 'הוסף ' + selectedFeeling
         : "בחר רגש ...";
-    };
-    const getSelectedFeelingId = () => {
-      return selectedFeeling === 0 ? undefined : String(selectedFeeling)
     };
 
     const rtl = process.env.REACT_APP_RTL
 
     return (
-      <Dropdown onSelect={(e) => setSelectedFeeling(Number(e))}>
-        <Button variant="info" size="sm" className="bg-white text-dark border-dark rounded"
-          id={getSelectedFeelingId()} onClick={onClick}>
-          {getSelectedFeeling()}
-        </Button>
 
-        <Dropdown.Toggle
-          split
-          variant="info"
-          size="sm"
-          className="bg-white text-dark border-dark rounded"
-          id="dropdown-custom-components" />
+      <div className="btn-group">
+        <button
+          type="button"
+          className="bg-white text-dark border-dark rounded btn btn-info btn-sm"
+          onClick={(e) => {
+            if (selectedFeeling) {
+              onSelect?.(selectedFeeling)
+            }
+          }}>
+          {getCaption()}
+        </button>
+        <button type="button" className="btn btn-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+          <span className="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <ul className="dropdown-menu">
 
-        {/* <Dropdown.Menu as={CustomMenu}> */}
-        <Dropdown.Menu>
-          {HebFeelings.map(fruit => {
+          {HebFeelings.map(hf => {
             return (
-              <Dropdown.Item className={rtl === 'yes' ? "rtl-dropdown-item" : ""} key={fruit.id} eventKey={fruit.id.toString()}>
-                {fruit.feeling_name}
-              </Dropdown.Item>
+              <li key={hf.id}>
+                <button className="rtl-dropdown-item dropdown-item" type="button"
+                  onClick={
+                    (e) => {
+                      setSelectedFeeling(e.currentTarget.innerText)
+                    }}
+                >
+                  {hf.feeling_name}
+                </button>
+              </li>
             );
           })}
-        </Dropdown.Menu>
-      </Dropdown>
+
+        </ul>
+      </div>
+
     );
   };

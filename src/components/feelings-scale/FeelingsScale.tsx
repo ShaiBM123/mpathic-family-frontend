@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
 import { z } from 'zod';
 // import { zodResponseFormat } from 'openai/helpers/zod';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -63,25 +62,27 @@ const FeelingsScaleBar = ({ intensity, onRescale }: FeelingsScaleBarProps) => {
     };
 
     return (
-        <Container className="feelings-scale-container">
-            <Row className="justify-content-center">
-                <Col xs={12} md={8} lg={6}>
-                    <Form>
-                        <Form.Group controlId="feelingsScale">
-                            <Form.Control
-                                type="range"
-                                min="1"
-                                step="1"
-                                max="10"
+        <div className="container feelings-scale-container">
+            <div className="row justify-content-center">
+                <div className="col-lg-6 col-md-8 col-12">
+                    <form>
+                        <div className="form-group">
+                            <input min="1" step="1" max="10" type="range"
+                                id="feelingsScale"
+                                className="form-control-range"
                                 value={intensity}
                                 onChange={handleChange}
-                                style={{ background: getBackgroundColor(intensity) }}
+                                style={{
+                                    background:
+                                        getBackgroundColor(intensity)
+                                }}
                             />
-                        </Form.Group>
-                    </Form>
-                </Col>
-            </Row>
-        </Container>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     );
 };
 
@@ -101,26 +102,28 @@ export const FeelingsScale = ({ feelings, active, onRescaleDone }: FeelingsScale
     }
 
     return (
-        <Container
-            className={`${active ? "enabled" : "disabled"} feelings-container`}
-        // bsPrefix="container d-flex flex-column justify-content-center align-items-center"
-        >
 
-            <Card>
+        <div className={`${active ? "enabled" : "disabled"} feelings-container container`}>
+
+            {/* <div className="">
+        </div> */}
+
+            <div className="card">
+
                 {active &&
-                    <Card.Header>
+                    <div className="card-header">
 
                         {addingFeeling ?
-                            <Row>
-                                <Col xs={1} md={1}>
+                            <div className="row">
+                                <div className="col-md-1 col-1">
                                     <FontAwesomeIcon
                                         icon={faSquareMinus} size={'1x'}
                                         onClick={() => { setAddingFeeling(false) }} />
-                                </Col>
-                                <Col xs={10} md={10}>
-                                    <DropdownFeelingSelector onClick={
-                                        (e) => {
-                                            const feeling_name = HebFeelings.find(f => f.id === Number(e.currentTarget.id))?.feeling_name
+                                </div>
+                                <div className="col-md-10 col-10">
+                                    <DropdownFeelingSelector onSelect={
+                                        (feeling_name) => {
+
                                             if (feeling_name) {
                                                 console.log(feeling_name)
 
@@ -132,21 +135,21 @@ export const FeelingsScale = ({ feelings, active, onRescaleDone }: FeelingsScale
                                                 setAddingFeeling(false)
                                             }
                                         }} />
-                                </Col>
-                            </Row> :
-                            <Row>
-                                <Col xs={1}>
+                                </div>
+                            </div> :
+                            <div className="row">
+                                <div className="col-1">
                                     <FontAwesomeIcon icon={faSquarePlus} size={'1x'}
                                         onClick={() => { setAddingFeeling(true) }}
                                     />
-                                </Col>
-                            </Row>
+                                </div>
+                            </div>
                         }
 
-                    </Card.Header>
+                    </div>
                 }
 
-                <Card.Body>
+                <div className="card-body">
                     {scales.length > 0 ?
 
                         scales.map((f, i) =>
@@ -180,23 +183,25 @@ export const FeelingsScale = ({ feelings, active, onRescaleDone }: FeelingsScale
                             </div>
                         ) :
 
-                        <Card.Subtitle>
+                        <div className="card-subtitle h6">
                             {'לא נבחרו רגשות'}
-                        </Card.Subtitle>
+                        </div>
                     }
-                </Card.Body>
+                </div>
 
                 {active &&
-                    <Card.Footer className=" d-flex justify-content-center text-muted">
-                        <Button variant="info" size="sm" className="bg-white text-dark border-dark rounded"
-                            onClick={() => { onRescaleDone(scales, composePromptMsg()) }} >
-                            {process.env.REACT_APP_RTL === 'yes' ? 'אישור' : 'Ok'}
-                        </Button>
-                    </Card.Footer>
-                }
-            </Card>
+                    <div className="d-flex justify-content-center text-muted card-footer">
 
-        </Container>
+                        <button type="button" className="bg-white text-dark border-dark rounded btn btn-info btn-sm"
+                            onClick={() => { onRescaleDone(scales, composePromptMsg()) }}>
+
+                            {process.env.REACT_APP_RTL === 'yes' ? 'אישור' : 'Ok'}
+                        </button>
+                    </div>
+                }
+            </div>
+
+        </div>
 
     )
 };

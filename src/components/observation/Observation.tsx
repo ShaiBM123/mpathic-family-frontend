@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card } from 'react-bootstrap';
+// import { Card } from 'react-bootstrap';
 import { faCircleCheck, faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -14,11 +14,11 @@ export interface ObservationProps {
 export const Observation: React.FC<ObservationProps> = ({ text, onCorrectClick, onNotAccurateClick, active, isCorrect }) => {
     return (
         <div className={"observation-container " + (!active ? "disabled" : "enabled")}>
-            <Card className="observation-text-display">
-                <Card.Body>
-                    <Card.Text>{text}</Card.Text>
-                </Card.Body>
-            </Card>
+            <div className="observation-text-display card">
+                <div className="card-body">
+                    <p className="card-text">{text}</p>
+                </div>
+            </div>
             {isCorrect === true ? (
                 <FontAwesomeIcon className="is-correct-icon" icon={faCircleCheck} style={{ color: 'green', fontSize: '2rem' }} />
             ) : isCorrect === null && (
