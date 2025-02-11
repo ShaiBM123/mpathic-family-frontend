@@ -3,7 +3,7 @@ import { Gender } from '../../data/data';
 
 export interface UserFormData {
     firstName: string;
-    gender: Gender;
+    gender: Gender | '';
     age: number | '';
 }
 
@@ -14,7 +14,7 @@ interface UserFormProps {
 export const UserForm: React.FC<UserFormProps> = ({ onSubmit }) => {
     const [userFormData, setUserFormData] = useState<UserFormData>({
         firstName: '',
-        gender: Gender.Other,
+        gender: '',
         age: ''
     });
 
@@ -51,9 +51,9 @@ export const UserForm: React.FC<UserFormProps> = ({ onSubmit }) => {
                     onChange={handleChange}
                     required
                 >
+                    <option value="" disabled></option>
                     <option value={Gender.Male}>זכר</option>
                     <option value={Gender.Female}>נקבה</option>
-                    <option value={Gender.Other}>אחר</option>
                 </select>
             </div>
             <div className="user-form-group">
