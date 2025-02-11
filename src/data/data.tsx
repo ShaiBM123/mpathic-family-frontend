@@ -8,8 +8,7 @@ import { nanoid } from "nanoid";
 
 export enum Gender {
   Male = "זכר",
-  Female = "נקבה",
-  Other = "אחר"
+  Female = "נקבה"
 };
 
 export enum RelationshipCategory {
@@ -24,8 +23,7 @@ export enum RelationshipCategory {
 
 export const avatars = {
   [Gender.Male]: maleAvatar,
-  [Gender.Female]: femaleAvatar,
-  [Gender.Other]: otherAvatar
+  [Gender.Female]: femaleAvatar
 }
 
 

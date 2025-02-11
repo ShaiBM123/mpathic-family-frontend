@@ -279,7 +279,7 @@ export const Chat = ({ user }: { user: User }) => {
                             <UserForm onSubmit={(data) => {
                                 user.firstName = data.firstName;
                                 user.data = { age: data.age, gender: data.gender };
-                                user.avatar = avatars[data.gender];
+                                user.avatar = data.gender ? avatars[data.gender] : '';
                                 setCurrentUser(user)
                                 removeMessagesFromConversation(activeConversation?.id as string)
                             }} />
@@ -327,8 +327,8 @@ export const Chat = ({ user }: { user: User }) => {
                                         topic === '' ? `הסיטואציה קשורה לנושא כללי` : `הסיטואציה קשורה לנושא ${topic}`
                                             + (subTopic === '' ? `` : ` ובפרט לגבי ${subTopic}`));
 
-                                    setPhase(UserMessagePhase.PersonInConflictIdentity)
-                                    addChatBotMsg(`מי האדם אליו ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (לדוגמא ${uGender === Gender.Male ? "בת זוג" : "בן זוג"}, אח אחות וכולי) ומה שמו/שמה ?`, MessageContentType.TextPlain)
+                                    setPhase(UserMessagePhase.PersonInConflictRelation)
+                                    addChatBotMsg(`מי האדם אליו ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (לדוגמא ${uGender === Gender.Male ? "בת זוג" : "בן זוג"}, אח אחות וכולי) ?`, MessageContentType.TextPlain)
                                 }}
                             />
                     }

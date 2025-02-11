@@ -1,13 +1,14 @@
-import { 
-    ChatState, 
-    ConversationId, 
-    User, 
-    Presence, 
+import {
+    ChatState,
+    ConversationId,
+    User,
+    Presence,
     UserStatus,
     Conversation,
     ConversationRole,
     Participant,
-    TypingUsersList } from "@chatscope/use-chat";
+    TypingUsersList
+} from "@chatscope/use-chat";
 
 import { openAIModel, openAIConversationId } from "./data";
 import { UserInRelationshipData } from "../data/UserInRelationshipData";
@@ -19,13 +20,13 @@ export interface ExtendedStorageParams extends Required<BasicStorageParams> {
 }
 
 export type ExtendedChatState = {
-    phase: UserMessagePhase, 
+    phase: UserMessagePhase,
     phaseCount: number,
-    moreUserInputRequired: boolean, 
-    topic: string, 
+    moreUserInputRequired: boolean,
+    topic: string,
     subTopic: string,
     userInRelationship: User<UserInRelationshipData>,
-    openAIHistory: Array<{role: string, content: string}>
+    openAIHistory: Array<{ role: string, content: string }>
 }
 
 function createConversation(id: ConversationId, name: string): Conversation {
@@ -44,7 +45,7 @@ function createConversation(id: ConversationId, name: string): Conversation {
 }
 
 export class ExtendedStorage<ConversationData = any>
-  extends BasicStorage<ConversationData>{
+    extends BasicStorage<ConversationData> {
 
     private phase: UserMessagePhase;
     private phaseCount: number;
@@ -55,13 +56,13 @@ export class ExtendedStorage<ConversationData = any>
     private subTopic: string;
 
     private userInRelationship: User;
-    readonly openAIHistory: Array<{role: "user" | "assistant" | "system", content: string}>
+    readonly openAIHistory: Array<{ role: "user" | "assistant" | "system", content: string }>
 
-     /**
-   * Constructor
-   * @param messageIdGenerator
-   * @param groupIdGenerator
-   */
+    /**
+  * Constructor
+  * @param messageIdGenerator
+  * @param groupIdGenerator
+  */
     constructor({ groupIdGenerator, messageIdGenerator }: ExtendedStorageParams) {
         super({ groupIdGenerator, messageIdGenerator })
         this.phase = UserMessagePhase.Start;
@@ -86,7 +87,7 @@ export class ExtendedStorage<ConversationData = any>
         this.userInRelationship = new User<UserInRelationshipData>({
             /* actual ID is a phone number,it will be detected once the main user will enter 
             the phone number of the user in relationship */
-            id: "972-00-0000000", 
+            id: "972-00-0000000",
             presence: new Presence({ status: UserStatus.Unknown, description: "" }),
             firstName: "",
             lastName: "",
@@ -98,11 +99,11 @@ export class ExtendedStorage<ConversationData = any>
         });
 
         this.openAIHistory = [{
-            role: "system", 
+            role: "system",
             content: "אתה מטפל בשיטת התקשורת המקרבת התפקיד שלך הוא לסייע למשתמשים ליישב בעיות בין אישיות בצורה אמפתית בשפה העברית."
         }];
-    }   
-    
+    }
+
     /**
    * Sets topic
    * @param topic
@@ -143,8 +144,8 @@ export class ExtendedStorage<ConversationData = any>
     setMoreUserInputRequired(moreInputRequired: boolean): void {
         this.moreUserInputRequired = moreInputRequired;
     }
-    
-    
+
+
     /**
      * Sets current (logged in) user object
      * @param user
@@ -153,20 +154,19 @@ export class ExtendedStorage<ConversationData = any>
         this.userInRelationship = user;
     }
 
-        /**
-   * Sets current phase
-   * @param role
-   * @param txt
-   */
+    /**
+
+* @param role
+* @param txt
+*/
     addOpenAIHistoryText(role: "user" | "assistant" | "system", txt: string): void {
-        this.openAIHistory.push({role: role, content: txt});
+        this.openAIHistory.push({ role: role, content: txt });
     }
 
     removeMessageFromActiveConversation(messageId: string): void {
         let activeConversation = super.getState().activeConversation;
 
-        if(activeConversation)
-        {
+        if (activeConversation) {
             let filtered_groups = super.getState().currentMessages.map((g) => {
                 return g.messages.filter((msg) => msg.id !== messageId);
 
@@ -174,8 +174,8 @@ export class ExtendedStorage<ConversationData = any>
 
             this.removeMessagesFromConversation(activeConversation.id);
 
-            for (const grp of filtered_groups){
-                for (const msg of grp){
+            for (const grp of filtered_groups) {
+                for (const msg of grp) {
                     this.addMessage(msg, activeConversation.id);
                 }
             }
@@ -183,8 +183,9 @@ export class ExtendedStorage<ConversationData = any>
     }
 
     getState(): ChatState & ExtendedChatState {
-        return {...super.getState(), 
-            phase: this.phase, 
+        return {
+            ...super.getState(),
+            phase: this.phase,
             phaseCount: this.phaseCount,
             moreUserInputRequired: this.moreUserInputRequired,
             topic: this.topic,
@@ -196,6 +197,6 @@ export class ExtendedStorage<ConversationData = any>
 
     resetState(): void {
         super.resetState();
-        this.phase = UserMessagePhase.PersonInConflictIdentity;
+        this.phase = UserMessagePhase.PersonInConflictRelation;
     }
 }
