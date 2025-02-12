@@ -156,7 +156,8 @@ const SignUp = () => {
               />
             </button>
 
-            <Link to="/registration">
+            {/* <Link to="/registration"> */}
+            <Link to="/chat">
               <button className="btn google-signup-btn_account password_lock mt-4">
                 <p className="text-regular">הרשמה עם סיסמה</p>
                 <img
@@ -167,7 +168,8 @@ const SignUp = () => {
               </button>
             </Link>
 
-            <Link to="/login">
+            {/* <Link to="/login"> */}
+            <Link to="/chat">
               <button
                 className="btn google-signup-btn_account password_lock mt-4"
                 style={{
