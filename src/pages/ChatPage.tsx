@@ -43,8 +43,8 @@ const userStorage = new ExtendedStorage({ groupIdGenerator, messageIdGenerator }
 const ChatPage = () => {
     return (
         <div className="mpathic-app h-100 d-flex flex-column overflow-hidden">
-            <div className="container-fluid p-4 flex-grow-1 position-relative overflow-hidden">
-                <div className="row h-100 pt-2 flex-nowrap">
+            <div className="container-fluid flex-grow-1 position-relative overflow-hidden">
+                <div className="row h-100 flex-nowrap">
                     <div className="col">
                         <ExtendedChatProvider serviceFactory={serviceFactory} storage={userStorage} config={{
                             typingThrottleTime: 250,

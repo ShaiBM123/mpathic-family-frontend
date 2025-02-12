@@ -39,7 +39,10 @@ import { TypingText } from "../components/typing-text/TypingText";
 import { completeUserPartOfSpeech } from "../open_ai/OpenAIPromptingManager"
 import { UserForm } from "../components/user-form/UserForm";
 
-import mpathicTitle from "../assets/mpathic-family-title.svg";
+import svgMpathicTitle from "../assets/mpathic-family-title.svg";
+import svgUndo from "../assets/undo.svg";
+import svgRedo from "../assets/redo.svg";
+import svgKebabMenu from "../assets/kebab-menu.svg";
 import "../components/typing-text/typing-text.css"
 
 
@@ -440,7 +443,32 @@ export const Chat = ({ user }: { user: User }) => {
 
             <ChatContainer>
                 {activeConversation && <ConversationHeader>
-                    {<Avatar size="fluid" src={mpathicTitle} />}
+                    <ConversationHeader.Content>
+                        <div className="chat-header">
+                            <img src={svgMpathicTitle} alt="Mpathic Family Title" />
+                            <div className="buttons-wrapper">
+                                <div className="buttons-container">
+                                    <button>
+                                        <img src={svgUndo} alt="Undo" />
+                                    </button>
+                                    <div>חזרה</div>
+                                </div>
+                                <div className="buttons-container redo-button-container">
+                                    <button className="redo-button">
+                                        <img src={svgRedo} alt="Redo" />
+                                    </button>
+                                    <div>קדימה</div>
+                                </div>
+                                <div className="buttons-container kebab-menu-container">
+                                    <button>
+                                        <img src={svgKebabMenu} alt="Menu" />
+                                    </button>
+                                    <div></div> {/* Empty caption with 18px height */}
+                                </div>
+                            </div>
+                        </div>
+                        {/* Other components and elements */}
+                    </ConversationHeader.Content>
                 </ConversationHeader>}
 
                 <MessageList

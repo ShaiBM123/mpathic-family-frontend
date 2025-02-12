@@ -23,121 +23,181 @@
 
 .mpathic-app { 
     
-    .#{$prefix}-conversation-header{
+    .#{$prefix}-main-container{
+        border: solid 0px white;
 
-        padding: 0.6em 0.5em 0.3em 0.5em;
+        .#{$prefix}-chat-container{
 
-        &__avatar{
-            width: 100%;
-            text-align: center;
-            margin-right: 0px;
-            order: 1;
-        }
-    }
+            .#{$prefix}-conversation-header{
 
-    .#{$prefix}-message-group {
-        margin: 9px 0 0 0;
-    }
-
-    .#{$prefix}-message {
-        display: block;
-
-        // &__content {
-  
-        // }
-        
-    }
-
-    .#{$prefix}-message-input {
-        @include right-to-left();
-    }
-
-    .#{$prefix}-message-list {
-
-        // Because message in group cant have max-width, only if its direct child of list
-        &__scroll-wrapper 
-        {
-            // padding: 0 1.2em 0 0.8em; <-- the original values
-            padding-right: 0.2em;
-
-            .#{$prefix}-message-group  {
-
-                &--outgoing
-                {
-                    margin-right: auto;
-                    margin-left: unset;
-                    justify-content: flex-start;
-
-                    .cs-message-group  {
-            
-                        &__messages {
-            
-                            .cs-message {
-                                @include right-to-left();
-
-                                &__content{
-                                    background-color: rgba(69, 203, 246, 0.25);
-                                }
-
-                                &:only-child .cs-message__content {
-                                    border-radius: 0.7em 0.7em 0.7em 0.7em;
-                                }
-                            }
+                .chat-header {
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: space-between;
+                    width: 100%;
+                }
+                
+                .buttons-wrapper {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px; /* Default gap between button containers */
+                    margin-left: auto;
+                }
+                
+                .buttons-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                
+                    &.redo-button-container {
+                        margin-left: 5px; /* Specific gap between undo and redo buttons */
+                    }
+                
+                    button {
+                        width: 24px;
+                        height: 24px;
+                        background: transparent;
+                        border: none;
+                        padding: 0;
+                
+                        img {
+                            width: 100%;
+                            height: auto;
                         }
-
-                        &__avatar {
-                            order: 0;
-                            margin-left: 0px;
-                            display: none;
-                        }
-
-                        &__content {
-                            order: 1;
-                        }
+                    }
+                
+                    div {
+                        font-family: 'Assistant', sans-serif;
+                        font-weight: 400;
+                        font-size: 11px;
+                        line-height: 18px;
+                        letter-spacing: 0%;
+                        text-align: center;
+                        color: rgba(56, 105, 229, 1);
+                    }
+                
+                    &.kebab-menu-container div {
+                        height: 18px; /* Empty caption with 18px height */
                     }
                 }
 
-                &--incoming
-                {   
-                    max-width: 100%;
-                    margin-left: auto;
-                    margin-right: unset;
-                    justify-content: flex-end;
+                background-color: white;
+                // border-bottom: solid 0px #ffffff;
+                padding: 0.6em 0.5em 0.3em 0.5em;
 
-                    .cs-message-group  {
+                // &__avatar{
+                //     width: 100%;
+                //     text-align: center;
+                //     margin-right: 0px;
+                //     order: 1;
+                // }
+            }
 
-                        &__messages  {
-            
-                            .cs-message {
-                                @include right-to-left();
+            .#{$prefix}-message-group {
+                margin: 9px 0 0 0;
+            }
 
-                                .cs-message__content {
-                                    // border-radius: 0.7em 0 0 0.7em;
-                                    // color: rgba(0, 0, 0, 0.87);
-                                    background-color: rgba(0, 0, 0, 0.03);
+            .#{$prefix}-message {
+                display: block;
+
+                // &__content {
+        
+                // }
+                
+            }
+
+            .#{$prefix}-message-input {
+                @include right-to-left();
+            }
+
+            .#{$prefix}-message-list {
+
+                // Because message in group cant have max-width, only if its direct child of list
+                &__scroll-wrapper 
+                {
+                    // padding: 0 1.2em 0 0.8em; <-- the original values
+                    padding-right: 0.2em;
+
+                    .#{$prefix}-message-group  {
+
+                        &--outgoing
+                        {
+                            margin-right: auto;
+                            margin-left: unset;
+                            justify-content: flex-start;
+
+                            .cs-message-group  {
+                    
+                                &__messages {
+                    
+                                    .cs-message {
+                                        @include right-to-left();
+
+                                        &__content{
+                                            background-color: rgba(69, 203, 246, 0.25);
+                                        }
+
+                                        &:only-child .cs-message__content {
+                                            border-radius: 0.7em 0.7em 0.7em 0.7em;
+                                        }
+                                    }
                                 }
 
-                                &:only-child .cs-message__content {
-                                    border-radius: 0.7em 0 0.7em 0.7em;
+                                &__avatar {
+                                    order: 0;
+                                    margin-left: 0px;
+                                    display: none;
                                 }
 
-                                // THIS PART SHOULD BE MOVED INTO A SEPARATE FILE FOR THE DROPDOWN
-                                & .dropdown-menu ul {
-
-                                    @include right-to-left(); 
-                                    padding-inline-start: 0px;
-                                    padding-inline-end: 40px;
+                                &__content {
+                                    order: 1;
                                 }
                             }
                         }
-                        
-                        &__avatar{
-                            @include right-to-left();
-                            margin-right: 5px;
-                            order: 1;
-                        }
-                        &__content {
-                            order: 0;
+
+                        &--incoming
+                        {   
+                            max-width: 100%;
+                            margin-left: auto;
+                            margin-right: unset;
+                            justify-content: flex-end;
+
+                            .cs-message-group  {
+
+                                &__messages  {
+                    
+                                    .cs-message {
+                                        @include right-to-left();
+
+                                        .cs-message__content {
+                                            // border-radius: 0.7em 0 0 0.7em;
+                                            // color: rgba(0, 0, 0, 0.87);
+                                            background-color: rgba(0, 0, 0, 0.03);
+                                        }
+
+                                        &:only-child .cs-message__content {
+                                            border-radius: 0.7em 0 0.7em 0.7em;
+                                        }
+
+                                        // THIS PART SHOULD BE MOVED INTO A SEPARATE FILE FOR THE DROPDOWN
+                                        & .dropdown-menu ul {
+
+                                            @include right-to-left(); 
+                                            padding-inline-start: 0px;
+                                            padding-inline-end: 40px;
+                                        }
+                                    }
+                                }
+                                
+                                &__avatar{
+                                    @include right-to-left();
+                                    margin-right: 5px;
+                                    order: 1;
+                                }
+                                &__content {
+                                    order: 0;
+                                }
+                            }
                         }
                     }
                 }
