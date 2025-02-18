@@ -10,6 +10,7 @@ export const FeelingIntensityEnum = z.enum(["1", "2", "3", "4", "5", "6", "7", "
 export type FeelingIntensityEnumType = z.infer<typeof FeelingIntensityEnum>;
 export const Feeling = z.object({
     emotion_name: z.string(),
+    // emotion_name: z.enum([HebFeelings[0].feeling_name, ...HebFeelings.filter((_, idx) => { return idx > 0 }).map((f) => { return f.feeling_name })]),
     emotion_intensity: FeelingIntensityEnum,
 });
 export const FeelingsArray = z.array(Feeling)
