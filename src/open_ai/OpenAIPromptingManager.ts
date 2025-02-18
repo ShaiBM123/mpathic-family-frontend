@@ -135,9 +135,9 @@ export class OpenAIPromptManager {
                     this.storage.addOpenAIHistoryText("system",
                         'תצפית מוגדרת כהתמקדות במה שאנחנו רואים שומעים או מבחינים בו באופן אובייקטיבי מבלי להוסיף רגש, שיפוט, פרשנות או הערכה');
                     this.storage.addOpenAIHistoryText("system",
-                        `נסח את התצפית בגוף שני כך שהניסוח פונה ל${uName}`);
+                        `נסח את התצפית בגוף שני כך שהניסוח פונה למשתמש${uPoS.Taf} ${uName}`);
                     this.storage.addOpenAIHistoryText("system",
-                        `נסח תצפית המתייחסת לכל הטקסט ש${uName} ${uGender === Gender.Male ? 'רשם' : 'רשמה'} עד כה`);
+                        `נסח תצפית המתייחסת לכל הטקסט שהמשתמש${uPoS.Taf} ${uGender === Gender.Male ? 'רושם' : 'רושמת'}`);
                 }
 
                 return {
@@ -152,12 +152,12 @@ export class OpenAIPromptManager {
             case UserMessagePhase.BE_FeelingsProbe:
                 if (phaseCount === 0) {
                     this.storage.addOpenAIHistoryText("system",
-                        `בהתבסס על התיאור של המשתמש${uPoS.Taf} ${uName}, מצא עד שלושה רגשות דומיננטיים המובעים בטקסט ותאר בקצרה את הלך הרוח מההבט הרגשי`);
+                        `בהתבסס על התיאור של המשתמש${uPoS.Taf} ${uName}, מצא עד שלושה רגשות דומיננטיים שלו המובעים בטקסט, התמקד ברגשות בלבד ולא בצרכים המעוררים רגש `);
                 }
                 return {
                     response_format: zodResponseFormat(z.object({
-                        feelings: FeelingsArray,
-                        description: z.string()
+                        feelings: FeelingsArray
+                        // description: z.string()
                     }), "feelings-intensities"),
                     max_tokens: 600,
                     temperature: 0.7
