@@ -281,6 +281,7 @@ export const Chat = ({ user }: { user: User }) => {
 
                     message_type = "custom";
                     message_payload = <TypingText
+                        // onComplete={() => { }}// DEBUG LINE
                         chatMsg={chat_msg}
                         chatMsgContentToStrings={(c: Object) => { return [c as string] }}
                         onStringTyped={() => {
@@ -467,37 +468,6 @@ export const Chat = ({ user }: { user: User }) => {
                                     }
                                 }
                             />
-
-                        /* <Observation
-                                active={obj.active}
-                                isCorrect={obj.isCorrect}
-                                text={obj.observation}
-                                onCorrectClick={() => {
-                                    obj.isCorrect = true;
-                                    obj.active = false;
-                                    addOpenAIHistoryText("assistant", obj.observation);
-                                    updateMessage(chat_msg);
-                                    addChatBotMsg(`כעת בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה`, MessageContentType.TextPlain)
-                                    setPhase(UserMessagePhase.BE_FeelingsProbe)
-                                }}
-                                onNotAccurateClick={() => {
-                                    obj.isCorrect = false;
-                                    obj.active = false;
-                                    updateMessage(chat_msg);
-                                    let msg = phaseCount <= 1 ?
-                                        Gender.Male ?
-                                            messages.userCallForMoreAccurateObrInitialMsg.male :
-                                            messages.userCallForMoreAccurateObrInitialMsg.female
-                                        :
-                                        Gender.Male ?
-                                            messages.userCallForMoreAccurateObrFollowUpMsg.male :
-                                            messages.userCallForMoreAccurateObrFollowUpMsg.female;
-
-                                    addChatBotMsg(msg, MessageContentType.TextPlain)
-                                    setPhase(UserMessagePhase.BE_ObservationAnalysis)
-                                }}
-                            /> */
-
                     }
                     else if (obj.id === "feelings") {
 

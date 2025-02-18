@@ -28,12 +28,14 @@ export const TypingText = ({ chatMsg, chatMsgContentToStrings, onStringTyped, on
     };
 
   return (
-    <ReactTyped
-      typeSpeed={20}
-      showCursor={true}
-      onStringTyped={onStringTyped}
-      onComplete={doOnComplete}
-      strings={chatMsgContentToStrings(chatMsg.content)}
-    />
+    <div className='typing-text-wrapper'>
+      <ReactTyped
+        typeSpeed={20}
+        showCursor={true}
+        onStringTyped={onStringTyped}
+        onComplete={doOnComplete}
+        strings={chatMsgContentToStrings(chatMsg.content)}
+      />
+    </div>
   );
 }
