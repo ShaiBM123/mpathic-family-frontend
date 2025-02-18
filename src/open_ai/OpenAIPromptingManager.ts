@@ -113,19 +113,6 @@ export class OpenAIPromptManager {
                     temperature: 0.1
                 };
 
-            case UserMessagePhase.BE_PersonInConflictNickname:
-                if (phaseCount === 0) {
-                    this.storage.addOpenAIHistoryText("system", `עליך לזהות בטקסט הבא את כינוי החיבה של ${u2Name}`)
-                }
-
-                return {
-                    response_format: zodResponseFormat(z.object({
-                        nickname: z.union([z.string().describe("כינוי חיבה"), z.null()]),
-                    }), "nickname_of_the_person_in_conflict"),
-                    max_tokens: 200,
-                    temperature: 0.7
-                };
-
             case UserMessagePhase.BE_PersonInConflictAge:
                 if (phaseCount === 0) {
                     this.storage.addOpenAIHistoryText("system", `במשפט הבא עליך לזהות את גילו של ${u2Name}`)
@@ -206,13 +193,9 @@ export class OpenAIPromptManager {
 
             case UserMessagePhase.BE_PersonInConflictName:
 
-                if (relationships({ category: RelationshipCategory.Family }).includes(
+                if (relationships({ category: RelationshipCategory.Family0 }).includes(
                     userInRelationship.data?.relationship as string)) {
                     next_phase = UserMessagePhase.BE_PersonInConflictAge;
-                }
-                else if (relationships({ category: RelationshipCategory.Friends }).includes(
-                    userInRelationship.data?.relationship as string)) {
-                    next_phase = UserMessagePhase.BE_PersonInConflictNickname;
                 }
                 else {
                     next_phase = UserMessagePhase.BE_ObservationAnalysis;
@@ -220,17 +203,6 @@ export class OpenAIPromptManager {
                 break;
 
             case UserMessagePhase.BE_PersonInConflictAge:
-
-                if (relationships({ category: RelationshipCategory.Family }).includes(
-                    userInRelationship.data?.relationship as string)) {
-                    next_phase = UserMessagePhase.BE_PersonInConflictNickname;
-                }
-                else {
-                    next_phase = UserMessagePhase.BE_ObservationAnalysis;
-                }
-                break;
-
-            case UserMessagePhase.BE_PersonInConflictNickname:
 
                 next_phase = UserMessagePhase.BE_ObservationAnalysis;
                 break;
@@ -284,8 +256,6 @@ export class OpenAIPromptManager {
                 return `מהו שמ${u2PoS.VavOrHei}`;
             case UserMessagePhase.BE_ObservationAnalysis:
                 return `תודה! תאר${uPoS.Yod} את הסיטואציה עליה ${uPoS.sbj2ndPronoun} מדבר${uPoS.Taf}, מה קרה בעצם ? אני סקרן אז כמה שיותר פרטים בבקשה !`;
-            case UserMessagePhase.BE_PersonInConflictNickname:
-                return `מהו כינוי החיבה של${u2PoS.VavOrHei} ?`;
             case UserMessagePhase.BE_PersonInConflictAge:
                 return `${u2Gender === Gender.Female ? "בת" : "בן"} כמה ${u2PoS.sbj3rdPronoun} ?`;
             case UserMessagePhase.BE_FeelingsProbe:
@@ -362,21 +332,6 @@ export class OpenAIPromptManager {
                         more_input_required = false;
                         userInRelationship.firstName = parsed_msg.first_name;
                         assistant_msg = `שמ${u2PoS.VavOrHei} הפרטי ${parsed_msg.first_name}`;
-                        next_phase = this.determineNextPhaseOnOK(phase);
-                        addReply({ content: this.generateInitialFollowUpText(next_phase) });
-                    }
-
-                    // assistant_msg = replys[0].content
-                    break;
-
-                case UserMessagePhase.BE_PersonInConflictNickname:
-                    if (!parsed_msg.nickname) {
-                        addReply({ content: `לא הבנתי אותך :-( ${uGender === Gender.Female ? "רשמי" : "רשום"} את כינוי החיבה ${u2PoS.possessiveAdj}` })
-                        assistant_msg = replys[0].content
-                    } else {
-                        more_input_required = false;
-                        (userInRelationship.data as UserInRelationshipData).nickName = parsed_msg.nickname;
-                        assistant_msg = `כינוי החיבה ${u2PoS.possessiveAdj} הוא ${parsed_msg.nickname}`;
                         next_phase = this.determineNextPhaseOnOK(phase);
                         addReply({ content: this.generateInitialFollowUpText(next_phase) });
                     }

@@ -13,6 +13,7 @@ export enum Gender {
 
 export enum RelationshipCategory {
   Family = "משפחה",
+  Family0 = "אחים או ילדים",
   FamilyD2 = "משפחה מדרגה 2",
   Friends = "חברים",
   Acquaintances = "מכרים",

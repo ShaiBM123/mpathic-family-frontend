@@ -16,12 +16,11 @@ export enum UserMessagePhase {
   FE_SubTopic = 6,
   BE_PersonInConflictRelation = 7,
   BE_PersonInConflictName = 8,
-  BE_PersonInConflictNickname = 9,
-  BE_PersonInConflictAge = 10,
-  BE_ObservationAnalysis = 11,
-  BE_FeelingsProbe = 12,
-  BE_FeelingsAnalysis = 13,
-  BE_NeedsProbe = 14,
+  BE_PersonInConflictAge = 9,
+  BE_ObservationAnalysis = 10,
+  BE_FeelingsProbe = 11,
+  BE_FeelingsAnalysis = 12,
+  BE_NeedsProbe = 13,
   TBD = 999,
   Unknown = 1000
 }
