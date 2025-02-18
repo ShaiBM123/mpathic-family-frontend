@@ -193,7 +193,7 @@ export class OpenAIPromptManager {
 
             case UserMessagePhase.BE_PersonInConflictName:
 
-                if (relationships({ category: RelationshipCategory.Family0 }).includes(
+                if (relationships({ category: RelationshipCategory.SiblingsOrChildren }).includes(
                     userInRelationship.data?.relationship as string)) {
                     next_phase = UserMessagePhase.BE_PersonInConflictAge;
                 }

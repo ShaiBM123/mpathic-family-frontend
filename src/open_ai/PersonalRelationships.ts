@@ -63,7 +63,7 @@ export function relationships({ category, gender }: RelationshipProps) {
                         _relationships.family[Gender.Male]
                     ].flat()
             }
-        case RelationshipCategory.Family0:
+        case RelationshipCategory.SiblingsOrChildren:
             switch (gender) {
                 case Gender.Female:
                 case Gender.Male:
