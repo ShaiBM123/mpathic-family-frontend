@@ -369,13 +369,9 @@ export class OpenAIPromptManager {
                         // satisfied with the given observation and keep feeding more information
                         // next_phase = UserMessagePhase.Unknown;
 
+                        addReply({ content: parsed_msg.observation })
                         addReply({
-                            content: {
-                                observation: parsed_msg.observation,
-                                id: "observation",
-                                active: true,
-                                isCorrect: null
-                            },
+                            content: { id: "observation_approval", observation: parsed_msg.observation },
                             content_type: MessageContentType.Other
                         })
 
