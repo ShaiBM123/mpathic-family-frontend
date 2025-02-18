@@ -1,4 +1,5 @@
 import { useMemo, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     MainContainer,
     // Sidebar, 
@@ -13,7 +14,7 @@ import {
     MessageInput,
     TypingIndicator,
     MessageModel,
-    Button
+    // Button
 } from "@chatscope/chat-ui-kit-react";
 
 import { useExtendedChat } from "./ExtendedChatProvider";
@@ -28,17 +29,11 @@ import {
 import { MessageContent, User } from "@chatscope/use-chat";
 import { UserMessageContent, UserMessagePhase } from "../open_ai/OpenAITypes";
 // import { ReactTyped } from "react-typed";
-import { Gender, avatars, openAIModel, openAIConversationId } from "../data/data";
-import {
-    interPersonalTopicsDictionary,
-    InterPersonalTopics,
-    TopicCategoryLevel
-} from "../components/inter-personal-topics/InterPersonalTopics";
-import { Observation } from "../components/observation/Observation";
+import { Gender, openAIModel, openAIConversationId } from "../data/data";
+import { interPersonalTopicsDictionary } from "../components/inter-personal-topics/InterPersonalTopics";
 import { FeelingsScale } from "../components/feelings-scale/FeelingsScale";
 import { TypingText } from "../components/typing-text/TypingText";
-import { completeUserPartOfSpeech } from "../open_ai/OpenAIPromptingManager"
-// import { UserForm } from "../components/user-form/UserForm";
+// import { completeUserPartOfSpeech } from "../open_ai/OpenAIPromptingManager"
 import { OptionButtonsInColumn, OptionButtonsInRow } from "../components/option-buttons-list/OptionButtonsInList";
 import { formatMessage, enumKeyStartsWith } from "../utils/utils";
 
@@ -70,6 +65,7 @@ export const Chat = ({ user }: { user: User }) => {
         setActiveConversation(openAIConversationId)
     }, [setActiveConversation]);
 
+    const navigate = useNavigate();
 
     const scrollToTop = useCallback(() => {
         const timer = setTimeout(() => {
@@ -124,7 +120,7 @@ export const Chat = ({ user }: { user: User }) => {
             }
             else {
                 let uName = currentUser?.firstName;
-                let uPoS = completeUserPartOfSpeech(currentUser);
+                // let uPoS = completeUserPartOfSpeech(currentUser);
                 setPhase(UserMessagePhase.FE_MainTopic)
                 addChatBotMsg(
                     {
@@ -270,7 +266,7 @@ export const Chat = ({ user }: { user: User }) => {
         (chat_msg: ChatMessage<MessageContentType>) => {
             // let uName = user?.firstName;
             let uGender = user?.data?.gender;
-            let uPoS = completeUserPartOfSpeech(user);
+            // let uPoS = completeUserPartOfSpeech(user);
 
             let message_type;
             let message_payload;
@@ -310,6 +306,9 @@ export const Chat = ({ user }: { user: User }) => {
                                             addChatBotMsg(messages.user1stTimeFewQMsg, MessageContentType.TextHtml);
                                             addChatBotMsg(messages.howToApproachYou, MessageContentType.TextHtml);
                                             addChatBotMsg({ active: true, id: "ask_user_male_or_female" }, MessageContentType.Other);
+                                        }
+                                        else if (id === "NextTime") {
+                                            navigate("/");
                                         }
                                     }
                                 }
