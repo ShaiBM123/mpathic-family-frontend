@@ -21,14 +21,14 @@
 // }
 
 
-.mpathic-app { 
-    
-    .#{$prefix}-main-container{
+.mpathic-app {
+
+    .#{$prefix}-main-container {
         border: solid 0px white;
 
-        .#{$prefix}-chat-container{
+        .#{$prefix}-chat-container {
 
-            .#{$prefix}-conversation-header{
+            .#{$prefix}-conversation-header {
 
                 .chat-header {
                     display: flex;
@@ -36,36 +36,38 @@
                     justify-content: space-between;
                     width: 100%;
                 }
-                
+
                 .buttons-wrapper {
                     display: flex;
                     align-items: center;
-                    gap: 10px; /* Default gap between button containers */
+                    gap: 10px;
+                    /* Default gap between button containers */
                     margin-left: auto;
                 }
-                
+
                 .buttons-container {
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                
+
                     &.redo-button-container {
-                        margin-left: 5px; /* Specific gap between undo and redo buttons */
+                        margin-left: 5px;
+                        /* Specific gap between undo and redo buttons */
                     }
-                
+
                     button {
                         width: 24px;
                         height: 24px;
                         background: transparent;
                         border: none;
                         padding: 0;
-                
+
                         img {
                             width: 100%;
                             height: auto;
                         }
                     }
-                
+
                     div {
                         font-family: 'Assistant', sans-serif;
                         font-weight: 400;
@@ -75,9 +77,10 @@
                         text-align: center;
                         color: rgba(56, 105, 229, 1);
                     }
-                
+
                     &.kebab-menu-container div {
-                        height: 18px; /* Empty caption with 18px height */
+                        height: 18px;
+                        /* Empty caption with 18px height */
                     }
                 }
 
@@ -94,16 +97,15 @@
             }
 
             .#{$prefix}-message-group {
-                margin: 9px 0 0 0;
+                margin: 10px 0 0 0;
             }
 
             .#{$prefix}-message {
                 display: block;
 
                 // &__content {
-        
+
                 // }
-                
             }
 
             .#{$prefix}-message-input {
@@ -111,29 +113,29 @@
             }
 
             .#{$prefix}-message-list {
+                margin: 10px 0 0 0;
 
                 // Because message in group cant have max-width, only if its direct child of list
-                &__scroll-wrapper 
-                {
+                &__scroll-wrapper {
                     // padding: 0 1.2em 0 0.8em; <-- the original values
                     padding-right: 0.2em;
+                    padding-left: 0.0em;
 
-                    .#{$prefix}-message-group  {
+                    .#{$prefix}-message-group {
 
-                        &--outgoing
-                        {
+                        &--outgoing {
                             margin-right: auto;
                             margin-left: unset;
                             justify-content: flex-start;
 
-                            .cs-message-group  {
-                    
+                            .cs-message-group {
+
                                 &__messages {
-                    
+
                                     .cs-message {
                                         @include right-to-left();
 
-                                        &__content{
+                                        &__content {
                                             background-color: rgba(69, 203, 246, 0.25);
                                         }
 
@@ -155,17 +157,16 @@
                             }
                         }
 
-                        &--incoming
-                        {   
+                        &--incoming {
                             max-width: 100%;
                             margin-left: auto;
                             margin-right: unset;
                             justify-content: flex-end;
 
-                            .cs-message-group  {
+                            .cs-message-group {
 
-                                &__messages  {
-                    
+                                &__messages {
+
                                     .cs-message {
                                         @include right-to-left();
 
@@ -173,6 +174,12 @@
                                             // border-radius: 0.7em 0 0 0.7em;
                                             // color: rgba(0, 0, 0, 0.87);
                                             background-color: rgba(0, 0, 0, 0.03);
+
+                                            // Add padding only when .option_buttons_row is a child
+                                            &:has(.option_buttons_row) {
+                                                padding: 0.6em 0.0em;
+                                                background-color: white;
+                                            }
                                         }
 
                                         &:only-child .cs-message__content {
@@ -182,18 +189,19 @@
                                         // THIS PART SHOULD BE MOVED INTO A SEPARATE FILE FOR THE DROPDOWN
                                         & .dropdown-menu ul {
 
-                                            @include right-to-left(); 
+                                            @include right-to-left();
                                             padding-inline-start: 0px;
                                             padding-inline-end: 40px;
                                         }
                                     }
                                 }
-                                
-                                &__avatar{
+
+                                &__avatar {
                                     @include right-to-left();
                                     margin-right: 5px;
                                     order: 1;
                                 }
+
                                 &__content {
                                     order: 0;
                                 }
@@ -206,7 +214,7 @@
     }
 }
 
-.cs-avatar > img {
+.cs-avatar>img {
     width: 75%;
     height: 75%;
 }
@@ -218,10 +226,10 @@
 
 @media (min-width: 576px) {
     .mpathic-app .#{$prefix}-message-list {
+
         // Because message in group cant have max-width, only if its direct child of list
-        &__scroll-wrapper > .#{$prefix}-message,
-        &__scroll-wrapper > .#{$prefix}-message-group
-        {
+        &__scroll-wrapper>.#{$prefix}-message,
+        &__scroll-wrapper>.#{$prefix}-message-group {
             max-width: 50%;
         }
     }

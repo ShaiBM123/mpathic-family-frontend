@@ -3230,3 +3230,13 @@ button.nav-link.custom_tab_button {
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
+
+/* ...existing code... */
+.link_buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ...existing code... */

@@ -197,6 +197,6 @@ export class ExtendedStorage<ConversationData = any>
 
     resetState(): void {
         super.resetState();
-        this.phase = UserMessagePhase.PersonInConflictRelation;
+        this.phase = UserMessagePhase.BE_PersonInConflictRelation;
     }
 }

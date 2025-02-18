@@ -1,0 +1,41 @@
+.btn_svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+}
+
+.center_content {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+
+.btn_text_wrapper {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.option_button_in_row {
+    height: 50px;
+    padding: 0px 0px;
+    font-size: 16px;
+}
+
+.option_buttons_row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.option_button_in_column {
+    height: 40px;
+    font-size: 16px;
+}
+
+.option_buttons_column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}

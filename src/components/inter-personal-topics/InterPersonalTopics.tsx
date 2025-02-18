@@ -10,10 +10,15 @@ import * as FASolidIcons from "@fortawesome/free-solid-svg-icons";
 // import * as FARegularIcons from "@fortawesome/free-regular-svg-icons";
 import { getSVGURI } from "../../AppUtils";
 // import { useExtendedChat } from "../../ExtendedChatProvider";
+import svgClock from "../../assets/clock.svg";
+import svgQuestionMark from "../../assets/question-mark.svg";
+import svgSmartPhone from "../../assets/smart-phone.svg";
+import svgTwoPeoples from "../../assets/two-peoples.svg";
+import svgOnePeople from "../../assets/one-people.svg";
 
-enum IP1stCategory {
+export enum IP1stCategory {
     None,
-    HomeAssignments,
+    HomeAssignmentsAndSchedules,
     School,
     LeisureTime,
     Relationships,
@@ -23,86 +28,57 @@ enum IP1stCategory {
     Other
 }
 
-enum IP2ndCategory {
+export enum IP2ndCategory {
     None,
     Issue1,
     Issue2,
     Issue3,
     Issue4,
-    Issue5,
-    Issue6,
     Other
 }
 
 export const interPersonalTopicsDictionary = {
     major_categories: {
 
-        [IP1stCategory.HomeAssignments]: {
+        [IP1stCategory.HomeAssignmentsAndSchedules]: {
             title: 'לוחות זמנים ומטלות בית',
-            icon: FASolidIcons.faHouseUser,
+            iconSrc: svgClock,
             sub_categories: {
                 [IP2ndCategory.Other]: { title: 'אחר', description: '' },
                 [IP2ndCategory.Issue1]: { title: 'שינויים בלוחות זמנים שנקבעו' },
-                [IP2ndCategory.Issue2]: { title: 'תפקידים ואחריות בבית' },
-                [IP2ndCategory.Issue3]: { title: 'ביצוע מטלות' },
+                [IP2ndCategory.Issue2]: { title: 'לוחות זמנים שקשורים ללימודים' },
+                [IP2ndCategory.Issue3]: { title: 'ביצוע מטלה/ות' },
                 [IP2ndCategory.Issue4]: { title: 'סדר ונקיון בבית' }
-            }
-        },
-
-        [IP1stCategory.School]: {
-            title: 'לימודים ובי"ס',
-            icon: FASolidIcons.faBookReader,
-            sub_categories: {
-                [IP2ndCategory.Other]: { title: 'אחר', description: '' },
-                [IP2ndCategory.Issue1]: { title: 'שיעורי בית' },
-                [IP2ndCategory.Issue2]: { title: 'ציונים ומבחנים' },
-                [IP2ndCategory.Issue3]: { title: 'הגעה לבית הספר' },
-                [IP2ndCategory.Issue4]: { title: 'קשר עם המורה/מנהל' },
-                [IP2ndCategory.Issue5]: { title: 'השתלבות חברתית בבית הספר' }
             }
         },
 
         [IP1stCategory.LeisureTime]: {
             title: 'זמן פנאי ומסכים',
-            icon: FASolidIcons.faComputer,
+            iconSrc: svgSmartPhone,
             sub_categories: {
                 [IP2ndCategory.Other]: { title: 'אחר', description: '' },
                 [IP2ndCategory.Issue1]: { title: 'זמני מסך' },
-                [IP2ndCategory.Issue2]: { title: 'טלפון נייד ורשתות חברתיות' },
-                [IP2ndCategory.Issue3]: { title: 'מפגש משפחתי' },
-                [IP2ndCategory.Issue4]: { title: 'יציאה / נסיעה / חופשה' },
-                [IP2ndCategory.Issue5]: { title: 'זמן איכות יחד' },
-                [IP2ndCategory.Issue6]: { title: 'תחביבים חוגים ותנועות נוער' }
+                [IP2ndCategory.Issue2]: { title: 'יציאה / נסיעה / חופשה' },
+                [IP2ndCategory.Issue3]: { title: 'זמן איכות יחד' },
+                [IP2ndCategory.Issue4]: { title: 'תחביבים וחוגים' }
             }
         },
 
         [IP1stCategory.Relationships]: {
             title: 'תקשורת ומערכות יחסים',
-            icon: FASolidIcons.faUserFriends,
+            iconSrc: svgTwoPeoples,
             sub_categories: {
                 [IP2ndCategory.Other]: { title: 'אחר', description: '' },
                 [IP2ndCategory.Issue1]: { title: 'קונפליקט לא פטור' },
-                [IP2ndCategory.Issue2]: { title: 'העלאת נושא מסויים' },
-                [IP2ndCategory.Issue3]: { title: 'התעניינות בנושא מסויים' },
-                [IP2ndCategory.Issue4]: { title: 'יחסים עם קרובי משפחה וחברים' },
-                [IP2ndCategory.Issue5]: { title: 'שיתוף במחשבות / תחושות / רגשות' }
+                [IP2ndCategory.Issue2]: { title: 'חוסר הבנה' },
+                [IP2ndCategory.Issue3]: { title: 'העלאת נושא רגיש' },
+                [IP2ndCategory.Issue4]: { title: 'שיתוף במחשבות ורגשות' }
             }
         },
 
-        [IP1stCategory.HomeEconomy]: {
-            title: 'נושאים כלכליים',
-            icon: FASolidIcons.faMoneyBill,
-            sub_categories: {
-                [IP2ndCategory.Other]: { title: 'אחר', description: '' },
-                [IP2ndCategory.Issue1]: { title: 'דמי כיס' },
-                [IP2ndCategory.Issue2]: { title: 'קבלה / קנייה של משהוא' },
-                [IP2ndCategory.Issue3]: { title: 'קשיים כלכליים' },
-                [IP2ndCategory.Issue4]: { title: 'הוצאה לא מתוכננת' }
-            }
-        },
         [IP1stCategory.SpaceAndPrivacy]: {
             title: 'מרחב ופרטיות',
-            icon: FASolidIcons.faPeopleRoof,
+            iconSrc: svgOnePeople,
             sub_categories: {
                 [IP2ndCategory.Other]: { title: 'אחר', description: '' },
                 [IP2ndCategory.Issue1]: { title: 'פרטיות בבית' },
@@ -112,29 +88,118 @@ export const interPersonalTopicsDictionary = {
             }
         },
 
-        [IP1stCategory.Health]: {
-            title: 'בריאות',
-            icon: FASolidIcons.faHeartbeat,
-            sub_categories: {
-                [IP2ndCategory.Other]: { title: 'אחר', description: '' },
-                [IP2ndCategory.Issue1]: { title: 'תזונה והרגלי אכילה' },
-                [IP2ndCategory.Issue2]: { title: 'שינה' },
-                [IP2ndCategory.Issue3]: { title: 'פעילות גופנית' },
-                [IP2ndCategory.Issue4]: { title: 'מנוחה' },
-                [IP2ndCategory.Issue5]: { title: 'מתח וסטרס' }
-            }
-        },
-
         [IP1stCategory.Other]: {
             title: 'אחר',
-            icon: FASolidIcons.faQuestion,
-            description: '',
+            iconSrc: svgQuestionMark,
+            description: 'כללי',
             sub_categories: {
-                [IP2ndCategory.Other]: { title: 'אחר', description: 'כל נושא אחר' }
+                [IP2ndCategory.Other]: { title: 'אחר', description: '' }
             }
         }
     }
 }
+
+// export const interPersonalTopicsDictionary = {
+//     major_categories: {
+
+//         [IP1stCategory.HomeAssignments]: {
+//             title: 'לוחות זמנים ומטלות בית',
+//             icon: FASolidIcons.faHouseUser,
+//             sub_categories: {
+//                 [IP2ndCategory.Other]: { title: 'אחר', description: '' },
+//                 [IP2ndCategory.Issue1]: { title: 'שינויים בלוחות זמנים שנקבעו' },
+//                 [IP2ndCategory.Issue2]: { title: 'תפקידים ואחריות בבית' },
+//                 [IP2ndCategory.Issue3]: { title: 'ביצוע מטלות' },
+//                 [IP2ndCategory.Issue4]: { title: 'סדר ונקיון בבית' }
+//             }
+//         },
+
+//         [IP1stCategory.School]: {
+//             title: 'לימודים ובי"ס',
+//             icon: FASolidIcons.faBookReader,
+//             sub_categories: {
+//                 [IP2ndCategory.Other]: { title: 'אחר', description: '' },
+//                 [IP2ndCategory.Issue1]: { title: 'שיעורי בית' },
+//                 [IP2ndCategory.Issue2]: { title: 'ציונים ומבחנים' },
+//                 [IP2ndCategory.Issue3]: { title: 'הגעה לבית הספר' },
+//                 [IP2ndCategory.Issue4]: { title: 'קשר עם המורה/מנהל' },
+//                 [IP2ndCategory.Issue5]: { title: 'השתלבות חברתית בבית הספר' }
+//             }
+//         },
+
+//         [IP1stCategory.LeisureTime]: {
+//             title: 'זמן פנאי ומסכים',
+//             icon: FASolidIcons.faComputer,
+//             sub_categories: {
+//                 [IP2ndCategory.Other]: { title: 'אחר', description: '' },
+//                 [IP2ndCategory.Issue1]: { title: 'זמני מסך' },
+//                 [IP2ndCategory.Issue2]: { title: 'טלפון נייד ורשתות חברתיות' },
+//                 [IP2ndCategory.Issue3]: { title: 'מפגש משפחתי' },
+//                 [IP2ndCategory.Issue4]: { title: 'יציאה / נסיעה / חופשה' },
+//                 [IP2ndCategory.Issue5]: { title: 'זמן איכות יחד' },
+//                 [IP2ndCategory.Issue6]: { title: 'תחביבים חוגים ותנועות נוער' }
+//             }
+//         },
+
+//         [IP1stCategory.Relationships]: {
+//             title: 'תקשורת ומערכות יחסים',
+//             icon: FASolidIcons.faUserFriends,
+//             sub_categories: {
+//                 [IP2ndCategory.Other]: { title: 'אחר', description: '' },
+//                 [IP2ndCategory.Issue1]: { title: 'קונפליקט לא פטור' },
+//                 [IP2ndCategory.Issue2]: { title: 'העלאת נושא מסויים' },
+//                 [IP2ndCategory.Issue3]: { title: 'התעניינות בנושא מסויים' },
+//                 [IP2ndCategory.Issue4]: { title: 'יחסים עם קרובי משפחה וחברים' },
+//                 [IP2ndCategory.Issue5]: { title: 'שיתוף במחשבות / תחושות / רגשות' }
+//             }
+//         },
+
+//         [IP1stCategory.HomeEconomy]: {
+//             title: 'נושאים כלכליים',
+//             icon: FASolidIcons.faMoneyBill,
+//             sub_categories: {
+//                 [IP2ndCategory.Other]: { title: 'אחר', description: '' },
+//                 [IP2ndCategory.Issue1]: { title: 'דמי כיס' },
+//                 [IP2ndCategory.Issue2]: { title: 'קבלה / קנייה של משהוא' },
+//                 [IP2ndCategory.Issue3]: { title: 'קשיים כלכליים' },
+//                 [IP2ndCategory.Issue4]: { title: 'הוצאה לא מתוכננת' }
+//             }
+//         },
+//         [IP1stCategory.SpaceAndPrivacy]: {
+//             title: 'מרחב ופרטיות',
+//             icon: FASolidIcons.faPeopleRoof,
+//             sub_categories: {
+//                 [IP2ndCategory.Other]: { title: 'אחר', description: '' },
+//                 [IP2ndCategory.Issue1]: { title: 'פרטיות בבית' },
+//                 [IP2ndCategory.Issue2]: { title: 'טלפון נייד ורשתות חברתיות' },
+//                 [IP2ndCategory.Issue3]: { title: 'זמן עם עצמי' },
+//                 [IP2ndCategory.Issue4]: { title: 'זמן עם חברים.ות / משפחה' }
+//             }
+//         },
+
+//         [IP1stCategory.Health]: {
+//             title: 'בריאות',
+//             icon: FASolidIcons.faHeartbeat,
+//             sub_categories: {
+//                 [IP2ndCategory.Other]: { title: 'אחר', description: '' },
+//                 [IP2ndCategory.Issue1]: { title: 'תזונה והרגלי אכילה' },
+//                 [IP2ndCategory.Issue2]: { title: 'שינה' },
+//                 [IP2ndCategory.Issue3]: { title: 'פעילות גופנית' },
+//                 [IP2ndCategory.Issue4]: { title: 'מנוחה' },
+//                 [IP2ndCategory.Issue5]: { title: 'מתח וסטרס' }
+//             }
+//         },
+
+//         [IP1stCategory.Other]: {
+//             title: 'אחר',
+//             icon: FASolidIcons.faQuestion,
+//             description: '',
+//             sub_categories: {
+//                 [IP2ndCategory.Other]: { title: 'אחר', description: 'כל נושא אחר' }
+//             }
+//         }
+//     }
+// }
 
 
 export enum TopicCategoryLevel {

@@ -8,7 +8,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { usePromiseTracker } from "react-promise-tracker";
 import { ProgressBar } from "react-loader-spinner";
 import { CookiesProvider } from "react-cookie";
-import { InstallPromptProvider } from "./components/InstallPromptContext";
+import { InstallPromptProvider } from "./components/legacy/feeling/InstallPromptContext";
 
 let ClientId =
   "768133513066-ui5rbtuorts5bupqdjnegv9gsg2ai9jq.apps.googleusercontent.com";

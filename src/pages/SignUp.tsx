@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import callApi from "../lib/apisauce/callApi";
-import { queryString } from "../utils/queryString";
+import { queryString } from "../utils/utils";
 // import ShortcutModal from "../components/feeling/ShortcutModal";
 import { trackPromise } from "react-promise-tracker";
-import CodeExpireModal from "../components/CodeExpireModal";
+import CodeExpireModal from "../components/legacy/feeling/CodeExpireModal";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -123,7 +123,7 @@ const SignUp = () => {
   });
 
   return (
-    <>
+    <div dir="rtl">
       <div className="google_account_main">
         <div className="container">
           <div className="header-logo mt-4">
@@ -155,40 +155,51 @@ const SignUp = () => {
                 style={{ height: 29, width: 28 }}
               />
             </button>
+            <div className="link_buttons">
+              <Link to="/chat">
+                <button className="btn google-signup-btn_account password_lock mt-4"
+                  style={{
+                    height: "50px",
+                    textAlign: "center",
+                    margin: "0 auto",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "8px 12px",
+                    gap: "5px"
 
-            {/* <Link to="/registration"> */}
-            <Link to="/chat">
-              <button className="btn google-signup-btn_account password_lock mt-4">
-                <p className="text-regular">הרשמה עם סיסמה</p>
-                <img
-                  src="assets/images/lock.svg"
-                  alt="lock Logo"
-                  style={{ height: 29, width: 29 }}
-                />
-              </button>
-            </Link>
-
-            {/* <Link to="/login"> */}
-            <Link to="/chat">
-              <button
-                className="btn google-signup-btn_account password_lock mt-4"
-                style={{
-                  width: "70%",
-                  textAlign: "center",
-                  margin: "0 auto",
-                  paddingRight: 5,
-                }}
-              >
-                <p className="text-regular">כניסה עם סיסמה</p>
-                <img
-                  src="assets/images/userIcon.svg"
-                  alt="lock Logo"
-                  style={{ height: 27, width: 27 }}
-                />
-              </button>
-            </Link>
-
-            {/* </div> */}
+                  }}>
+                  <p className="text-regular">הרשמה עם סיסמה</p>
+                  <img
+                    src="assets/images/lock.svg"
+                    alt="lock Logo"
+                    style={{ height: 27, width: 27 }}
+                  />
+                </button>
+              </Link>
+              <Link to="/login">
+                <button
+                  className="btn google-signup-btn_account password_lock mt-4"
+                  style={{
+                    height: "50px",
+                    textAlign: "center",
+                    margin: "0 auto",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "8px 12px",
+                    gap: "5px"
+                  }}
+                >
+                  <p className="text-regular">כניסה</p>
+                  <img
+                    src="assets/images/userIcon.svg"
+                    alt="lock Logo"
+                    style={{ height: 27, width: 27 }}
+                  />
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
         <div className="account_ads_footer">
@@ -209,7 +220,7 @@ const SignUp = () => {
         <CodeExpireModal setPopupShown={setPopupShown} />
         {/* hidden btn for popup for code expire notification  */}
       </div>
-    </>
+    </div>
   );
 };
 

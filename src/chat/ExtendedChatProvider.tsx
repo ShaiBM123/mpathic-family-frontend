@@ -12,7 +12,6 @@ import type {
     ChatProviderProps
 } from "@chatscope/use-chat";
 
-
 import { ExtendedStorage, ExtendedChatState } from '../data/ExtendedStorage';
 import { UserMessagePhase } from '../open_ai/OpenAITypes';
 
@@ -21,6 +20,7 @@ export enum PhaseOperation { StartNewPhase = 1, KeepPhaseAndIncrement = 2, KeepP
 interface ExtendedChatContextProps {
     setTopic: (value: string) => void;
     setSubTopic: (value: string) => void;
+    phase: UserMessagePhase;
     phaseCount: number;
     moreUserInputRequired: boolean;
     setMoreUserInputRequired: (moreInputRequired: boolean) => void;
@@ -147,7 +147,8 @@ export const ExtendedChatProvider = <S extends IChatService>({
     const extendedContextValue: ExtendedChatContextProps = {
         setTopic, setSubTopic, setPhase, setMoreUserInputRequired,
         removeMessageFromActiveConversation, addOpenAIHistoryText,
-        moreUserInputRequired: state.moreUserInputRequired, phaseCount: state.phaseCount
+        moreUserInputRequired: state.moreUserInputRequired,
+        phase: state.phase, phaseCount: state.phaseCount
     };
 
     // Create serviceFactory

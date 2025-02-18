@@ -64,7 +64,7 @@ export class OpenAIPromptManager {
 
         switch (phase) {
 
-            case UserMessagePhase.PersonInConflictRelation:
+            case UserMessagePhase.BE_PersonInConflictRelation:
                 if (phaseCount === 0) {
                     this.storage.addOpenAIHistoryText(
                         "system",
@@ -96,7 +96,7 @@ export class OpenAIPromptManager {
                     temperature: 0.1
                 };
 
-            case UserMessagePhase.PersonInConflictName:
+            case UserMessagePhase.BE_PersonInConflictName:
                 if (phaseCount === 0) {
                     this.storage.addOpenAIHistoryText(
                         "system",
@@ -113,7 +113,7 @@ export class OpenAIPromptManager {
                     temperature: 0.1
                 };
 
-            case UserMessagePhase.PersonInConflictNickname:
+            case UserMessagePhase.BE_PersonInConflictNickname:
                 if (phaseCount === 0) {
                     this.storage.addOpenAIHistoryText("system", `עליך לזהות בטקסט הבא את כינוי החיבה של ${u2Name}`)
                 }
@@ -126,7 +126,7 @@ export class OpenAIPromptManager {
                     temperature: 0.7
                 };
 
-            case UserMessagePhase.PersonInConflictAge:
+            case UserMessagePhase.BE_PersonInConflictAge:
                 if (phaseCount === 0) {
                     this.storage.addOpenAIHistoryText("system", `במשפט הבא עליך לזהות את גילו של ${u2Name}`)
                 }
@@ -138,7 +138,7 @@ export class OpenAIPromptManager {
                     max_tokens: 200,
                     temperature: 0.7
                 };
-            case UserMessagePhase.ObservationAnalysis:
+            case UserMessagePhase.BE_ObservationAnalysis:
                 if (phaseCount === 0) {
                     this.storage.addOpenAIHistoryText("system",
                         `בהנתן התיאור של ${uName} לגבי סיטואציה` +
@@ -162,7 +162,7 @@ export class OpenAIPromptManager {
                     temperature: 0.7
                 };
 
-            case UserMessagePhase.FeelingsProbe:
+            case UserMessagePhase.BE_FeelingsProbe:
                 if (phaseCount === 0) {
                     this.storage.addOpenAIHistoryText("system",
                         `בהתבסס על התיאור של המשתמש${uPoS.Taf} ${uName}, מצא עד שלושה רגשות דומיננטיים המובעים בטקסט ותאר בקצרה את הלך הרוח מההבט הרגשי`);
@@ -175,10 +175,10 @@ export class OpenAIPromptManager {
                     max_tokens: 600,
                     temperature: 0.7
                 };
-            case UserMessagePhase.FeelingsAnalysis:
+            case UserMessagePhase.BE_FeelingsAnalysis:
 
                 break;
-            case UserMessagePhase.NeedsProbe:
+            case UserMessagePhase.BE_NeedsProbe:
 
                 break;
             case UserMessagePhase.TBD:
@@ -199,54 +199,54 @@ export class OpenAIPromptManager {
 
         switch (phase) {
 
-            case UserMessagePhase.PersonInConflictRelation:
+            case UserMessagePhase.BE_PersonInConflictRelation:
 
-                next_phase = UserMessagePhase.PersonInConflictName;
+                next_phase = UserMessagePhase.BE_PersonInConflictName;
                 break;
 
-            case UserMessagePhase.PersonInConflictName:
+            case UserMessagePhase.BE_PersonInConflictName:
 
                 if (relationships({ category: RelationshipCategory.Family }).includes(
                     userInRelationship.data?.relationship as string)) {
-                    next_phase = UserMessagePhase.PersonInConflictAge;
+                    next_phase = UserMessagePhase.BE_PersonInConflictAge;
                 }
                 else if (relationships({ category: RelationshipCategory.Friends }).includes(
                     userInRelationship.data?.relationship as string)) {
-                    next_phase = UserMessagePhase.PersonInConflictNickname;
+                    next_phase = UserMessagePhase.BE_PersonInConflictNickname;
                 }
                 else {
-                    next_phase = UserMessagePhase.ObservationAnalysis;
+                    next_phase = UserMessagePhase.BE_ObservationAnalysis;
                 }
                 break;
 
-            case UserMessagePhase.PersonInConflictAge:
+            case UserMessagePhase.BE_PersonInConflictAge:
 
                 if (relationships({ category: RelationshipCategory.Family }).includes(
                     userInRelationship.data?.relationship as string)) {
-                    next_phase = UserMessagePhase.PersonInConflictNickname;
+                    next_phase = UserMessagePhase.BE_PersonInConflictNickname;
                 }
                 else {
-                    next_phase = UserMessagePhase.ObservationAnalysis;
+                    next_phase = UserMessagePhase.BE_ObservationAnalysis;
                 }
                 break;
 
-            case UserMessagePhase.PersonInConflictNickname:
+            case UserMessagePhase.BE_PersonInConflictNickname:
 
-                next_phase = UserMessagePhase.ObservationAnalysis;
+                next_phase = UserMessagePhase.BE_ObservationAnalysis;
                 break;
 
-            case UserMessagePhase.ObservationAnalysis:
+            case UserMessagePhase.BE_ObservationAnalysis:
                 break;
 
-            case UserMessagePhase.FeelingsProbe:
+            case UserMessagePhase.BE_FeelingsProbe:
 
                 next_phase = UserMessagePhase.TBD;
                 break;
 
-            case UserMessagePhase.FeelingsAnalysis:
+            case UserMessagePhase.BE_FeelingsAnalysis:
                 break;
 
-            case UserMessagePhase.NeedsProbe:
+            case UserMessagePhase.BE_NeedsProbe:
                 break;
 
             case UserMessagePhase.TBD:
@@ -278,21 +278,21 @@ export class OpenAIPromptManager {
 
         switch (phase) {
 
-            case UserMessagePhase.PersonInConflictRelation:
+            case UserMessagePhase.BE_PersonInConflictRelation:
                 return ``;
-            case UserMessagePhase.PersonInConflictName:
+            case UserMessagePhase.BE_PersonInConflictName:
                 return `מהו שמ${u2PoS.VavOrHei}`;
-            case UserMessagePhase.ObservationAnalysis:
+            case UserMessagePhase.BE_ObservationAnalysis:
                 return `תודה! תאר${uPoS.Yod} את הסיטואציה עליה ${uPoS.sbj2ndPronoun} מדבר${uPoS.Taf}, מה קרה בעצם ? אני סקרן אז כמה שיותר פרטים בבקשה !`;
-            case UserMessagePhase.PersonInConflictNickname:
+            case UserMessagePhase.BE_PersonInConflictNickname:
                 return `מהו כינוי החיבה של${u2PoS.VavOrHei} ?`;
-            case UserMessagePhase.PersonInConflictAge:
+            case UserMessagePhase.BE_PersonInConflictAge:
                 return `${u2Gender === Gender.Female ? "בת" : "בן"} כמה ${u2PoS.sbj3rdPronoun} ?`;
-            case UserMessagePhase.FeelingsProbe:
+            case UserMessagePhase.BE_FeelingsProbe:
                 return ``;
-            case UserMessagePhase.FeelingsAnalysis:
+            case UserMessagePhase.BE_FeelingsAnalysis:
                 return ``;
-            case UserMessagePhase.NeedsProbe:
+            case UserMessagePhase.BE_NeedsProbe:
                 return ``;
             case UserMessagePhase.TBD:
                 return ``;
@@ -330,7 +330,7 @@ export class OpenAIPromptManager {
 
             switch (phase) {
 
-                case UserMessagePhase.PersonInConflictRelation:
+                case UserMessagePhase.BE_PersonInConflictRelation:
 
                     if (!parsed_msg.person_in_conflict_info) {
 
@@ -353,7 +353,7 @@ export class OpenAIPromptManager {
                     // assistant_msg = replys[0].content
                     break;
 
-                case UserMessagePhase.PersonInConflictName:
+                case UserMessagePhase.BE_PersonInConflictName:
                     if (!parsed_msg.first_name) {
                         addReply({ content: `לא הבנתי :-( ${uGender === Gender.Female ? "רשמי" : "רשום"} את השם ${u2PoS.possessiveAdj}` })
                         assistant_msg = replys[0].content
@@ -369,7 +369,7 @@ export class OpenAIPromptManager {
                     // assistant_msg = replys[0].content
                     break;
 
-                case UserMessagePhase.PersonInConflictNickname:
+                case UserMessagePhase.BE_PersonInConflictNickname:
                     if (!parsed_msg.nickname) {
                         addReply({ content: `לא הבנתי אותך :-( ${uGender === Gender.Female ? "רשמי" : "רשום"} את כינוי החיבה ${u2PoS.possessiveAdj}` })
                         assistant_msg = replys[0].content
@@ -384,7 +384,7 @@ export class OpenAIPromptManager {
                     // assistant_msg = replys[0].content
                     break;
 
-                case UserMessagePhase.PersonInConflictAge:
+                case UserMessagePhase.BE_PersonInConflictAge:
                     if (!parsed_msg.age) {
                         addReply({ content: `לא הבנתי אותך :-( מהו ${u2Gender === Gender.Female ? "גילה" : "גילו"} ?` })
                         assistant_msg = replys[0].content
@@ -401,7 +401,7 @@ export class OpenAIPromptManager {
                     // assistant_msg = replys[0].content
                     break;
 
-                case UserMessagePhase.ObservationAnalysis:
+                case UserMessagePhase.BE_ObservationAnalysis:
 
                     if (!parsed_msg.observation) {
                         addReply({ content: parsed_msg.request_for_more_info })
@@ -429,7 +429,7 @@ export class OpenAIPromptManager {
                     }
                     break;
 
-                case UserMessagePhase.FeelingsProbe:
+                case UserMessagePhase.BE_FeelingsProbe:
 
                     more_input_required = false;
                     next_phase = this.determineNextPhaseOnOK(phase);
@@ -449,10 +449,10 @@ export class OpenAIPromptManager {
                         }
                     ).join(' ')}`
                     break;
-                case UserMessagePhase.FeelingsAnalysis:
+                case UserMessagePhase.BE_FeelingsAnalysis:
 
                     break;
-                case UserMessagePhase.NeedsProbe:
+                case UserMessagePhase.BE_NeedsProbe:
 
                     break;
                 case UserMessagePhase.TBD:

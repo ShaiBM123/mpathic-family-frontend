@@ -35,6 +35,7 @@ const serviceFactory = (storage: IStorage, updateState: UpdateState) => {
 
 const user = new User({
     id: "000-00-0000000", // should be the phone number
+    data: {}
 });
 
 const userStorage = new ExtendedStorage({ groupIdGenerator, messageIdGenerator });

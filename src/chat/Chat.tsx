@@ -12,7 +12,8 @@ import {
     MessageList,
     MessageInput,
     TypingIndicator,
-    MessageModel
+    MessageModel,
+    Button
 } from "@chatscope/chat-ui-kit-react";
 
 import { useExtendedChat } from "./ExtendedChatProvider";
@@ -37,7 +38,11 @@ import { Observation } from "../components/observation/Observation";
 import { FeelingsScale } from "../components/feelings-scale/FeelingsScale";
 import { TypingText } from "../components/typing-text/TypingText";
 import { completeUserPartOfSpeech } from "../open_ai/OpenAIPromptingManager"
-import { UserForm } from "../components/user-form/UserForm";
+// import { UserForm } from "../components/user-form/UserForm";
+import { OptionButtonsInColumn, OptionButtonsInRow } from "../components/option-buttons-list/OptionButtonsInList";
+import { formatMessage, enumKeyStartsWith } from "../utils/utils";
+
+import messages from '../messages.json';
 
 import svgMpathicTitle from "../assets/mpathic-family-title.svg";
 import svgUndo from "../assets/undo.svg";
@@ -54,7 +59,7 @@ export const Chat = ({ user }: { user: User }) => {
         getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping, setCurrentUser,
         currentUser, removeMessagesFromConversation,
         setTopic, setSubTopic, setPhase, removeMessageFromActiveConversation, addOpenAIHistoryText,
-        phaseCount, moreUserInputRequired
+        phase, phaseCount, moreUserInputRequired
     } = useExtendedChat();
 
     useEffect(() => {
@@ -106,31 +111,29 @@ export const Chat = ({ user }: { user: User }) => {
 
     // show chatbot introductory message on mount
     useEffect(() => {
-        if (activeConversation && currentMessages.length === 0) {
+        if (activeConversation && currentUser && currentMessages.length === 0) {
 
-            if (!currentUser?.data) {
-                addChatBotMsg(
-                    {
-                        message: `תחילה כמה שאלות קטנות שאוכל לתקשר איתך בבהירות`,
-                        id: "user_first_registration_msg"
-                    }, MessageContentType.Other);
-
+            if (Object.keys(currentUser.data).length === 0) {
+                setPhase(UserMessagePhase.FE_User1stTimeApproval)
+                addChatBotMsg(messages.user1stTimeWelcomeMsg, MessageContentType.TextHtml);
                 addChatBotMsg(
                     {
                         active: true,
-                        id: "user_first_registration_form"
+                        id: "user_1st_time_welcome_approval"
                     }, MessageContentType.Other);
             }
             else {
                 let uName = currentUser?.firstName;
                 let uPoS = completeUserPartOfSpeech(currentUser);
-
+                setPhase(UserMessagePhase.FE_MainTopic)
                 addChatBotMsg(
                     {
-                        message: `היי ${uName} :) בחר${uPoS.Yod} נושא עליו תרצ${uPoS.YodOrHei} לדבר או נושא שמעסיק אותך עכשיו`,
+                        message: formatMessage(
+                            currentUser.data.gender === Gender.Male ?
+                                messages.user2ndTimeMainTopicMsg.male : messages.user2ndTimeMainTopicMsg.female,
+                            { name: uName }),
                         id: "intro_msg"
                     }, MessageContentType.Other);
-
                 addChatBotMsg(
                     {
                         ...interPersonalTopicsDictionary,
@@ -141,7 +144,7 @@ export const Chat = ({ user }: { user: User }) => {
                     }, MessageContentType.Other);
             }
         }
-    }, [activeConversation, addChatBotMsg, currentMessages.length, currentUser]);
+    }, [activeConversation, addChatBotMsg, currentMessages.length, currentUser, setPhase]);
 
     // Get current user data
     // const [currentUserAvatar, currentUserName] = useMemo(() => {
@@ -193,22 +196,49 @@ export const Chat = ({ user }: { user: User }) => {
     }, [activeConversation, addMessage, createUserMessage])
 
 
+
     const doSend = (text: string) => {
         handleSend('', text)
     }
 
     const handleSend = (innerHtml: string, text: string) => {
 
-        // let nextUserPhase = nextUserPhaseByHistory();
-
-        const message = createUserMessage(text);
-
-        if (activeConversation) {
-            sendMessage({
-                message,
-                conversationId: activeConversation.id,
-                senderId: user.id,
-            });
+        if (enumKeyStartsWith(UserMessagePhase, phase, 'FE_')) {
+            let uGender: Gender = user?.data?.gender;
+            setCurrentMessage("");
+            addUserMsg(text)
+            switch (phase) {
+                case UserMessagePhase.FE_UserName:
+                    setPhase(UserMessagePhase.FE_UserAge)
+                    user.firstName = text;
+                    setCurrentUser(user)
+                    addChatBotMsg(messages.whatIsYourAge, MessageContentType.TextHtml);
+                    break;
+                case UserMessagePhase.FE_UserAge:
+                    setPhase(UserMessagePhase.FE_MainTopic)
+                    user.data.age = text;
+                    setCurrentUser(user)
+                    addChatBotMsg(uGender === Gender.Male ? messages.user1stTimeGreeting.male : messages.user1stTimeGreeting.female, MessageContentType.TextHtml);
+                    addChatBotMsg(uGender === Gender.Male ? messages.user1stTimeMainTopicMsg.male : messages.user1stTimeMainTopicMsg.female, MessageContentType.TextHtml);
+                    addChatBotMsg(
+                        {
+                            ...interPersonalTopicsDictionary,
+                            active: true,
+                            selected: false,
+                            id: "inter_personal_main_topics"
+                        }, MessageContentType.Other);
+                    break;
+            }
+        }
+        else {
+            const message = createUserMessage(text);
+            if (activeConversation) {
+                sendMessage({
+                    message,
+                    conversationId: activeConversation.id,
+                    senderId: user.id,
+                });
+            }
         }
     };
 
@@ -263,29 +293,51 @@ export const Chat = ({ user }: { user: User }) => {
                     message_type = "custom";
                     let obj = Object(chat_msg.content)
 
-                    if (obj.id === "user_first_registration_msg") {
-
-                        // a separate module should be implemented instaed displaying just typed text 
+                    if (obj.id === "user_1st_time_welcome_approval") {
                         message_payload =
-                            <TypingText
-                                chatMsg={chat_msg}
-                                chatMsgContentToStrings={(c: Object) => {
-                                    return [Object(c).message]
-                                }}
-                                onStringTyped={() => {
-                                    scrollToTop()
-                                }}
+                            <OptionButtonsInRow
+                                buttonsData={[
+                                    { id: "Ok", text: "בטח" },
+                                    { id: "NextTime", text: "בפעם אחרת" }
+                                ]}
+                                onButtonClick={
+                                    (id) => {
+                                        if (id === "Ok") {
+                                            setPhase(UserMessagePhase.FE_UserGender)
+                                            removeMessageFromActiveConversation(chat_msg.id)
+                                            addUserMsg("בטח")
+                                            addChatBotMsg(messages.user1stTimeFewQMsg, MessageContentType.TextHtml);
+                                            addChatBotMsg(messages.howToApproachYou, MessageContentType.TextHtml);
+                                            addChatBotMsg({ active: true, id: "ask_user_male_or_female" }, MessageContentType.Other);
+                                        }
+                                    }
+                                }
                             />
                     }
-                    else if (obj.id === "user_first_registration_form") {
+                    else if (obj.id === "ask_user_male_or_female") {
                         message_payload =
-                            <UserForm onSubmit={(data) => {
-                                user.firstName = data.firstName;
-                                user.data = { age: data.age, gender: data.gender };
-                                user.avatar = data.gender ? avatars[data.gender] : '';
-                                setCurrentUser(user)
-                                removeMessagesFromConversation(activeConversation?.id as string)
-                            }} />
+                            <OptionButtonsInRow
+                                buttonsData={[
+                                    { id: "male", text: "בלשון זכר" },
+                                    { id: "female", text: "בלשון נקבה" }
+                                ]}
+                                onButtonClick={
+                                    (id) => {
+                                        removeMessageFromActiveConversation(chat_msg.id)
+                                        if (id === "male") {
+                                            user.data.gender = Gender.Male;
+                                            addUserMsg("בלשון זכר");
+                                        }
+                                        else if (id === "female") {
+                                            user.data.gender = Gender.Female;
+                                            addUserMsg("בלשון נקבה");
+                                        }
+                                        setCurrentUser(user)
+                                        setPhase(UserMessagePhase.FE_UserName)
+                                        addChatBotMsg(messages.whatIsYourName, MessageContentType.TextHtml);
+                                    }
+                                }
+                            />
                     }
                     else if (obj.id === "intro_msg") {
 
@@ -299,6 +351,84 @@ export const Chat = ({ user }: { user: User }) => {
                                 onStringTyped={() => {
                                     // scrollToTop()
                                 }}
+                            />
+                    }
+                    else if (obj.id === "inter_personal_main_topics") {
+                        message_payload =
+                            <OptionButtonsInColumn
+                                buttonsData={
+                                    Object.entries(obj.major_categories).map(([t_key, t_dct], idx) => {
+                                        return {
+                                            id: t_key,
+                                            text: Object(t_dct).title,
+                                            iconSrc: Object(t_dct).iconSrc
+                                        }
+                                    })
+                                }
+                                onButtonClick={
+                                    (id) => {
+                                        obj.selected = true;
+                                        obj.active = false;
+                                        let category = obj.major_categories[id];
+                                        setTopic(category.description !== undefined ? category.description : category.title)
+                                        removeMessageFromActiveConversation(chat_msg.id)
+                                        addUserMsg(category.title);
+                                        if (category.title === "אחר") {
+                                            setPhase(UserMessagePhase.BE_PersonInConflictRelation)
+                                            addChatBotMsg(
+                                                uGender === Gender.Male ?
+                                                    messages.userPersonInConflictRelationMsg.male :
+                                                    messages.userPersonInConflictRelationMsg.female,
+                                                MessageContentType.TextHtml);
+                                        } else {
+                                            setPhase(UserMessagePhase.FE_SubTopic)
+                                            addChatBotMsg(
+                                                uGender === Gender.Male ?
+                                                    messages.userSubTopicMsg.male :
+                                                    messages.userSubTopicMsg.female,
+                                                MessageContentType.TextHtml);
+                                            addChatBotMsg(
+                                                {
+                                                    ...obj.major_categories[id],
+                                                    active: true,
+                                                    selected: false,
+                                                    id: "inter_personal_sub_topics"
+                                                }, MessageContentType.Other);
+                                        }
+                                    }
+                                }
+                            />
+                    }
+                    else if (obj.id === "inter_personal_sub_topics") {
+                        message_payload =
+                            <OptionButtonsInColumn
+                                buttonsData={
+                                    Object.entries(obj.sub_categories).map(([t_key, t_dct], idx) => {
+                                        return {
+                                            id: t_key,
+                                            text: Object(t_dct).title,
+                                            bold: false
+                                        }
+                                    })
+                                }
+                                onButtonClick={
+                                    (id) => {
+                                        obj.selected = true;
+                                        obj.active = false;
+                                        let category = obj.sub_categories[id];
+                                        setSubTopic(category.description !== undefined ? category.description : category.title)
+                                        removeMessageFromActiveConversation(chat_msg.id)
+
+                                        setPhase(UserMessagePhase.BE_PersonInConflictRelation)
+                                        addUserMsg(category.title);
+                                        addChatBotMsg(
+                                            uGender === Gender.Male ?
+                                                messages.userPersonInConflictRelationMsg.male :
+                                                messages.userPersonInConflictRelationMsg.female,
+                                            MessageContentType.TextHtml);
+
+                                    }
+                                }
                             />
                     }
                     else if (obj.id === "inter_personal_topics") {
@@ -330,7 +460,7 @@ export const Chat = ({ user }: { user: User }) => {
                                         topic === '' ? `הסיטואציה קשורה לנושא כללי` : `הסיטואציה קשורה לנושא ${topic}`
                                             + (subTopic === '' ? `` : ` ובפרט לגבי ${subTopic}`));
 
-                                    setPhase(UserMessagePhase.PersonInConflictRelation)
+                                    setPhase(UserMessagePhase.BE_PersonInConflictRelation)
                                     addChatBotMsg(`מי האדם אליו ${uPoS.sbj2ndPronoun} מתייחס${uPoS.Taf} (לדוגמא ${uGender === Gender.Male ? "בת זוג" : "בן זוג"}, אח אחות וכולי) ?`, MessageContentType.TextPlain)
                                 }}
                             />
@@ -349,14 +479,23 @@ export const Chat = ({ user }: { user: User }) => {
                                     addOpenAIHistoryText("assistant", obj.observation);
                                     updateMessage(chat_msg);
                                     addChatBotMsg(`כעת בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה`, MessageContentType.TextPlain)
-                                    setPhase(UserMessagePhase.FeelingsProbe)
+                                    setPhase(UserMessagePhase.BE_FeelingsProbe)
                                 }}
                                 onNotAccurateClick={() => {
                                     obj.isCorrect = false;
                                     obj.active = false;
                                     updateMessage(chat_msg);
-                                    addChatBotMsg(phaseCount <= 1 ? `בבקשה תדייק.י את מה שכתבתי. אגב, אני בכוונה מנסה להתנסח בצורה חסרת שיפוטיות, מכיוון שאני לוקח השראה מתקשורת מקרבת :) וחשוב לי להבין כרגע את העובדות` : `בבקשה תדייק יותר`, MessageContentType.TextPlain)
-                                    setPhase(UserMessagePhase.ObservationAnalysis)
+                                    let msg = phaseCount <= 1 ?
+                                        Gender.Male ?
+                                            messages.userCallForMoreAccurateObrInitialMsg.male :
+                                            messages.userCallForMoreAccurateObrInitialMsg.female
+                                        :
+                                        Gender.Male ?
+                                            messages.userCallForMoreAccurateObrFollowUpMsg.male :
+                                            messages.userCallForMoreAccurateObrFollowUpMsg.female;
+
+                                    addChatBotMsg(msg, MessageContentType.TextPlain)
+                                    setPhase(UserMessagePhase.BE_ObservationAnalysis)
                                 }}
                             />
                     }
@@ -377,7 +516,7 @@ export const Chat = ({ user }: { user: User }) => {
                     chat_msg.contentType === MessageContentType.Other) {
 
                     let obj = Object(chat_msg.content)
-                    if (["intro_msg", "user_first_registration_msg"].includes(obj.id)) {
+                    if (["intro_msg", "user_1st_time_welcome_msg"].includes(obj.id)) {
                         message_type = "text";
                         message_payload = obj.message;
                     }
@@ -408,14 +547,6 @@ export const Chat = ({ user }: { user: User }) => {
             return model as MessageModel;
         };
 
-    // const oppositeMsgDirection = useCallback(
-    //     (d: MessageDirection) => {
-    //         if (d === MessageDirection.Incoming)
-    //             return MessageDirection.Outgoing
-    //         else return MessageDirection.Incoming
-    //     }, []
-    // )
-
     const toHoldTextInput = () => {
 
         for (let g of currentMessages) {
@@ -427,7 +558,6 @@ export const Chat = ({ user }: { user: User }) => {
                 }
             }
         }
-
         return false
     }
 
