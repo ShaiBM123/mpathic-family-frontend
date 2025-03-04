@@ -23,6 +23,7 @@ export type ExtendedChatState = {
     phase: UserMessagePhase,
     phaseCount: number,
     moreUserInputRequired: boolean,
+    followUpChatMessagesRequired: boolean,
     topic: string,
     subTopic: string,
     userInRelationship: User<UserInRelationshipData>,
@@ -50,6 +51,7 @@ export class ExtendedStorage<ConversationData = any>
     private phase: UserMessagePhase;
     private phaseCount: number;
     private moreUserInputRequired: boolean;
+    private followUpChatMessagesRequired: boolean;
     // private _phaseGroupID?: string; 
 
     private topic: string;
@@ -68,6 +70,7 @@ export class ExtendedStorage<ConversationData = any>
         this.phase = UserMessagePhase.Start;
         this.phaseCount = 0;
         this.moreUserInputRequired = true;
+        this.followUpChatMessagesRequired = false;
 
         this.topic = '';
         this.subTopic = '';
@@ -147,6 +150,13 @@ export class ExtendedStorage<ConversationData = any>
 
 
     /**
+    * @param followUpChatMessagesRequired
+    */
+    setFollowUpChatMessagesRequired(followUpChatMessagesRequired: boolean): void {
+        this.followUpChatMessagesRequired = followUpChatMessagesRequired;
+    }
+
+    /**
      * Sets current (logged in) user object
      * @param user
      */
@@ -188,6 +198,7 @@ export class ExtendedStorage<ConversationData = any>
             phase: this.phase,
             phaseCount: this.phaseCount,
             moreUserInputRequired: this.moreUserInputRequired,
+            followUpChatMessagesRequired: this.followUpChatMessagesRequired,
             topic: this.topic,
             subTopic: this.subTopic,
             userInRelationship: this.userInRelationship,

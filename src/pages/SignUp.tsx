@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import callApi from "../lib/apisauce/callApi";
-import { queryString } from "../utils/utils";
+import { queryString } from "../AppUtils";
 // import ShortcutModal from "../components/feeling/ShortcutModal";
 import { trackPromise } from "react-promise-tracker";
 import CodeExpireModal from "../components/legacy/feeling/CodeExpireModal";

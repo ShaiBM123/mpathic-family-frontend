@@ -3,6 +3,7 @@ import { RelationshipCategory, Gender } from '../data/data';
 const _relationships: {
     family: { [key: string]: string[] },
     family_0: { [key: string]: string[] },
+    family_1: { [key: string]: string[] },
     family_d2: { [key: string]: string[] },
     acquaintances: { [key: string]: string[] },
     friends: { [key: string]: string[] },
@@ -11,28 +12,32 @@ const _relationships: {
     other: { [key: string]: string[] }
 } = {
     family: {
-        [Gender.Female]: ["בת", "אמא", "נכדה", "סבתא", "אחות", "אישה"],
-        [Gender.Male]: ["בן", "אבא", "נכד", "סבא", "אח", "בעל"]
+        [Gender.Female]: ["בת", "אמא", "נכדה", "סבתא", "אחות", "אישה", "ארוסה"],
+        [Gender.Male]: ["בן", "אבא", "נכד", "סבא", "אח", "בעל", "ארוס"]
     },
     family_0: {
         [Gender.Female]: ["בת", "אחות"],
         [Gender.Male]: ["בן", "אח"]
     },
+    family_1: {
+        [Gender.Female]: ["אמא"],
+        [Gender.Male]: ["אבא"]
+    },
     family_d2: {
-        [Gender.Female]: ["בת דודה", "בת דוד", "דודה", "אחיינית"],
-        [Gender.Male]: ["בן דודה", "בן דוד", "דוד", "אחיין"]
+        [Gender.Female]: ["דודנית", "בת דודה", "בת דוד", "דודה", "אחיינית"],
+        [Gender.Male]: ["דודן", "בן דודה", "בן דוד", "דוד", "אחיין"]
     },
     acquaintances: {
-        [Gender.Female]: ["ידידה", "שכנה"],
-        [Gender.Male]: ["ידיד", "שכן"]
+        [Gender.Female]: ["ידידה", "שכנה", "שותפה לדירה"],
+        [Gender.Male]: ["ידיד", "שכן", "שותף לדירה"]
     },
     friends: {
         [Gender.Female]: ["חברה", "בת זוג"],
         [Gender.Male]: ["חבר", "בן זוג"]
     },
     work: {
-        [Gender.Female]: ["בוסית", "עמיתה לעבודה"],
-        [Gender.Male]: ["בוס", "עמית לעבודה"]
+        [Gender.Female]: ["בוסית", "עמיתה לעבודה", "שותפה עסקית"],
+        [Gender.Male]: ["בוס", "עמית לעבודה", "שותף עסקי"]
     },
     school: {
         [Gender.Female]: ["מורה", "מדריכה", "מנהלת", "מרצה", "רכזת"],
@@ -72,6 +77,17 @@ export function relationships({ category, gender }: RelationshipProps) {
                     return [
                         _relationships.family_0[Gender.Female],
                         _relationships.family_0[Gender.Male]
+                    ].flat()
+            }
+        case RelationshipCategory.Parents:
+            switch (gender) {
+                case Gender.Female:
+                case Gender.Male:
+                    return _relationships.family_1[gender]
+                default:
+                    return [
+                        _relationships.family_1[Gender.Female],
+                        _relationships.family_1[Gender.Male]
                     ].flat()
             }
         case RelationshipCategory.FamilyD2:

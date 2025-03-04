@@ -1,5 +1,9 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 // import type { ReactNode } from "react";
+import {
+    ChatEventType
+} from "@chatscope/use-chat/dist/enums";
+
 import {
     useChat as useOriginalChat,
     ChatProvider as BaseChatProvider,
@@ -23,7 +27,9 @@ interface ExtendedChatContextProps {
     phase: UserMessagePhase;
     phaseCount: number;
     moreUserInputRequired: boolean;
+    followUpChatMessagesRequired: boolean;
     setMoreUserInputRequired: (moreInputRequired: boolean) => void;
+    setFollowUpChatMessagesRequired: (followUpChatMessagesRequired: boolean) => void;
     setPhase: (phase: UserMessagePhase) => void;
     removeMessageFromActiveConversation: (messageId: string) => void;
     addOpenAIHistoryText: (role: "user" | "assistant" | "system", txt: string) => void;
@@ -132,6 +138,19 @@ export const ExtendedChatProvider = <S extends IChatService>({
     );
 
 
+    /**
+    * Set to wether more user input is required to complete the phase 
+    * @param {boolean} followUpChatMessagesRequired
+    */
+    const setFollowUpChatMessagesRequired = useCallback(
+        (followUpChatMessagesRequired: boolean) => {
+            storage.setFollowUpChatMessagesRequired(followUpChatMessagesRequired);
+            updateExtendedState();
+        },
+        [storage, updateExtendedState]
+    );
+
+
     const removeMessageFromActiveConversation = useCallback(
         (messageId: string): void => {
             storage.removeMessageFromActiveConversation(messageId);
@@ -146,8 +165,10 @@ export const ExtendedChatProvider = <S extends IChatService>({
 
     const extendedContextValue: ExtendedChatContextProps = {
         setTopic, setSubTopic, setPhase, setMoreUserInputRequired,
+        setFollowUpChatMessagesRequired,
         removeMessageFromActiveConversation, addOpenAIHistoryText,
         moreUserInputRequired: state.moreUserInputRequired,
+        followUpChatMessagesRequired: state.followUpChatMessagesRequired,
         phase: state.phase, phaseCount: state.phaseCount
     };
 

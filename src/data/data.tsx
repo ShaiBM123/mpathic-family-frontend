@@ -1,4 +1,4 @@
-import otherAvatar from "../assets/User1.svg";
+// import otherAvatar from "../assets/User1.svg";
 import femaleAvatar from "../assets/User3.svg";
 import maleAvatar from "../assets/User7.svg";
 // import openAIAvatar from "../assets/openAI.svg";
@@ -14,6 +14,7 @@ export enum Gender {
 export enum RelationshipCategory {
   Family = "משפחה",
   SiblingsOrChildren = "אחים או ילדים",
+  Parents = "אמא או אבא",
   FamilyD2 = "משפחה מדרגה 2",
   Friends = "חברים",
   Acquaintances = "מכרים",

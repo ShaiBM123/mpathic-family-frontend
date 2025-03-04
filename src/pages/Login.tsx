@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import RoundBtn from "../components/legacy/RoundBtn";
 import callApi from "../lib/apisauce/callApi";
 import type { ApiResponse } from "apisauce/apisauce";
-import { queryString, salt } from "../utils/utils";
+import { queryString, salt } from "../AppUtils";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import CryptoJS from "crypto-js";

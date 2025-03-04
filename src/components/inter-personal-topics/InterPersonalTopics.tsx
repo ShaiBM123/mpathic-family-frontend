@@ -69,7 +69,7 @@ export const interPersonalTopicsDictionary = {
             iconSrc: svgTwoPeoples,
             sub_categories: {
                 [IP2ndCategory.Other]: { title: 'אחר', description: '' },
-                [IP2ndCategory.Issue1]: { title: 'קונפליקט לא פטור' },
+                [IP2ndCategory.Issue1]: { title: 'קונפליקט לא פתור' },
                 [IP2ndCategory.Issue2]: { title: 'חוסר הבנה' },
                 [IP2ndCategory.Issue3]: { title: 'העלאת נושא רגיש' },
                 [IP2ndCategory.Issue4]: { title: 'שיתוף במחשבות ורגשות' }
