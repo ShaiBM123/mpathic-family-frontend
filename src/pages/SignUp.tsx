@@ -156,7 +156,7 @@ const SignUp = () => {
               />
             </button>
             <div className="link_buttons">
-              <Link to="/chat">
+              <Link to="/registration">
                 <button className="btn google-signup-btn_account password_lock mt-4"
                   style={{
                     height: "50px",

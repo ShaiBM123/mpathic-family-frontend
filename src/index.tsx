@@ -10,11 +10,39 @@ import { ProgressBar } from "react-loader-spinner";
 import { CookiesProvider } from "react-cookie";
 import { InstallPromptProvider } from "./components/legacy/feeling/InstallPromptContext";
 
+const LoadingIndicator = () => {
+  const { promiseInProgress } = usePromiseTracker();
+  return (
+    promiseInProgress ? (
+      <div
+        style={{
+          width: "100%",
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#20202060",
+          position: "fixed",
+          zIndex: 9999999,
+        }}
+      >
+        <ProgressBar
+          height="100%"
+          width="80"
+          borderColor="#45cbf6"
+          barColor="#45cbf6"
+        />
+      </div>
+    ) : null
+  );
+};
+
 let ClientId =
   "768133513066-ui5rbtuorts5bupqdjnegv9gsg2ai9jq.apps.googleusercontent.com";
 
 ReactDOM.render(
   <GoogleOAuthProvider clientId={ClientId}>
+    <LoadingIndicator />
     <CookiesProvider>
       <InstallPromptProvider>
         <React.StrictMode>
