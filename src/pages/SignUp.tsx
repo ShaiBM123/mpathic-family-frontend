@@ -13,22 +13,22 @@ const SignUp = () => {
     if (sessionStorage.getItem("UserJWT") !== null) navigate("/home");
   }, [navigate]);
 
-  const [popupShown, setPopupShown] = useState(false);
-  const location = useLocation();
+  // const [popupShown, setPopupShown] = useState(false);
+  // const location = useLocation();
 
-  useEffect(() => {
-    let popupId;
-    if (
-      sessionStorage.getItem("ExpireCode") === "True" &&
-      location.pathname === "/" &&
-      !popupShown
-    ) {
-      setTimeout(() => {
-        popupId = document.getElementById("code_expire_modal_btn");
-        popupId?.click();
-      }, 600);
-    }
-  }, [location.pathname, popupShown]);
+  // useEffect(() => {
+  //   let popupId;
+  //   if (
+  //     sessionStorage.getItem("ExpireCode") === "True" &&
+  //     location.pathname === "/" &&
+  //     !popupShown
+  //   ) {
+  //     setTimeout(() => {
+  //       popupId = document.getElementById("code_expire_modal_btn");
+  //       popupId?.click();
+  //     }, 600);
+  //   }
+  // }, [location.pathname, popupShown]);
 
   //G_login fn on sucsess provide Google access_token, which is further used with Google API to get user info.
 
@@ -204,20 +204,20 @@ const SignUp = () => {
         </div>
         <div className="account_ads_footer">
           <div className="container">
-            <p>
+            {/* <p>
               © כל הזכוייות שמורות ל-{" "}
               <a href="https://www.mpathicfamily.com/">Mpathic family</a>
-            </p>
+            </p> */}
           </div>
         </div>
         {/* hidden btn for popup for code expire notification */}
-        <a
+        {/* <a
           className="line"
           data-bs-toggle="modal"
           data-bs-target="#code_expire_modal"
           id="code_expire_modal_btn"
         ></a>
-        <CodeExpireModal setPopupShown={setPopupShown} />
+        <CodeExpireModal setPopupShown={setPopupShown} /> */}
         {/* hidden btn for popup for code expire notification  */}
       </div>
     </div>

@@ -31,7 +31,7 @@ const Registration = () => {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(false);
   const [errMsg, setErrMsg] = useState("");
-  const [codeErr, setCodeErr] = useState(false);
+  // const [codeErr, setCodeErr] = useState(false);
   const [emailErrMsg, setEmailErrMsg] = useState("");
   const navigate = useNavigate();
 
@@ -52,9 +52,9 @@ const Registration = () => {
     };
   }, []);
 
-  const [email, setEmail] = useState(
-    JSON.parse(sessionStorage.getItem("userData") as string)?.email || ""
-  );
+  // const [email, setEmail] = useState(
+  //   JSON.parse(sessionStorage.getItem("userData") as string)?.email || ""
+  // );
 
   const initialValues = {
     username: "",
@@ -104,7 +104,7 @@ const Registration = () => {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         },
-      }) as ApiResponse<any, any>;
+      }) as ApiResponse<any>;
 
       if (res.ok) {
         if (res.data.status === "success") {

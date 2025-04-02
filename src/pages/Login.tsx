@@ -22,7 +22,7 @@ const Login = () => {
       sessionStorage.getItem("UserJWT") !== null &&
       sessionStorage.getItem("userData") !== null
     ) {
-      navigate("/home");
+      navigate("/chat");
     }
   }, [navigate]);
 
@@ -57,16 +57,16 @@ const Login = () => {
     [
       "UserJWT",
       "userData",
-      "badFeelings",
-      "blackListWords",
-      "allNeeds",
-      "selfConnectData",
-      "request",
-      "judgement",
-      "goodFeelings",
+      // "badFeelings",
+      // "blackListWords",
+      // "allNeeds",
+      // "selfConnectData",
+      // "request",
+      // "judgement",
+      // "goodFeelings",
       "RegUserData",
-      "updateMode",
-      "displayData",
+      // "updateMode",
+      // "displayData",
     ].forEach((key) => {
       sessionStorage.removeItem(key);
     });
@@ -100,22 +100,23 @@ const Login = () => {
             name,
             email,
             username,
-            family_role,
-            kids_exist,
-            member_gender,
-            sibling,
-            parent_relationship,
-            adult_relationship,
-            member_code,
+            // family_role,
+            // kids_exist,
+            // member_gender,
+            // sibling,
+            // parent_relationship,
+            // adult_relationship,
+            // member_code,
           } = res.data.userdata;
 
           if (
             name !== "" &&
-            (email !== "" || username !== "") &&
-            family_role !== "" &&
-            kids_exist !== "" &&
-            member_gender !== "" &&
-            member_code !== ""
+            (email !== "" || username !== "")
+            // &&
+            // family_role !== "" &&
+            // kids_exist !== "" &&
+            // member_gender !== "" &&
+            // member_code !== ""
           ) {
             sessionStorage.setItem("UserJWT", JSON.stringify(res.data.jwt));
             sessionStorage.setItem(
@@ -124,26 +125,26 @@ const Login = () => {
                 name,
                 email,
                 username,
-                family_role,
-                kids_exist,
-                member_gender,
-                member_code,
-                sibling,
-                parent_relationship,
-                adult_relationship,
+                // family_role,
+                // kids_exist,
+                // member_gender,
+                // member_code,
+                // sibling,
+                // parent_relationship,
+                // adult_relationship,
               })
             );
             setLoading(false);
-            navigate("/home", { replace: true });
+            navigate("/chat", { replace: true });
           } else {
-            navigate("/enter-code", { replace: true });
+            navigate("/", { replace: true });
           }
         } else {
-          if (res.data?.message === "תוקף הקוד פג") {
-            console.log(res.data.message);
-            sessionStorage.setItem("ExpireCode", "True");
-            logOut();
-          }
+          // if (res.data?.message === "תוקף הקוד פג") {
+          //   console.log(res.data.message);
+          //   sessionStorage.setItem("ExpireCode", "True");
+          //   logOut();
+          // }
           setErr(true);
           setErrMsg(
             res.data?.message === "Username or password is wrong"
