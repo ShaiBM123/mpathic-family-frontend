@@ -3240,3 +3240,7 @@ button.nav-link.custom_tab_button {
 }
 
 /* ...existing code... */
+
+.custom_datepicker_wrapper{
+  width: 100%;
+}

@@ -82,6 +82,10 @@ export const queryString = (params: { [key: string]: any }) => {
         .join("&");
 };
 
+
+export const range = (start: number, stop: number, step = 1) =>
+    Array(Math.ceil((stop - start) / step)).fill(start).map((x, y) => x + y * step)
+
 export const salt = "f!e$2a$1@0$fd%9SYl^qJ*c{,%>U30-t5je}qP9]h_x+</g.?l=;h'o0O";
 
 

@@ -11,26 +11,28 @@ import {
 } from "@chatscope/use-chat";
 
 import { openAIModel, openAIConversationId } from "./data";
-import { UserInRelationshipData } from "../data/UserInRelationshipData";
+// import { UserInRelationshipData } from "../data/UserInRelationshipData";
 import { BasicStorage, BasicStorageParams } from "@chatscope/use-chat";
 import { UserMessagePhase } from '../open_ai/OpenAITypes';
+import { UserChatSessionData } from "./ChatSessionData";
 
 export interface ExtendedStorageParams extends Required<BasicStorageParams> {
 
 }
 
 export type ExtendedChatState = {
-    phase: UserMessagePhase,
-    phaseCount: number,
+    currentUserSessionData: UserChatSessionData,
+    // phase: UserMessagePhase,
+    // phaseCount: number,
     moreUserInputRequired: boolean,
     followUpChatMessagesRequired: boolean,
-    topic: string,
-    subTopic: string,
-    userInRelationship: User<UserInRelationshipData>,
-    openAIHistory: Array<{ role: string, content: string }>
+    // topic: string,
+    // subTopic: string,
+    // userInRelationship: User<UserInRelationshipData>,
+    // openAIHistory: Array<{ role: string, content: string }>
 }
 
-function createConversation(id: ConversationId, name: string): Conversation {
+export function createConversation(id: ConversationId, name: string): Conversation {
     return new Conversation({
         id,
         participants: [
@@ -48,17 +50,18 @@ function createConversation(id: ConversationId, name: string): Conversation {
 export class ExtendedStorage<ConversationData = any>
     extends BasicStorage<ConversationData> {
 
-    private phase: UserMessagePhase;
-    private phaseCount: number;
+    private currentUserSessionData: UserChatSessionData;
+    // private phase: UserMessagePhase;
+    // private phaseCount: number;
     private moreUserInputRequired: boolean;
     private followUpChatMessagesRequired: boolean;
     // private _phaseGroupID?: string; 
 
-    private topic: string;
-    private subTopic: string;
+    // private topic: string;
+    // private subTopic: string;
 
-    private userInRelationship: User;
-    readonly openAIHistory: Array<{ role: "user" | "assistant" | "system", content: string }>
+    // private userInRelationship: User;
+    // readonly openAIHistory: Array<{ role: "user" | "assistant" | "system", content: string }>
 
     /**
   * Constructor
@@ -67,13 +70,22 @@ export class ExtendedStorage<ConversationData = any>
   */
     constructor({ groupIdGenerator, messageIdGenerator }: ExtendedStorageParams) {
         super({ groupIdGenerator, messageIdGenerator })
-        this.phase = UserMessagePhase.Start;
-        this.phaseCount = 0;
+
+        this.currentUserSessionData = {
+            user_phase: UserMessagePhase.Start,
+            phase_count: 0,
+            session_meta_data: {},
+            person_in_conflict: {},
+            description_analysis: {}
+        };
+
+        // this.phase = UserMessagePhase.Start;
+        // this.phaseCount = 0;
         this.moreUserInputRequired = true;
         this.followUpChatMessagesRequired = false;
 
-        this.topic = '';
-        this.subTopic = '';
+        // this.topic = '';
+        // this.subTopic = '';
 
         this.addUser(new User({
             id: openAIModel.name,
@@ -87,24 +99,34 @@ export class ExtendedStorage<ConversationData = any>
         }));
         this.addConversation(createConversation(openAIConversationId, openAIModel.name));
 
-        this.userInRelationship = new User<UserInRelationshipData>({
-            /* actual ID is a phone number,it will be detected once the main user will enter 
-            the phone number of the user in relationship */
-            id: "972-00-0000000",
-            presence: new Presence({ status: UserStatus.Unknown, description: "" }),
-            firstName: "",
-            lastName: "",
-            username: "",
-            email: "",
-            avatar: undefined,
-            bio: "",
-            data: new UserInRelationshipData({})
-        });
+        // this.userInRelationship = new User<UserInRelationshipData>({
+        //     /* actual ID is a phone number,it will be detected once the main user will enter 
+        //     the phone number of the user in relationship */
+        //     id: "972-00-0000000",
+        //     presence: new Presence({ status: UserStatus.Unknown, description: "" }),
+        //     firstName: "",
+        //     lastName: "",
+        //     username: "",
+        //     email: "",
+        //     avatar: undefined,
+        //     bio: "",
+        //     data: new UserInRelationshipData({})
+        // });
 
-        this.openAIHistory = [{
-            role: "system",
-            content: "אתה מטפל בשיטת התקשורת המקרבת התפקיד שלך הוא לסייע למשתמשים ליישב בעיות בין אישיות בצורה אמפתית בשפה העברית."
-        }];
+        // this.openAIHistory = [{
+        //     role: "system",
+        //     content: "אתה מטפל בשיטת התקשורת המקרבת התפקיד שלך הוא לסייע למשתמשים ליישב בעיות בין אישיות בצורה אמפתית בשפה העברית."
+        // }];
+    }
+
+
+    /**
+* Sets topic
+* @param userSessionData
+*/
+    setCurrentUserSessionData(data: UserChatSessionData): void {
+        this.currentUserSessionData = data;
+        // this.topic = topic;
     }
 
     /**
@@ -112,7 +134,8 @@ export class ExtendedStorage<ConversationData = any>
    * @param topic
    */
     setTopic(topic: string): void {
-        this.topic = topic;
+        this.currentUserSessionData.session_meta_data.topic = topic;
+        // this.topic = topic;
     }
 
     /**
@@ -120,7 +143,8 @@ export class ExtendedStorage<ConversationData = any>
    * @param subTopic
    */
     setSubTopic(subTopic: string): void {
-        this.subTopic = subTopic;
+        this.currentUserSessionData.session_meta_data.sub_topic = subTopic;
+        // this.subTopic = subTopic;
     }
 
     /**
@@ -128,7 +152,8 @@ export class ExtendedStorage<ConversationData = any>
    * @param phaseCount
    */
     setPhaseCount(phaseCount: number): void {
-        this.phaseCount = phaseCount;
+        this.currentUserSessionData.phase_count = phaseCount;
+        // this.phaseCount = phaseCount;
     }
 
     /**
@@ -136,7 +161,8 @@ export class ExtendedStorage<ConversationData = any>
    * @param phase
    */
     setPhase(phase: UserMessagePhase): void {
-        this.phase = phase;
+        this.currentUserSessionData.user_phase = phase;
+        // this.phase = phase;
     }
 
 
@@ -157,21 +183,13 @@ export class ExtendedStorage<ConversationData = any>
     }
 
     /**
-     * Sets current (logged in) user object
-     * @param user
-     */
-    setUserInRelationship(user: User): void {
-        this.userInRelationship = user;
-    }
-
-    /**
 
 * @param role
 * @param txt
 */
-    addOpenAIHistoryText(role: "user" | "assistant" | "system", txt: string): void {
-        this.openAIHistory.push({ role: role, content: txt });
-    }
+    // addOpenAIHistoryText(role: "user" | "assistant" | "system", txt: string): void {
+    //     this.openAIHistory.push({ role: role, content: txt });
+    // }
 
     removeMessageFromActiveConversation(messageId: string): void {
         let activeConversation = super.getState().activeConversation;
@@ -195,19 +213,20 @@ export class ExtendedStorage<ConversationData = any>
     getState(): ChatState & ExtendedChatState {
         return {
             ...super.getState(),
-            phase: this.phase,
-            phaseCount: this.phaseCount,
+            currentUserSessionData: this.currentUserSessionData,
+            // phase: this.phase,
+            // phaseCount: this.phaseCount,
             moreUserInputRequired: this.moreUserInputRequired,
             followUpChatMessagesRequired: this.followUpChatMessagesRequired,
-            topic: this.topic,
-            subTopic: this.subTopic,
-            userInRelationship: this.userInRelationship,
-            openAIHistory: this.openAIHistory
+            // topic: this.topic,
+            // subTopic: this.subTopic,
+            // userInRelationship: this.userInRelationship,
+            // openAIHistory: this.openAIHistory
         }
     }
 
     resetState(): void {
         super.resetState();
-        this.phase = UserMessagePhase.BE_PersonInConflictRelation;
+        // this.phase = UserMessagePhase.BE_PersonInConflictRelation;
     }
 }

@@ -6,6 +6,8 @@ import Login from "./pages/Login";
 import Registration from "./pages/Registration";
 import ChatPage from "./pages/ChatPage";
 import SaveCookies from "./pages/SaveCookies";
+import AboutUser from "./pages/AboutUser";
+import SignupSuccess from "./pages/SignupSuccess";
 
 function App() {
 
@@ -18,6 +20,8 @@ function App() {
                     <Route path="/registration" element={<Registration />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/save-cookies" element={<SaveCookies />} />
+                    <Route path="/about-user" element={<AboutUser />} />
+                    <Route path="/signup-success" element={<SignupSuccess />} />
                     <Route path="*" element={<SignUp />} />
                 </Routes>
             </BrowserRouter>

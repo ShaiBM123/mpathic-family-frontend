@@ -23,7 +23,7 @@ const SaveCookies = () => {
       setCookie("mpathict", encPass, { path: "/" });
     }
 
-    navigate("/chat", { replace: true });
+    navigate("/about-user", { replace: true });
   };
 
   return (

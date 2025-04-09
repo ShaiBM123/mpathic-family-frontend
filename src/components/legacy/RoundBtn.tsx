@@ -3,7 +3,7 @@ import React from 'react';
 interface RoundBtnProps {
   extraClass?: string;
   text: string;
-  onClick: () => void;
+  onClick?: () => void;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
   loading?: boolean;

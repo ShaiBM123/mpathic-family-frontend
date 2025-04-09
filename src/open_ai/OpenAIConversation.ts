@@ -1,376 +1,285 @@
-import OpenAI from "openai";
+// import OpenAI from "openai";
 import { MessageContent } from "@chatscope/use-chat/dist/interfaces";
 import { MessageContentType, MessageDirection, MessageStatus } from "@chatscope/use-chat/dist/enums";
 import { IStorage } from "@chatscope/use-chat/dist/interfaces";
 import {
-        OpenAIBotMessage, 
-        OpenAIMessageReceivedType, 
-        UserMessageContent, 
-        MsgContentData
-    } from './OpenAITypes';
-import {ChatMessage} from "@chatscope/use-chat"; 
-import {openAIModel} from "../data/data";
-import {OpenAIPromptManager} from './OpenAIPromptingManager';
+    OpenAIBotMessage,
+    OpenAIMessageReceivedType,
+    UserMessageContent,
+    MsgContentData,
+    UserMessagePhase
+} from './OpenAITypes';
+import { ChatMessage } from "@chatscope/use-chat";
+import { openAIModel, RelationshipCategory, Gender } from "../data/data";
+import { relationships } from './PersonalRelationships';
+// import { OpenAIPromptManager } from './OpenAIPromptingManager';
 import { UpdateState } from "@chatscope/use-chat/dist/Types";
-import {ExtendedStorage } from "../data/ExtendedStorage";
+import { ExtendedStorage } from "../data/ExtendedStorage";
+import { ageCategory } from '../AppUtils';
+import { UserChatSessionData } from "../data/ChatSessionData";
+import callApi from "../lib/apisauce/callApi";
+import { queryString } from "../AppUtils";
+import type { ApiResponse } from "apisauce/apisauce";
+import rtlTxt from '../rtl-text.json';
 
-const openai = new OpenAI({
-    apiKey: process.env.REACT_APP_OPENAI_KEY,
-    dangerouslyAllowBrowser: true
-});
 
+// const openai = new OpenAI({
+//     apiKey: process.env.REACT_APP_OPENAI_KEY,
+//     dangerouslyAllowBrowser: true
+// });
 
-export type BotMsgReplyProps =  {
+export type BotMsgReplyProps = {
     msgIdx: number,
-    msgRefusal: boolean, 
-    msgContent: object|string | null,
+    msgRefusal: boolean,
+    msgContent: object | string | null,
     msgContentType: MessageContentType
 }
 
-export class OpenAIChatConversation{
+export class OpenAIChatConversation {
     storage: ExtendedStorage;
-    promptMngr: OpenAIPromptManager;
+    update: UpdateState;
     messageReceived: OpenAIMessageReceivedType;
     openAIUser: string;
 
     constructor(messageReceived: OpenAIMessageReceivedType, storage: IStorage, update: UpdateState) {
         this.storage = storage as ExtendedStorage;
-        this.promptMngr = new OpenAIPromptManager(this.storage, update);
-
-        // this.msgPhaseBlocks = {
-        //     [UserMessagePhase.GeneralDescriptionAnalysis]: {   
-
-        //         system_msg: [
-        //             {
-        //                 role: "system",
-        //                 content: "בתיאור הבא המשתמש מספר לראשונה על קונפליקט שלו מול אדם אחד או יותר, התיאור אמור להכיל פרטים על הזמן, המקום, המעורבים והסיבה לקונפליקט, על התיאור להיות שלם ואוטנטי מנקודת מבטו של המשתמש"
-        //             },
-        //             {
-        //                 role: "system",
-        //                 content: "במידה והתיאור לא מספק או שחסרים בו פרטים עליך לבקש מהמשתמש לספר יותר על מה שלא מפורט"
-        //             },
-        //             {
-        //                 role: "system",
-        //                 content: "במידה והתיאור שלם ומספק, 1. סכם בקצרה בגוף שני את רוח הדברים 2. צור תצפית אובייקטיבית על האירוע בהתבסס על השלב הראשון במודל תקשורת מקרבת"
-        //             }
-        //         ],
-
-        //         response_format: zodResponseFormat( 
-        //             z.object({
-        //                 more_info_required: z.boolean(), 
-        //                 more_info_request: z.union([z.string(), z.null()]), 
-        //                 probe_completion: z.union([
-        //                     z.object({
-        //                         summery: z.string(), 
-        //                         observation: z.string()}), 
-        //                     z.null()])
-        //                 }), "call-for-more-information-or-summerize"),
-
-        //         construct_content_to_reply:(parsed_obj: object)=>{
-        //             if(Object(parsed_obj).more_info_required){
-        //                 return [
-        //                     {
-        //                         content: Object(parsed_obj).more_info_request, 
-        //                         content_type: MessageContentType.TextPlain,
-        //                         more_info_required: true
-        //                     }
-        //                 ]
-        //             }else{
-        //                 return [
-        //                     {
-        //                         content: {...Object(parsed_obj).probe_completion, general_description_analysis: true}, 
-        //                         content_type: MessageContentType.Other,
-        //                         more_info_required: false
-        //                     },
-        //                     {
-        //                         content: 'כעט בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה', 
-        //                         content_type: MessageContentType.TextPlain
-        //                     }
-        //                 ]
-
-        //             }
-        //         },
-        //         construct_context:(parsed_obj: object)=>{
-        //             if(Object(parsed_obj).more_info_required){
-        //                 return [
-        //                     {
-        //                         role: 'assistant',
-        //                         content: Object(parsed_obj).more_info_request, 
-
-        //                     }]
-        //             }else{
-        //                 return [
-        //                     {
-        //                         role: 'assistant',
-        //                         content: Object(parsed_obj).probe_completion.summery, 
-        //                     },
-        //                     {
-        //                         role: 'assistant',
-        //                         content: Object(parsed_obj).probe_completion.observation, 
-        //                     },
-        //                     {
-        //                         role: 'assistant',
-        //                         content: 'כעט בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה', 
-        //                     }
-        //                 ]
-        //             }
-        //         },
-        //         max_tokens: 350,
-        //         temperature: 0.7
-        //     },
-        //     [UserMessagePhase.FeelingsProbe]: { 
-
-        //         system_msg: [
-        //             {
-        //                 role: "system",
-        //                 content: "בהתבסס על התגובות של המשתמש, מצא 1-3 רגשות דומיננטיים המובעים בטקסט ותאר בקצרה את הלך הרוח מההבט הרגשי"
-        //             },
-        //         ],
-            
-        //         response_format: zodResponseFormat(
-        //             z.object({
-        //                 feelings: FeelingsArray, 
-        //                 description: z.string()
-        //             }), "feelings-intensities"),
-
-        //         construct_content_to_reply:(parsed_obj: object)=>{
-        //             return(
-        //                 [
-        //                     {
-        //                         content: Object(parsed_obj).description + 
-        //                         " לכל רגש הערכתי את עוצמתו , ניתן לשנות את עוצמות הרגש , למחוק או להוסיף רגשות במידה ולא דייקתי", 
-        //                         content_type: MessageContentType.TextPlain,
-        //                         more_info_required: false
-        //                     },
-        //                     {
-        //                         content: {...parsed_obj, interactive: true, active: true} , 
-        //                         content_type: MessageContentType.Other,
-        //                         more_info_required: false
-        //                     }
-        //                 ]
-        //             )
-        //         },
-        //         construct_context:(parsed_obj: object)=>{
-        //             return(
-        //                 [{
-        //                     role: 'assistant',
-        //                     content: Object(parsed_obj).description  
-        //                 }, 
-        //                 {
-        //                     role: 'assistant',
-        //                     content:  `להערכתי אתה מרגיש את התחושות הבאות בסולם של אחת עד עשר: 
-        //                     ${Object(parsed_obj).feelings.map(
-        //                         (s: Object)=>{
-        //                             return ` ${Object(s).emotion_name} בעוצמה ${Object(s).emotion_intensity} `
-        //                         }
-        //                     ).join(' ')}`
-        //                 }, 
-        //             ])   
-        //         },
-        //         max_tokens: 200,
-        //         temperature: 0.7
-        //     },
-
-        //     [UserMessagePhase.FeelingsAnalysis]: { 
-        //         system_msg: [
-        //             {
-        //                 role: "system",
-        //                 content: "בהתבסס על תיאור המשתמש את רגשותיו ועוצמתם סכם בקצרה את עולם התוכן הרגשי של המשתמש"
-        //             },
-        //         ],
-        //         construct_content_to_reply:(msg: object)=>{
-        //             return [
-        //                 {
-        //                     content: Object(msg).content, 
-        //                     content_type: MessageContentType.TextPlain
-        //                 },
-        //                 {
-        //                     content: 'כעט תאר לי בבקשה מה גורם לך להרגיש ככה ? מה בדיוק פגע בך ?', 
-        //                     content_type: MessageContentType.TextPlain
-        //                 }
-        //             ] 
-        //         },
-        //         construct_context:(parsed_obj: object)=>{
-        //             return [
-        //                 {
-        //                     role: 'assistant',
-        //                     content: Object(parsed_obj).content, 
-        //                 },
-        //                 {
-        //                     role: 'assistant',
-        //                     content: 'כעט תאר לי בבקשה מה גורם לך להרגיש ככה ? מה בדיוק פגע בך ?', 
-        //                 }
-        //             ] 
-        //         },
-        //         max_tokens: 350,
-        //         temperature: 0.7
-        //     },
-
-        //     [UserMessagePhase.NeedsProbe]:{   
-
-        //         system_msg: [
-        //             {
-        //                 role: "system",
-        //                 content: "בתיאור הבא המשתמש מספר על הסיבות לרגשותיו, על התיאור לכלול את הצרכים הנפשיים שהתעררו על פי מודל התקשורת המקרבת"
-        //             },
-        //             {
-        //                 role: "system",
-        //                 content: "במידה והתיאור מספק ציין עד שלושה צרכים בולטים שהתעררו בעקבות הקונפליקט, אחרת השב בשלילה ובקש משהמשתמש לספר יותר"
-        //             },
-        //         ],
-
-        //         response_format: zodResponseFormat(
-        //             z.object({
-        //                 more_info_required: z.boolean(), 
-        //                 more_info_request: z.union([z.string(), z.null()]),  
-        //                 summery: z.union([z.string(), z.null()])
-        //                 }), "call-for-more-information-or-summerize"),
-
-        //         construct_content_to_reply:(parsed_obj: object)=>{
-        //             if(Object(parsed_obj).more_info_required){
-        //                 return [
-        //                     {
-        //                         content: Object(parsed_obj).more_info_request, 
-        //                         content_type: MessageContentType.TextPlain,
-        //                         more_info_required: true
-        //                     }
-        //                 ]
-        //             }else{
-        //                 return [
-        //                     {
-        //                         content: Object(parsed_obj).summery, 
-        //                         content_type: MessageContentType.TextPlain,
-        //                         more_info_required: false
-        //                     }
-        //                 ]
-        //             }
-        //         },
-        //         construct_context:(parsed_obj: object)=>{
-        //             if(Object(parsed_obj).more_info_required){
-        //                 return [
-        //                     {
-        //                         role: 'assistant',
-        //                         content: Object(parsed_obj).more_info_request, 
-
-        //                     }]
-        //             }else{
-        //                 return [
-        //                     {
-        //                         role: 'assistant',
-        //                         content: Object(parsed_obj).summery, 
-        //                     }]
-        //             }
-        //         },
-        //         max_tokens: 350,
-        //         temperature: 0.7
-        //     },
-
-        //     [UserMessagePhase.TBD]:{ 
-        //         system_msg: []
-        //     }
-        // }
-
-        // this.messages = [ 
-        //     {
-        //         role: "system",
-        //         content: "אתה מטפל בשיטת התקשורת המקרבת (NVC) התפקיד שלך הוא לסייע למשתמשים ליישב בעיות אישיות בצורה אמפתית בשפה העברית.",
-        //     }
-        // ];
-        // this.model ="gpt-4o-mini"; 
-
+        this.update = update;
         this.messageReceived = messageReceived;
         this.openAIUser = openAIModel.name
     }
 
+    private genderName(gender: Gender | undefined): 'female' | 'male' {
+        return gender === Gender.Female ? 'female' : 'male';
+    }
+
+    private doNextPhase = (nextPhase: UserMessagePhase) => {
+        const { currentUserSessionData: sessionData } = (this.storage as ExtendedStorage)?.getState();
+
+        let phase = sessionData.user_phase;
+        let phaseCount = sessionData.phase_count || 0;
+
+        if (nextPhase === phase) {
+            this.storage?.setPhaseCount(phaseCount + 1);
+        }
+        else {
+            this.storage?.setPhase(nextPhase);
+            this.storage?.setPhaseCount(0);
+        }
+    }
+
+    private generateFollowUpText = (phase: UserMessagePhase): string => {
+        const { currentUser, currentUserSessionData } = (this.storage as ExtendedStorage)?.getState();
+
+        let uGender = currentUser?.data.gender;
+        let uGenderKey = this.genderName(uGender);
+
+        let u2Gender = currentUserSessionData.person_in_conflict.relationship?.gender;
+        let u2GenderKey = this.genderName(u2Gender);
+
+        switch (phase) {
+            case UserMessagePhase.BE_PersonInConflictName:
+                return rtlTxt.chat.askWhatIsTheNameOfPersonInConflict[u2GenderKey];
+            case UserMessagePhase.BE_DescriptionAnalysis:
+                return rtlTxt.chat.callForSituationInfo[uGenderKey];
+            case UserMessagePhase.BE_PersonInConflictAge:
+                return rtlTxt.chat.askHowOldPersonInConflict[u2GenderKey];
+            default:
+                return ``;
+        }
+    }
+
+    private buildBotResponse = () => {
+        const { currentUser, currentUserSessionData: sessionData } = (this.storage as ExtendedStorage)?.getState();
+
+        let phase = sessionData.user_phase;
+        // let uName = currentUser?.firstName as string;
+        let uGender = currentUser?.data.gender;
+        let uGenderKey = this.genderName(uGender);
+        let uAge = currentUser?.data.age;
+        let uAgeCategory = ageCategory(uAge);
+
+        let personInConflict = sessionData.person_in_conflict;
+        let u2Gender = personInConflict?.relationship?.gender;
+        let u2GenderKey = this.genderName(u2Gender);
+
+        let more_input_required = true
+
+        let replys: Array<MsgContentData> = []
+        let addReply = (
+            { content, content_type = MessageContentType.TextHtml }: MsgContentData) => {
+            replys.push({ content: content, content_type: content_type })
+        }
+
+        // let assistant_msg;
+        let next_phase = phase;
+
+        // let parsed_msg = Object(bot_msg.parsed)
+
+        switch (phase) {
+
+            case UserMessagePhase.BE_PersonInConflictRelation:
+                let rel = sessionData.person_in_conflict.relationship
+                if (!rel) {
+                    addReply({ content: rtlTxt.chat.complainAboutPersonInConflictRelationIsIncomplete[uGenderKey][uAgeCategory] })
+                }
+                else {
+                    more_input_required = false;
+
+                    if (relationships({ category: RelationshipCategory.Parents }).includes(rel.relationship_to_user)) {
+                        next_phase = UserMessagePhase.BE_DescriptionAnalysis;
+                    }
+                    else {
+                        next_phase = UserMessagePhase.BE_PersonInConflictName;
+                    }
+
+                    addReply({ content: this.generateFollowUpText(next_phase) });
+                }
+
+                break;
+
+            case UserMessagePhase.BE_PersonInConflictName:
+                let rel_to_user = sessionData.person_in_conflict.relationship?.relationship_to_user
+                let first_name = sessionData.person_in_conflict.name?.first_name
+                if (!first_name) {
+                    addReply({ content: rtlTxt.chat.complainAboutPersonInConflictName[uGenderKey][u2GenderKey] })
+
+                } else {
+                    more_input_required = false;
+
+                    if (relationships({ category: RelationshipCategory.SiblingsOrChildren }).includes(rel_to_user as string)) {
+                        next_phase = UserMessagePhase.BE_PersonInConflictAge;
+                    }
+                    else {
+                        next_phase = UserMessagePhase.BE_DescriptionAnalysis;
+                    }
+                    addReply({ content: this.generateFollowUpText(next_phase) });
+                }
+
+                break;
+
+            case UserMessagePhase.BE_PersonInConflictAge:
+                let age = sessionData.person_in_conflict.age
+                if (!age) {
+                    addReply({ content: rtlTxt.chat.complainAboutPersonInConflictAge[u2GenderKey] })
+
+                } else {
+                    more_input_required = false;
+                    next_phase = UserMessagePhase.BE_DescriptionAnalysis;
+                    addReply({ content: this.generateFollowUpText(next_phase) })
+                }
+
+                break;
+
+            case UserMessagePhase.BE_DescriptionAnalysis:
+                let description_analysis = sessionData.description_analysis;
+                if (!description_analysis.description_is_complete) {
+                    addReply({ content: description_analysis.more_details_request })
+                }
+                else {
+
+                    more_input_required = false;
+                    // phase is unknown at that point because the user can decide he is not 
+                    // satisfied with the given observation and keep feeding more information
+                    // next_phase = UserMessagePhase.Unknown;
+
+                    addReply({
+                        content: description_analysis.reflection_2nd_person_by_age_group,
+                        content_type: MessageContentType.TextPlain
+                    })
+                    addReply({
+                        content: { id: "observation_approval", observation: description_analysis.reflection_2nd_person_by_age_group },
+                        content_type: MessageContentType.Other
+                    })
+                }
+                break;
+
+            default:
+                throw Error('Invalid User Message Phase');
+        }
+
+        this.storage.setMoreUserInputRequired(more_input_required);
+        this.doNextPhase(next_phase)
+        this.update();
+        return replys;
+    }
     // _getCurrentUser(){
     //     return this.storage.getState().currentUser?.username || '';
     // }
 
-    async doMessagePhase( user_message: ChatMessage<MessageContentType.Other>)
-    {
+    async doMessagePhase(user_message: ChatMessage<MessageContentType.Other>) {
+        const { currentUser, currentUserSessionData } = (this.storage as ExtendedStorage)?.getState();
         let msg_content = user_message.content as UserMessageContent
         let msg = msg_content.user_text
 
-        let bot_message_replys: Array<OpenAIBotMessage> = [] 
-        // = {
-        //     index: 0, 
-        //     // refusal: true, 
-        //     // more_info_required: true,
-        //     status: MessageStatus.DeliveredToDevice, 
-        //     direction: MessageDirection.Incoming,
-        //     contentType: MessageContentType.TextPlain, 
-        //     createdTime: user_message.createdTime,
-        //     senderId: this.openAIUser, 
-        //     id: user_message.id.concat('-1'), 
-        //     content: "Sorry I'm programmed up to that point" as unknown as MessageContent<MessageContentType.Other>
-        // };
+        let bot_message_replys: Array<OpenAIBotMessage> = []
 
         const constructBotMsgReply = ({
             msgIdx,
-            msgRefusal, 
+            msgRefusal,
             msgContent,
-            msgContentType}: BotMsgReplyProps) => {
+            msgContentType }: BotMsgReplyProps) => {
 
-            return  {
-                index: msgIdx, 
-                refusal: msgRefusal, 
-                status: MessageStatus.DeliveredToDevice, 
+            return {
+                index: msgIdx,
+                refusal: msgRefusal,
+                status: MessageStatus.DeliveredToDevice,
                 direction: MessageDirection.Incoming,
-                contentType: msgContentType, 
+                contentType: msgContentType,
                 createdTime: user_message.createdTime,
-                senderId: this.openAIUser, 
-                id: user_message.id.concat('-',String(msgIdx + 1)), 
+                senderId: this.openAIUser,
+                id: user_message.id.concat('-', String(msgIdx + 1)),
                 content: msgContent as unknown as MessageContent<MessageContentType.Other>
-            } 
+            }
         }
 
-        try 
-        {
-            let prompt_data = this.promptMngr.buildSyestemPrompt()
-            
-            this.promptMngr.addUserInputToOpenAIHistory(msg)
-            
-            if (prompt_data)
-            {
-                const completion = await openai.beta.chat.completions.parse({
-                    model: this.promptMngr.model,
-                    messages: this.storage.openAIHistory,
-                    response_format: prompt_data?.response_format,
-                    max_tokens: prompt_data?.max_tokens,
-                    temperature: prompt_data?.temperature,
-                    user: user_message.senderId 
-                });
-                
-                const bot_choise = completion.choices[0]
-                let {parsed, refusal} = bot_choise?.message
-            
-                let bot_replys = this.promptMngr.buildBotResponse({parsed, refusal})
+        try {
+            const res = await callApi.postData(
+                "chat_phase",
+                queryString({ username: currentUser?.username, message: msg, session_data: currentUserSessionData }),
+                {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                    },
+                }
+            ) as ApiResponse<any>;
 
-                bot_message_replys = bot_replys.map((data: MsgContentData, idx: number) => {
-                    return constructBotMsgReply({
-                        msgIdx: idx, 
-                        msgRefusal: refusal ? true: false, 
-                        msgContent: data.content, 
-                        msgContentType: data.content_type as MessageContentType}
-                    )
-                });
+            if (res?.ok) {
+                if (res.data.status === "success") {
+                    const sessionData = res.data as UserChatSessionData;
+                    this.storage.setCurrentUserSessionData(sessionData);
+
+                    bot_message_replys = this.buildBotResponse().map((msg, idx) => {
+                        return constructBotMsgReply({
+                            msgIdx: idx,
+                            msgRefusal: false,
+                            msgContent: msg.content,
+                            msgContentType: msg.content_type as MessageContentType
+                        })
+                    })
+
+                } else {
+                    throw new Error(res.data.message);
+                }
+            } else {
+                throw res.originalError;
             }
 
         } catch (e: any) {
             // Handle edge cases
-            if (e.constructor.name === "LengthFinishReasonError") {
-              // Retry with a higher max tokens
-              console.log("Too many tokens: ", e.message);
+            if (e.constructor?.name === "LengthFinishReasonError") {
+                // Retry with a higher max tokens
+                console.log("Too many tokens: ", e.message);
             } else {
-              // Handle other exceptions
-              console.log("An error occurred: ", e.message);
+                // Handle other exceptions
+                console.log("An error occurred: ", e.message);
             }
 
             bot_message_replys = [constructBotMsgReply({
-                msgIdx: 0, 
-                msgRefusal: true, 
-                msgContent: 'מתנצלים, משהוא השתבש :-(', 
-                msgContentType: MessageContentType.TextPlain}
+                msgIdx: 0,
+                msgRefusal: true,
+                msgContent: 'מתנצלים, משהוא השתבש :-(',
+                msgContentType: MessageContentType.TextPlain
+            }
             )]
         }
         finally {
@@ -379,14 +288,13 @@ export class OpenAIChatConversation{
     }
 
     async sendMessage(
-        message: ChatMessage<MessageContentType.Other>, 
+        message: ChatMessage<MessageContentType.Other>,
         intervalId: number,
         conversationId: string,
-        sender: unknown)
-    {
-        let messages= await this.doMessagePhase(message) 
+        sender: unknown) {
+        let messages = await this.doMessagePhase(message)
 
-        this.messageReceived(new Date(), intervalId, conversationId, messages, sender)      
+        this.messageReceived(new Date(), intervalId, conversationId, messages, sender)
 
     }
 

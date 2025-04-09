@@ -97,41 +97,29 @@ const Login = () => {
           setErr(false);
           setErrMsg("");
           const {
-            name,
             email,
             username,
-            // family_role,
-            // kids_exist,
-            // member_gender,
-            // sibling,
-            // parent_relationship,
-            // adult_relationship,
-            // member_code,
+            google_token,
+            first_name,
+            last_name,
+            gender,
+            age,
           } = res.data.userdata;
 
           if (
-            name !== "" &&
             (email !== "" || username !== "")
-            // &&
-            // family_role !== "" &&
-            // kids_exist !== "" &&
-            // member_gender !== "" &&
-            // member_code !== ""
           ) {
             sessionStorage.setItem("UserJWT", JSON.stringify(res.data.jwt));
             sessionStorage.setItem(
               "userData",
               JSON.stringify({
-                name,
                 email,
                 username,
-                // family_role,
-                // kids_exist,
-                // member_gender,
-                // member_code,
-                // sibling,
-                // parent_relationship,
-                // adult_relationship,
+                google_token,
+                first_name,
+                last_name,
+                gender,
+                age,
               })
             );
             setLoading(false);

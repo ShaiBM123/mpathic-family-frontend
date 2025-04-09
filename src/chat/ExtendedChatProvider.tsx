@@ -18,6 +18,7 @@ import type {
 
 import { ExtendedStorage, ExtendedChatState } from '../data/ExtendedStorage';
 import { UserMessagePhase } from '../open_ai/OpenAITypes';
+import { UserChatSessionData } from "../data/ChatSessionData";
 
 export enum PhaseOperation { StartNewPhase = 1, KeepPhaseAndIncrement = 2, KeepPhase = 3 }
 
@@ -32,7 +33,8 @@ interface ExtendedChatContextProps {
     setFollowUpChatMessagesRequired: (followUpChatMessagesRequired: boolean) => void;
     setPhase: (phase: UserMessagePhase) => void;
     removeMessageFromActiveConversation: (messageId: string) => void;
-    addOpenAIHistoryText: (role: "user" | "assistant" | "system", txt: string) => void;
+    // addOpenAIHistoryText: (role: "user" | "assistant" | "system", txt: string) => void;
+    setCurrentUserSessionData: (data: UserChatSessionData) => void;
 }
 
 // Create a context for these properties
@@ -80,6 +82,19 @@ export const ExtendedChatProvider = <S extends IChatService>({
     // const [subTopic, setSubTopic] = useState('');
 
     /**
+ * Set complete current user session data
+ * @param {UserChatSessionData} data
+*/
+    const setCurrentUserSessionData = useCallback(
+        (data: UserChatSessionData) => {
+            storage.setCurrentUserSessionData(data);
+            updateExtendedState();
+        },
+        [storage, updateExtendedState]
+    );
+
+
+    /**
      * Set topic of message in current conversation
      * @param {String} topic
     */
@@ -111,9 +126,9 @@ export const ExtendedChatProvider = <S extends IChatService>({
     const setPhase = useCallback(
         (phase: UserMessagePhase) => {
 
-            if (storage.getState().phase === phase) {
+            if (storage.getState().currentUserSessionData.user_phase === phase) {
 
-                storage.setPhaseCount(storage.getState().phaseCount + 1);
+                storage.setPhaseCount(storage.getState().currentUserSessionData.phase_count + 1);
             }
             else {
                 storage.setPhase(phase);
@@ -158,18 +173,19 @@ export const ExtendedChatProvider = <S extends IChatService>({
         }, [storage, updateExtendedState]
     );
 
-    const addOpenAIHistoryText = useCallback((role: "user" | "assistant" | "system", txt: string) => {
-        storage.addOpenAIHistoryText(role, txt);
-        updateExtendedState();
-    }, [storage, updateExtendedState])
+    // const addOpenAIHistoryText = useCallback((role: "user" | "assistant" | "system", txt: string) => {
+    //     storage.addOpenAIHistoryText(role, txt);
+    //     updateExtendedState();
+    // }, [storage, updateExtendedState])
 
     const extendedContextValue: ExtendedChatContextProps = {
-        setTopic, setSubTopic, setPhase, setMoreUserInputRequired,
-        setFollowUpChatMessagesRequired,
-        removeMessageFromActiveConversation, addOpenAIHistoryText,
+        setTopic, setSubTopic, setPhase, setCurrentUserSessionData,
+        setMoreUserInputRequired, setFollowUpChatMessagesRequired,
+        removeMessageFromActiveConversation,
+        // addOpenAIHistoryText,
         moreUserInputRequired: state.moreUserInputRequired,
         followUpChatMessagesRequired: state.followUpChatMessagesRequired,
-        phase: state.phase, phaseCount: state.phaseCount
+        phase: state.currentUserSessionData.user_phase, phaseCount: state.currentUserSessionData.phase_count
     };
 
     // Create serviceFactory
