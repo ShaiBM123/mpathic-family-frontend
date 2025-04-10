@@ -9,6 +9,10 @@ import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import CryptoJS from "crypto-js";
 
+import logo from '../images/logo.svg';
+import pass_show_icon from '../images/pass_show_Icon.svg';
+import pass_hide_icon from '../images/pass_hide_Icon.svg';
+
 const signUpSchema = Yup.object({
   username: Yup.string().required("יש להזין שם משתמש"),
   password: Yup.string().required("יש להזין סיסמה"),
@@ -168,7 +172,7 @@ const Login = () => {
             <div className="a1_a_main_details mt-5">
               <div className="container px-4">
                 <div className="header-logo ">
-                  <img src="assets/images/logo.svg" alt="" />
+                  <img src={logo} alt="" />
                   <p className="mt-3"> כניסה עם סיסמה </p>
                 </div>
                 <div className="password_input_main mt-4">
@@ -221,13 +225,13 @@ const Login = () => {
                     <div className="pass_show_hide_icon">
                       {!showP ? (
                         <img
-                          src="assets/images/pass_show_Icon.svg"
+                          src={pass_show_icon}
                           alt=""
                           onClick={() => setShowP(!showP)}
                         />
                       ) : (
                         <img
-                          src="assets/images/pass_hide_Icon.svg"
+                          src={pass_hide_icon}
                           alt=""
                           onClick={() => setShowP(!showP)}
                         />

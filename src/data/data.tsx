@@ -1,8 +1,8 @@
-// import otherAvatar from "../assets/User1.svg";
-import femaleAvatar from "../assets/User3.svg";
-import maleAvatar from "../assets/User7.svg";
-// import openAIAvatar from "../assets/openAI.svg";
-import mpathicAvatar from "../assets/mpathic-face.svg";
+// import otherAvatar from "../images/chat/User1.svg";
+import femaleAvatar from "../images/chat/User3.svg";
+import maleAvatar from "../images/chat/User7.svg";
+// import openAIAvatar from "../images/chat/openAI.svg";
+import mpathicAvatar from "../images/chat/mpathic-face.svg";
 
 import { nanoid } from "nanoid";
 

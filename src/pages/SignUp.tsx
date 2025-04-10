@@ -5,7 +5,12 @@ import callApi from "../lib/apisauce/callApi";
 import { queryString } from "../AppUtils";
 // import ShortcutModal from "../components/feeling/ShortcutModal";
 import { trackPromise } from "react-promise-tracker";
-import CodeExpireModal from "../components/legacy/feeling/CodeExpireModal";
+// import CodeExpireModal from "../components/legacy/feeling/CodeExpireModal";
+import logo from '../images/logo.svg';
+import google_logo from '../images/google-logo-2.svg';
+import account_shape from '../images/account-shape-2.svg';
+import lock from '../images/lock.svg';
+import user_icon from '../images/userIcon.svg';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -127,7 +132,7 @@ const SignUp = () => {
       <div className="google_account_main">
         <div className="container">
           <div className="header-logo mt-4">
-            <img src="assets/images/logo.svg" alt="" />
+            <img src={logo} alt="" />
             <p>פשוט לדבר במשפחה</p>
             <h6>
               שימוש באפליקציה זו מתאים ליחידים, זוגות ומשפחות אשר ברצונם לשפר את
@@ -138,7 +143,7 @@ const SignUp = () => {
         <div className="account_body">
           <div className="account_ads_img px-3">
             <img
-              src="assets/images/account-shape.svg"
+              src={account_shape}
               alt=""
               className="family_image"
             />
@@ -150,7 +155,7 @@ const SignUp = () => {
             <button className="btn google-signup-btn_account" onClick={G_login as any}>
               <p className="text-regular">כניסה/הרשמה עם Google</p>
               <img
-                src="assets/images/google-logo.svg"
+                src={google_logo}
                 alt="Google Logo"
                 style={{ height: 29, width: 28 }}
               />
@@ -171,7 +176,7 @@ const SignUp = () => {
                   }}>
                   <p className="text-regular">הרשמה עם סיסמה</p>
                   <img
-                    src="assets/images/lock.svg"
+                    src={lock}
                     alt="lock Logo"
                     style={{ height: 27, width: 27 }}
                   />
@@ -193,7 +198,7 @@ const SignUp = () => {
                 >
                   <p className="text-regular">כניסה</p>
                   <img
-                    src="assets/images/userIcon.svg"
+                    src={user_icon}
                     alt="lock Logo"
                     style={{ height: 27, width: 27 }}
                   />

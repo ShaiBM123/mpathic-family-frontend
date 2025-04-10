@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import RoundBtn from "../components/legacy/RoundBtn";
+import cong_icon from '../images/cong_Icon.svg';
+import final_shape from '../images/final_shape.svg';
 
 const SignupSuccess = () => {
   const userData = JSON.parse(sessionStorage.getItem("userData") as string);
@@ -11,7 +13,7 @@ const SignupSuccess = () => {
         <div className="container">
           <h4>נעים מאוד {userData.name}!</h4>
           <img
-            src="assets/images/cong_Icon.svg"
+            src={cong_icon}
             className="mt-3"
             alt="Congrats"
           />
@@ -32,7 +34,7 @@ const SignupSuccess = () => {
             />
           </Link>
           <div className="footer custom_final_footer">
-            <img src="assets/images/final_shape.svg" alt="Shape" />
+            <img src={final_shape} alt="Shape" />
           </div>
         </div>
       </div>

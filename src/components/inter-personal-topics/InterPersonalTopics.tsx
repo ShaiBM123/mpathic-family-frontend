@@ -10,11 +10,11 @@ import * as FASolidIcons from "@fortawesome/free-solid-svg-icons";
 // import * as FARegularIcons from "@fortawesome/free-regular-svg-icons";
 import { getSVGURI } from "../../AppUtils";
 // import { useExtendedChat } from "../../ExtendedChatProvider";
-import svgClock from "../../assets/clock.svg";
-import svgQuestionMark from "../../assets/question-mark.svg";
-import svgSmartPhone from "../../assets/smart-phone.svg";
-import svgTwoPeoples from "../../assets/two-peoples.svg";
-import svgOnePeople from "../../assets/one-people.svg";
+import svgClock from "../../images/chat/clock.svg";
+import svgQuestionMark from "../../images/chat/question-mark.svg";
+import svgSmartPhone from "../../images/chat/smart-phone.svg";
+import svgTwoPeoples from "../../images/chat/two-peoples.svg";
+import svgOnePeople from "../../images/chat/one-people.svg";
 
 export enum IP1stCategory {
     None,

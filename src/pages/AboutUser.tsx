@@ -7,16 +7,17 @@ import RadioBtn from "../components/legacy/RadioBtn";
 import RoundBtn from "../components/legacy/RoundBtn";
 import type { ApiResponse } from "apisauce/apisauce";
 import { queryString } from "../AppUtils";
-import { CustomFormikDatePicker } from "../components/legacy/CustomDatePicker";
+import { CustomFormikDatePicker } from "../components/legacy/CustomDatePicker2";
 
+import header_shape from '../images/header-shape.svg';
 
 const validationSchema = Yup.object().shape({
   first_name: Yup.string()
     .required("יש להזין את שמך")
     .max(45, "שם ארוך מדי (יותר מ45 תווים)"),
   date_of_birth: Yup.date()
-    .required("יש להזין תאריך לידה")
-    .max(new Date(), "תאריך הלידה לא יכול להיות בעתיד"),
+    .nullable()
+    .required("יש להזין תאריך לידה"),
 });
 
 const AboutUser = () => {
@@ -158,7 +159,7 @@ const AboutUser = () => {
         {/* Header Section Start */}
         <div className="header_register">
           <img
-            src="assets/images/header-shape.svg"
+            src={header_shape}
             className="w-100"
             alt="header-shape"
           />
@@ -216,6 +217,7 @@ const AboutUser = () => {
                       2. מהו תאריך הלידה שלך?
                     </label>
                     <CustomFormikDatePicker name="date_of_birth" />
+                    {touched.date_of_birth && <p className="err_msg">{errors.date_of_birth}</p>}
                   </div>
 
 

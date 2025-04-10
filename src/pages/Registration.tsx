@@ -7,6 +7,9 @@ import { queryString } from "../AppUtils";
 import { useNavigate } from "react-router-dom";
 import { ApiResponse } from "apisauce";
 // import { signupNum } from "../utils/signupNum";
+import logo from '../images/logo.svg';
+import pass_show_icon from '../images/pass_show_Icon.svg';
+import pass_hide_icon from '../images/pass_hide_Icon.svg';
 
 const signUpSchema = Yup.object({
   username: Yup.string().required("יש להזין שם משתמש"),
@@ -171,7 +174,7 @@ const Registration = () => {
             <div className="a1_a_main_details mt-5">
               <div className="container px-4">
                 <div className="header-logo ">
-                  <img src="assets/images/logo.svg" alt="" />
+                  <img src={logo} alt="" />
                   <p className="mt-3">הרשמה עם סיסמה</p>
                 </div>
                 <div className="password_input_main mt-4">
@@ -221,13 +224,13 @@ const Registration = () => {
                     <div className="pass_show_hide_icon">
                       {!showP ? (
                         <img
-                          src="assets/images/pass_show_Icon.svg"
+                          src={pass_show_icon}
                           alt=""
                           onClick={() => setShowP(!showP)}
                         />
                       ) : (
                         <img
-                          src="assets/images/pass_hide_Icon.svg"
+                          src={pass_hide_icon}
                           alt=""
                           onClick={() => setShowP(!showP)}
                         />
@@ -257,13 +260,13 @@ const Registration = () => {
                     <div className="pass_show_hide_icon">
                       {!showCP ? (
                         <img
-                          src="assets/images/pass_show_Icon.svg"
+                          src={pass_show_icon}
                           alt=""
                           onClick={() => setShowCP(!showCP)}
                         />
                       ) : (
                         <img
-                          src="assets/images/pass_hide_Icon.svg"
+                          src={pass_hide_icon}
                           alt=""
                           onClick={() => setShowCP(!showCP)}
                         />
@@ -399,7 +402,7 @@ const Registration = () => {
               }}
             >
               <div className="header-logo">
-                <img src="assets/images/logo.svg" alt="Logo" />
+                <img src={logo} alt="Logo" />
                 <p>תקנון</p>
               </div>
               <div className="modal_body_content">

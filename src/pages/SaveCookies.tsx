@@ -3,6 +3,7 @@ import { useCookies } from "react-cookie";
 import RoundBtn from "../components/legacy/RoundBtn";
 import CryptoJS from "crypto-js";
 import { salt } from "../AppUtils";
+import logo from '../images/logo.svg';
 
 const SaveCookies = () => {
   const [cookies, setCookie, removeCookie] = useCookies<any>(["user"]);
@@ -31,7 +32,7 @@ const SaveCookies = () => {
       <div className="a1_b_main_details mt-5">
         <div className="container px-4">
           <div className="header-logo ">
-            <img src="assets/images/logo.svg" alt="" />
+            <img src={logo} alt="" />
             <p className="mt-3">הרשמה עם סיסמה</p>
           </div>
           <div className="a0_disc mt-5">

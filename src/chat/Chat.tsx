@@ -40,10 +40,10 @@ import callApi from "../lib/apisauce/callApi";
 import { trackPromise } from "react-promise-tracker";
 
 import rtlTxt from '../rtl-text.json';
-import svgMpathicTitle from "../assets/mpathic-family-title.svg";
-import svgUndo from "../assets/undo.svg";
-import svgRedo from "../assets/redo.svg";
-import svgKebabMenu from "../assets/kebab-menu.svg";
+import svgMpathicTitle from "../images/chat/mpathic-family-title.svg";
+import svgUndo from "../images/chat/undo.svg";
+import svgRedo from "../images/chat/redo.svg";
+import svgKebabMenu from "../images/chat/kebab-menu.svg";
 import "../components/typing-text/typing-text.css"
 
 function genderKey(gender: Gender | undefined): 'female' | 'male' {
