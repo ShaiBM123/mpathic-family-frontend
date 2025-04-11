@@ -75,13 +75,16 @@ export const Chat = ({ user }: { user: User }) => {
     const navigate = useNavigate();
     const JWToken = JSON.parse(sessionStorage.getItem("UserJWT") as string);
 
-
     const fetchUserActiveSession = useCallback(() => {
-        trackPromise(
+
+        currentUser && trackPromise(
             callApi
                 .getDatawithToken(
                     "get_active_user_session",
-                    {},
+                    {
+                        email: currentUser?.email,
+                        username: currentUser?.username
+                    },
                     {
                         headers: {
                             "Content-Type":
@@ -92,7 +95,10 @@ export const Chat = ({ user }: { user: User }) => {
                 )
                 .then((res: any) => {
                     if (res.data.status === "success") {
-                        setCurrentUserSessionData(res.data.data);
+                        setCurrentUserSessionData(res.data.chatSessionData);
+                    } else {
+                        console.log(res.data.message);
+                        navigate("/");
                     }
                 })
                 .catch((res) => {
@@ -100,7 +106,7 @@ export const Chat = ({ user }: { user: User }) => {
                     navigate("/");
                 })
         );
-    }, [JWToken, navigate, setCurrentUserSessionData]);
+    }, [JWToken, currentUser, navigate, setCurrentUserSessionData]);
 
     useEffect(() => {
         fetchUserActiveSession();
