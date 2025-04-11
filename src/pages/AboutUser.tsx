@@ -7,7 +7,10 @@ import RadioBtn from "../components/legacy/RadioBtn";
 import RoundBtn from "../components/legacy/RoundBtn";
 import type { ApiResponse } from "apisauce/apisauce";
 import { queryString } from "../AppUtils";
-import { CustomFormikDatePicker } from "../components/legacy/CustomDatePicker2";
+// import { CustomFormikDatePicker } from "../components/legacy/CustomDatePicker2";
+import DatePicker from 'react-date-picker';
+import 'react-date-picker/dist/DatePicker.css';
+import 'react-calendar/dist/Calendar.css';
 
 import header_shape from '../images/header-shape.svg';
 
@@ -139,7 +142,7 @@ const AboutUser = () => {
           //   navigate("/signup-success");
           // }
 
-          navigate("/signup-success");
+          navigate("/chat");
 
         } else {
           console.log(res.data.message);
@@ -167,12 +170,14 @@ const AboutUser = () => {
           {updateMode !== undefined && updateMode === "on" ? (
             <h5 className="img-shape_content">
               פה ניתן לעדכן את הפרטים שלך :)
-              <br />
+              <br /> <br />
+              <span className="small"> 3 שאלות ומתחילים </span>
             </h5>
           ) : (
             <h5 className="img-shape_content">
               לפני הכל, נשמח להכיר קצת
-              <br />
+              <br /> <br />
+              <span className="small"> 3 שאלות ומתחילים </span>
             </h5>
           )}
         </div>
@@ -189,6 +194,7 @@ const AboutUser = () => {
               handleChange,
               handleSubmit,
               errors,
+              getFieldHelpers,
               setFieldTouched,
               touched,
               values,
@@ -216,7 +222,20 @@ const AboutUser = () => {
                     <label className="form-label custom-lebel-register">
                       2. מהו תאריך הלידה שלך?
                     </label>
-                    <CustomFormikDatePicker name="date_of_birth" />
+                    <DatePicker
+                      value={values.date_of_birth}
+                      onChange={
+                        (date) => {
+                          getFieldHelpers("date_of_birth").setValue(date);
+                        }
+                      }
+                      onBlur={() => setFieldTouched("date_of_birth")}
+                      // calendarIcon={null}
+                      clearIcon={null}
+                      format="y/M/d"
+                      maxDate={new Date()}
+                    // required={true}
+                    />
                     {touched.date_of_birth && <p className="err_msg">{errors.date_of_birth}</p>}
                   </div>
 
