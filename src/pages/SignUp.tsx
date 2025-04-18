@@ -15,7 +15,7 @@ import user_icon from '../images/userIcon.svg';
 const SignUp = () => {
   const navigate = useNavigate();
   useEffect(() => {
-    if (sessionStorage.getItem("UserJWT") !== null) navigate("/home");
+    if (sessionStorage.getItem("UserJWT") !== null) navigate("/login");
   }, [navigate]);
 
   // const [popupShown, setPopupShown] = useState(false);

@@ -12,7 +12,7 @@ export type UserChatSessionData = {
         },
         relationship?: {
             relationship_to_user: string,
-            gender: Gender.Male | Gender.Female
+            gender: 'female' | 'male'
         },
         age?: number
     },

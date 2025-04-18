@@ -7,7 +7,8 @@ import {
     Conversation,
     ConversationRole,
     Participant,
-    TypingUsersList
+    TypingUsersList,
+    MessageGroup
 } from "@chatscope/use-chat";
 
 import { openAIModel, openAIConversationId } from "./data";
@@ -78,7 +79,6 @@ export class ExtendedStorage<ConversationData = any>
             person_in_conflict: {},
             description_analysis: {}
         };
-
         // this.phase = UserMessagePhase.Start;
         // this.phaseCount = 0;
         this.moreUserInputRequired = true;
@@ -126,9 +126,17 @@ export class ExtendedStorage<ConversationData = any>
 */
     setCurrentUserSessionData(data: UserChatSessionData): void {
         this.currentUserSessionData = data;
-        // this.topic = topic;
     }
 
+    resetCurrentUserSessionData(): void {
+        this.currentUserSessionData = {
+            user_phase: UserMessagePhase.Start,
+            phase_count: 0,
+            session_meta_data: {},
+            person_in_conflict: {},
+            description_analysis: {}
+        };
+    }
     /**
    * Sets topic
    * @param topic
@@ -210,6 +218,18 @@ export class ExtendedStorage<ConversationData = any>
         }
     }
 
+    setMessagesInActiveConversation(messages: Array<MessageGroup>): void {
+        let activeConversation = super.getState().activeConversation;
+        if (activeConversation) {
+            this.removeMessagesFromConversation(activeConversation.id);
+            for (const grp of messages) {
+                for (const msg of grp.messages) {
+                    this.addMessage(msg, activeConversation.id);
+                }
+            }
+        }
+    }
+
     getState(): ChatState & ExtendedChatState {
         return {
             ...super.getState(),
@@ -227,6 +247,8 @@ export class ExtendedStorage<ConversationData = any>
 
     resetState(): void {
         super.resetState();
-        // this.phase = UserMessagePhase.BE_PersonInConflictRelation;
+        this.resetCurrentUserSessionData();
+        this.moreUserInputRequired = false;
+        this.followUpChatMessagesRequired = false;
     }
 }

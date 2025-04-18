@@ -22,11 +22,19 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+
     if (
       sessionStorage.getItem("UserJWT") !== null &&
       sessionStorage.getItem("userData") !== null
     ) {
-      navigate("/chat");
+      const { first_name } = JSON.parse(sessionStorage.getItem("userData") as string);
+
+      if (!first_name) {
+        navigate("/about-user", { replace: true });
+      } else {
+        navigate("/chat", { replace: true });
+      }
+
     }
   }, [navigate]);
 
@@ -55,31 +63,22 @@ const Login = () => {
     password: origPass || "",
   };
 
-  const logOut = () => {
-    //incase of expired member code
-    localStorage.removeItem("UserJWT");
-    [
-      "UserJWT",
-      "userData",
-      // "badFeelings",
-      // "blackListWords",
-      // "allNeeds",
-      // "selfConnectData",
-      // "request",
-      // "judgement",
-      // "goodFeelings",
-      "RegUserData",
-      // "updateMode",
-      // "displayData",
-    ].forEach((key) => {
-      sessionStorage.removeItem(key);
-    });
-    navigate("/");
-  };
+  // const logOut = () => {
+  //   //incase of expired member code
+  //   localStorage.removeItem("UserJWT");
+  //   [
+  //     "UserJWT",
+  //     "userData",
+  //     "RegUserData",
+  //   ].forEach((key) => {
+  //     sessionStorage.removeItem(key);
+  //   });
+  //   navigate("/");
+  // };
 
   const handleSubmit = (values: { username: string, password: string }) => {
     const { username, password } = values;
-    loginUser({ email: username, password });
+    loginUser({ username: username, password });
   };
 
   const loginUser = async (Data: { [key: string]: any }) => {
@@ -105,38 +104,49 @@ const Login = () => {
             username,
             google_token,
             first_name,
-            last_name,
             gender,
             age,
           } = res.data.userdata;
 
-          if (
-            (email !== "" || username !== "")
-          ) {
+          if ((email !== "" || username !== "")) {
             sessionStorage.setItem("UserJWT", JSON.stringify(res.data.jwt));
-            sessionStorage.setItem(
-              "userData",
-              JSON.stringify({
-                email,
-                username,
-                google_token,
-                first_name,
-                last_name,
-                gender,
-                age,
-              })
-            );
-            setLoading(false);
-            navigate("/chat", { replace: true });
+
+            //if complementary user info is missing redirect to about user
+            if ((!first_name || !gender || !age)) {
+
+              sessionStorage.setItem(
+                "userData",
+                JSON.stringify({
+                  email,
+                  username,
+                  google_token
+                })
+              );
+              setLoading(false);
+              navigate("/about-user", { replace: true });
+
+            } else {
+
+              sessionStorage.setItem(
+                "userData",
+                JSON.stringify({
+                  email,
+                  username,
+                  google_token,
+                  first_name,
+                  gender,
+                  age,
+                })
+              );
+              setLoading(false);
+              navigate("/chat", { replace: true });
+
+            }
           } else {
             navigate("/", { replace: true });
           }
         } else {
-          // if (res.data?.message === "תוקף הקוד פג") {
-          //   console.log(res.data.message);
-          //   sessionStorage.setItem("ExpireCode", "True");
-          //   logOut();
-          // }
+
           setErr(true);
           setErrMsg(
             res.data?.message === "Username or password is wrong"

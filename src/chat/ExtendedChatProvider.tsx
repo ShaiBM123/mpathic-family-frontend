@@ -7,6 +7,7 @@ import {
 import {
     useChat as useOriginalChat,
     ChatProvider as BaseChatProvider,
+    MessageGroup
 } from "@chatscope/use-chat";
 
 import type {
@@ -35,6 +36,8 @@ interface ExtendedChatContextProps {
     removeMessageFromActiveConversation: (messageId: string) => void;
     // addOpenAIHistoryText: (role: "user" | "assistant" | "system", txt: string) => void;
     setCurrentUserSessionData: (data: UserChatSessionData) => void;
+    resetCurrentUserSessionData: () => void;
+    setMessagesInActiveConversation(messages: Array<MessageGroup>): void;
 }
 
 // Create a context for these properties
@@ -93,7 +96,13 @@ export const ExtendedChatProvider = <S extends IChatService>({
         [storage, updateExtendedState]
     );
 
-
+    const resetCurrentUserSessionData = useCallback(
+        () => {
+            storage.resetCurrentUserSessionData();
+            updateExtendedState();
+        },
+        [storage, updateExtendedState]
+    );
     /**
      * Set topic of message in current conversation
      * @param {String} topic
@@ -173,15 +182,20 @@ export const ExtendedChatProvider = <S extends IChatService>({
         }, [storage, updateExtendedState]
     );
 
+    const setMessagesInActiveConversation = useCallback((messages: Array<MessageGroup>): void => {
+        storage.setMessagesInActiveConversation(messages);
+        updateExtendedState();
+    }, [storage, updateExtendedState]);
+
     // const addOpenAIHistoryText = useCallback((role: "user" | "assistant" | "system", txt: string) => {
     //     storage.addOpenAIHistoryText(role, txt);
     //     updateExtendedState();
     // }, [storage, updateExtendedState])
 
     const extendedContextValue: ExtendedChatContextProps = {
-        setTopic, setSubTopic, setPhase, setCurrentUserSessionData,
+        setTopic, setSubTopic, setPhase, setCurrentUserSessionData, resetCurrentUserSessionData,
         setMoreUserInputRequired, setFollowUpChatMessagesRequired,
-        removeMessageFromActiveConversation,
+        removeMessageFromActiveConversation, setMessagesInActiveConversation,
         // addOpenAIHistoryText,
         moreUserInputRequired: state.moreUserInputRequired,
         followUpChatMessagesRequired: state.followUpChatMessagesRequired,

@@ -1,4 +1,3 @@
-
 // import "bootstrap/dist/css/bootstrap.min.css";
 // import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
@@ -57,7 +56,7 @@ const ChatPage = () => {
         firstName: userData.first_name,
         username: userData.username,
         email: userData.email,
-        data: {}
+        data: { gender: userData.gender, age: userData.age },
     });
 
     return (

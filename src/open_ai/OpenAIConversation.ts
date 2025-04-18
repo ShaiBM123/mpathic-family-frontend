@@ -53,10 +53,10 @@ export class OpenAIChatConversation {
     }
 
     private doNextPhase = (nextPhase: UserMessagePhase) => {
-        const { currentUserSessionData: sessionData } = (this.storage as ExtendedStorage)?.getState();
+        const { currentUserSessionData: sData } = (this.storage as ExtendedStorage)?.getState();
 
-        let phase = sessionData.user_phase;
-        let phaseCount = sessionData.phase_count || 0;
+        let phase = sData.user_phase;
+        let phaseCount = sData.phase_count || 0;
 
         if (nextPhase === phase) {
             this.storage?.setPhaseCount(phaseCount + 1);
@@ -68,13 +68,10 @@ export class OpenAIChatConversation {
     }
 
     private generateFollowUpText = (phase: UserMessagePhase): string => {
-        const { currentUser, currentUserSessionData } = (this.storage as ExtendedStorage)?.getState();
+        const { currentUser, currentUserSessionData: sData } = (this.storage as ExtendedStorage)?.getState();
 
-        let uGender = currentUser?.data.gender;
-        let uGenderKey = this.genderName(uGender);
-
-        let u2Gender = currentUserSessionData.person_in_conflict.relationship?.gender;
-        let u2GenderKey = this.genderName(u2Gender);
+        let uGenderKey = currentUser?.data.gender as 'female' | 'male';
+        let u2GenderKey = sData.person_in_conflict.relationship?.gender as 'female' | 'male';
 
         switch (phase) {
             case UserMessagePhase.BE_PersonInConflictName:
@@ -89,18 +86,17 @@ export class OpenAIChatConversation {
     }
 
     private buildBotResponse = () => {
-        const { currentUser, currentUserSessionData: sessionData } = (this.storage as ExtendedStorage)?.getState();
+        const { currentUser, currentUserSessionData: sData } =
+            (this.storage as ExtendedStorage)?.getState();
 
-        let phase = sessionData.user_phase;
+        let phase = sData.user_phase;
         // let uName = currentUser?.firstName as string;
-        let uGender = currentUser?.data.gender;
-        let uGenderKey = this.genderName(uGender);
+        let uGenderKey = currentUser?.data.gender as 'female' | 'male';
         let uAge = currentUser?.data.age;
         let uAgeCategory = ageCategory(uAge);
 
-        let personInConflict = sessionData.person_in_conflict;
-        let u2Gender = personInConflict?.relationship?.gender;
-        let u2GenderKey = this.genderName(u2Gender);
+        let personInConflict = sData.person_in_conflict;
+        let u2GenderKey = personInConflict?.relationship?.gender as 'female' | 'male';
 
         let more_input_required = true
 
@@ -118,7 +114,7 @@ export class OpenAIChatConversation {
         switch (phase) {
 
             case UserMessagePhase.BE_PersonInConflictRelation:
-                let rel = sessionData.person_in_conflict.relationship
+                let rel = sData.person_in_conflict.relationship
                 if (!rel) {
                     addReply({ content: rtlTxt.chat.complainAboutPersonInConflictRelationIsIncomplete[uGenderKey][uAgeCategory] })
                 }
@@ -138,8 +134,8 @@ export class OpenAIChatConversation {
                 break;
 
             case UserMessagePhase.BE_PersonInConflictName:
-                let rel_to_user = sessionData.person_in_conflict.relationship?.relationship_to_user
-                let first_name = sessionData.person_in_conflict.name?.first_name
+                let rel_to_user = sData.person_in_conflict.relationship?.relationship_to_user
+                let first_name = sData.person_in_conflict.name?.first_name
                 if (!first_name) {
                     addReply({ content: rtlTxt.chat.complainAboutPersonInConflictName[uGenderKey][u2GenderKey] })
 
@@ -158,7 +154,7 @@ export class OpenAIChatConversation {
                 break;
 
             case UserMessagePhase.BE_PersonInConflictAge:
-                let age = sessionData.person_in_conflict.age
+                let age = sData.person_in_conflict.age
                 if (!age) {
                     addReply({ content: rtlTxt.chat.complainAboutPersonInConflictAge[u2GenderKey] })
 
@@ -171,7 +167,7 @@ export class OpenAIChatConversation {
                 break;
 
             case UserMessagePhase.BE_DescriptionAnalysis:
-                let description_analysis = sessionData.description_analysis;
+                let description_analysis = sData.description_analysis;
                 if (!description_analysis.description_is_complete) {
                     addReply({ content: description_analysis.more_details_request })
                 }
@@ -207,7 +203,11 @@ export class OpenAIChatConversation {
     // }
 
     async doMessagePhase(user_message: ChatMessage<MessageContentType.Other>) {
-        const { currentUser, currentUserSessionData } = (this.storage as ExtendedStorage)?.getState();
+        const { currentUser, currentUserSessionData: sData } =
+            (this.storage as ExtendedStorage)?.getState();
+
+        const JWToken = JSON.parse(sessionStorage.getItem("UserJWT") as string);
+
         let msg_content = user_message.content as UserMessageContent
         let msg = msg_content.user_text
 
@@ -235,20 +235,20 @@ export class OpenAIChatConversation {
         try {
             const res = await callApi.postData(
                 "chat_phase",
-                queryString({ username: currentUser?.username, message: msg, session_data: currentUserSessionData }),
+                { username: currentUser?.username, message: msg, ...sData },
                 {
                     headers: {
-                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                        "Content-Type": "application/json",
+                        Authorization: JWToken,
                     },
                 }
             ) as ApiResponse<any>;
 
             if (res?.ok) {
                 if (res.data.status === "success") {
-                    const sessionData = res.data as UserChatSessionData;
-                    this.storage.setCurrentUserSessionData(sessionData);
-
-                    bot_message_replys = this.buildBotResponse().map((msg, idx) => {
+                    this.storage.setCurrentUserSessionData(res.data.chatSessionData);
+                    let bot_messages = this.buildBotResponse();
+                    bot_message_replys = bot_messages.map((msg, idx) => {
                         return constructBotMsgReply({
                             msgIdx: idx,
                             msgRefusal: false,
@@ -287,15 +287,41 @@ export class OpenAIChatConversation {
         }
     }
 
+    async storeChatScopeMessages() {
+        const { currentUser, currentMessages } = (this.storage as ExtendedStorage)?.getState();
+
+        const JWToken = JSON.parse(sessionStorage.getItem("UserJWT") as string);
+
+        const res = await callApi.postData("store_chatscope_session_messages",
+            { username: currentUser?.username, messages: currentMessages },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: JWToken,
+                },
+            }
+        ) as ApiResponse<any>;
+
+        if (res?.ok) {
+            if (res.data.status !== "success") {
+                console.log("An error occurred in storeChatScopeMessages: ", res.data.message);
+
+            }
+        } else {
+            console.log("An error occurred in storeChatScopeMessages: ", res.originalError);
+        }
+    }
+
     async sendMessage(
         message: ChatMessage<MessageContentType.Other>,
         intervalId: number,
         conversationId: string,
         sender: unknown) {
-        let messages = await this.doMessagePhase(message)
 
-        this.messageReceived(new Date(), intervalId, conversationId, messages, sender)
-
+        let messages = await this.doMessagePhase(message);
+        this.messageReceived(new Date(), intervalId, conversationId, messages, sender);
+        // store the chatscope messages asynchronously
+        this.storeChatScopeMessages();
     }
 
 }

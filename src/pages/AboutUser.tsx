@@ -115,7 +115,6 @@ const AboutUser = () => {
             username,
             google_token,
             first_name,
-            last_name,
             gender,
             age,
           } = userdata;
@@ -127,7 +126,6 @@ const AboutUser = () => {
               username,
               google_token,
               first_name,
-              last_name,
               gender,
               age,
             })
