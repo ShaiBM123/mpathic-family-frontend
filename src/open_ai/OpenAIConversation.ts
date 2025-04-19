@@ -183,7 +183,7 @@ export class OpenAIChatConversation {
                         content_type: MessageContentType.TextPlain
                     })
                     addReply({
-                        content: { id: "observation_approval", observation: description_analysis.reflection_2nd_person_by_age_group },
+                        content: { id: "observation_approval", feelings: description_analysis.feelings },
                         content_type: MessageContentType.Other
                     })
                 }
@@ -247,6 +247,7 @@ export class OpenAIChatConversation {
             if (res?.ok) {
                 if (res.data.status === "success") {
                     this.storage.setCurrentUserSessionData(res.data.chatSessionData);
+
                     let bot_messages = this.buildBotResponse();
                     bot_message_replys = bot_messages.map((msg, idx) => {
                         return constructBotMsgReply({

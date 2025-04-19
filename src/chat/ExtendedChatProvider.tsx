@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 // import type { ReactNode } from "react";
-import {
-    ChatEventType
-} from "@chatscope/use-chat/dist/enums";
+// import {
+//     ChatEventType
+// } from "@chatscope/use-chat/dist/enums";
 
 import {
     useChat as useOriginalChat,
@@ -19,13 +19,14 @@ import type {
 
 import { ExtendedStorage, ExtendedChatState } from '../data/ExtendedStorage';
 import { UserMessagePhase } from '../open_ai/OpenAITypes';
-import { UserChatSessionData } from "../data/ChatSessionData";
+import { UserChatSessionData, UserFeeling } from "../data/ChatSessionData";
 
 export enum PhaseOperation { StartNewPhase = 1, KeepPhaseAndIncrement = 2, KeepPhase = 3 }
 
 interface ExtendedChatContextProps {
     setTopic: (value: string) => void;
     setSubTopic: (value: string) => void;
+    setCorrectedFeelings: (feelings: UserFeeling[]) => void;
     phase: UserMessagePhase;
     phaseCount: number;
     moreUserInputRequired: boolean;
@@ -128,6 +129,18 @@ export const ExtendedChatProvider = <S extends IChatService>({
     );
 
     /**
+* Set topic of message in current conversation
+* @param feelings
+*/
+    const setCorrectedFeelings = useCallback(
+        (feelings: UserFeeling[]) => {
+            storage.setCorrectedFeelings(feelings);
+            updateExtendedState();
+        },
+        [storage, updateExtendedState]
+    );
+
+    /**
      * Sets current phase and transition
      * @param {UserMessagePhase} phase
      * 
@@ -193,10 +206,11 @@ export const ExtendedChatProvider = <S extends IChatService>({
     // }, [storage, updateExtendedState])
 
     const extendedContextValue: ExtendedChatContextProps = {
-        setTopic, setSubTopic, setPhase, setCurrentUserSessionData, resetCurrentUserSessionData,
+        setTopic, setSubTopic, setCorrectedFeelings, setPhase,
+        setCurrentUserSessionData, resetCurrentUserSessionData,
         setMoreUserInputRequired, setFollowUpChatMessagesRequired,
         removeMessageFromActiveConversation, setMessagesInActiveConversation,
-        // addOpenAIHistoryText,
+
         moreUserInputRequired: state.moreUserInputRequired,
         followUpChatMessagesRequired: state.followUpChatMessagesRequired,
         phase: state.currentUserSessionData.user_phase, phaseCount: state.currentUserSessionData.phase_count

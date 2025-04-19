@@ -15,7 +15,7 @@ import { openAIModel, openAIConversationId } from "./data";
 // import { UserInRelationshipData } from "../data/UserInRelationshipData";
 import { BasicStorage, BasicStorageParams } from "@chatscope/use-chat";
 import { UserMessagePhase } from '../open_ai/OpenAITypes';
-import { UserChatSessionData } from "./ChatSessionData";
+import { UserChatSessionData, UserFeeling } from "./ChatSessionData";
 
 export interface ExtendedStorageParams extends Required<BasicStorageParams> {
 
@@ -79,13 +79,9 @@ export class ExtendedStorage<ConversationData = any>
             person_in_conflict: {},
             description_analysis: {}
         };
-        // this.phase = UserMessagePhase.Start;
-        // this.phaseCount = 0;
+
         this.moreUserInputRequired = true;
         this.followUpChatMessagesRequired = false;
-
-        // this.topic = '';
-        // this.subTopic = '';
 
         this.addUser(new User({
             id: openAIModel.name,
@@ -98,30 +94,10 @@ export class ExtendedStorage<ConversationData = any>
             bio: "מטפל וירטואלי בשיטת התקשורת המקרבת"
         }));
         this.addConversation(createConversation(openAIConversationId, openAIModel.name));
-
-        // this.userInRelationship = new User<UserInRelationshipData>({
-        //     /* actual ID is a phone number,it will be detected once the main user will enter 
-        //     the phone number of the user in relationship */
-        //     id: "972-00-0000000",
-        //     presence: new Presence({ status: UserStatus.Unknown, description: "" }),
-        //     firstName: "",
-        //     lastName: "",
-        //     username: "",
-        //     email: "",
-        //     avatar: undefined,
-        //     bio: "",
-        //     data: new UserInRelationshipData({})
-        // });
-
-        // this.openAIHistory = [{
-        //     role: "system",
-        //     content: "אתה מטפל בשיטת התקשורת המקרבת התפקיד שלך הוא לסייע למשתמשים ליישב בעיות בין אישיות בצורה אמפתית בשפה העברית."
-        // }];
     }
 
-
     /**
-* Sets topic
+* Sets current user session data
 * @param userSessionData
 */
     setCurrentUserSessionData(data: UserChatSessionData): void {
@@ -147,7 +123,7 @@ export class ExtendedStorage<ConversationData = any>
     }
 
     /**
-   * Sets topic
+   * Sets sub topic
    * @param subTopic
    */
     setSubTopic(subTopic: string): void {
@@ -156,7 +132,15 @@ export class ExtendedStorage<ConversationData = any>
     }
 
     /**
-   * Sets current phase
+* Sets user corrected feelings
+* @param feelings
+*/
+    setCorrectedFeelings(feelings: UserFeeling[]): void {
+        this.currentUserSessionData.session_meta_data.corrected_feelings = feelings;
+    }
+
+    /**
+   * Sets current phase count
    * @param phaseCount
    */
     setPhaseCount(phaseCount: number): void {
@@ -195,9 +179,6 @@ export class ExtendedStorage<ConversationData = any>
 * @param role
 * @param txt
 */
-    // addOpenAIHistoryText(role: "user" | "assistant" | "system", txt: string): void {
-    //     this.openAIHistory.push({ role: role, content: txt });
-    // }
 
     removeMessageFromActiveConversation(messageId: string): void {
         let activeConversation = super.getState().activeConversation;
@@ -234,14 +215,8 @@ export class ExtendedStorage<ConversationData = any>
         return {
             ...super.getState(),
             currentUserSessionData: this.currentUserSessionData,
-            // phase: this.phase,
-            // phaseCount: this.phaseCount,
             moreUserInputRequired: this.moreUserInputRequired,
             followUpChatMessagesRequired: this.followUpChatMessagesRequired,
-            // topic: this.topic,
-            // subTopic: this.subTopic,
-            // userInRelationship: this.userInRelationship,
-            // openAIHistory: this.openAIHistory
         }
     }
 

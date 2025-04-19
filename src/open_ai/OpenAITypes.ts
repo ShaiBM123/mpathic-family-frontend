@@ -8,19 +8,15 @@ export enum OpenAIContentType {
 
 export enum UserMessagePhase {
   Start = 0,
-  // FE_User1stTimeApproval = 1,
-  // FE_UserGender = 2,
-  // FE_UserName = 3,
-  // FE_UserAge = 4,
-  FE_MainTopic = 5,
-  FE_SubTopic = 6,
-  BE_PersonInConflictRelation = 7,
-  BE_PersonInConflictName = 8,
-  BE_PersonInConflictAge = 9,
-  BE_DescriptionAnalysis = 10,
-  BE_FeelingsProbe = 11,
-  BE_FeelingsAnalysis = 12,
-  BE_NeedsProbe = 13,
+  FE_MainTopic = 1,
+  FE_SubTopic = 2,
+  BE_PersonInConflictRelation = 3,
+  BE_PersonInConflictName = 4,
+  BE_PersonInConflictAge = 5,
+  BE_DescriptionAnalysis = 6,
+  FE_FeelingsProbe = 7,
+  BE_FeelingsAnalysis = 8,
+  BE_NeedsProbe = 9,
   TBD = 999,
   Unknown = 1000
 }

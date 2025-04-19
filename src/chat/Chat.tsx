@@ -55,13 +55,10 @@ export const Chat = ({ user }: { user: User }) => {
     // Get all chat related values and methods from useChat hook 
     const {
         currentMessages, activeConversation, setActiveConversation, sendMessage, addMessage, resetState,
-        getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping,
-        setCurrentUser, currentUser,
-        setTopic, setSubTopic, setPhase, setCurrentUserSessionData,
+        getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping, setCurrentUser, currentUser,
+        setTopic, setSubTopic, setCorrectedFeelings, setPhase, setCurrentUserSessionData,
         removeMessageFromActiveConversation, setMessagesInActiveConversation,
-        // addOpenAIHistoryText, 
         phase, phaseCount,
-        // removeMessagesFromConversation, moreUserInputRequired, followUpChatMessagesRequired, setFollowUpChatMessagesRequired
     } = useExtendedChat();
 
     const [isNumericInput, setIsNumericInput] = useState(false);
@@ -109,9 +106,9 @@ export const Chat = ({ user }: { user: User }) => {
         );
     }, [JWToken, currentUser, resetState, navigate]);
 
-    // useEffect(() => {
-    //     createActiveSessionIfNotExists();
-    // }, [createActiveSessionIfNotExists]);
+    useEffect(() => {
+        createActiveSessionIfNotExists();
+    }, [createActiveSessionIfNotExists]);
 
     const fetchUserActiveSessionData = useCallback(() => {
 
@@ -133,7 +130,9 @@ export const Chat = ({ user }: { user: User }) => {
                 )
                 .then((res: any) => {
                     if (res.data.status === "success") {
-                        setCurrentUserSessionData(res.data.chatSessionData);
+                        if (res.data.chatSessionData) {
+                            setCurrentUserSessionData(res.data.chatSessionData);
+                        }
                     } else {
                         console.log(res.data.message);
                         resetState();
@@ -148,9 +147,9 @@ export const Chat = ({ user }: { user: User }) => {
         );
     }, [JWToken, currentUser, resetState, navigate, setCurrentUserSessionData]);
 
-    // useEffect(() => {
-    //     fetchUserActiveSessionData();
-    // }, [fetchUserActiveSessionData]);
+    useEffect(() => {
+        fetchUserActiveSessionData();
+    }, [fetchUserActiveSessionData]);
 
 
     const fetchUserActiveSessionMessages = useCallback(() => {
@@ -508,10 +507,19 @@ export const Chat = ({ user }: { user: User }) => {
                                     (id) => {
                                         removeMessageFromActiveConversation(chat_msg.id)
                                         if (id === "ok") {
-                                            // addOpenAIHistoryText("assistant", obj.observation);
                                             addUserMsg(rtlTxt.captions.right);
-                                            addChatBotMsg(`כעת בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה`, MessageContentType.TextHtml)
-                                            setPhase(UserMessagePhase.BE_FeelingsProbe)
+
+                                            addChatBotMsg(rtlTxt.chat.feelingsAdjustmentGuidelines[uGenderKey], MessageContentType.TextHtml)
+                                            addChatBotMsg(
+                                                {
+                                                    feelings: obj.feelings,
+                                                    active: true,
+                                                    selected: false,
+                                                    id: "feelings"
+                                                }, MessageContentType.Other);
+
+                                            // addChatBotMsg(`כעת בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה`, MessageContentType.TextHtml)
+                                            setPhase(UserMessagePhase.FE_FeelingsProbe)
                                         }
                                         else if (id === "not-accurate") {
                                             addUserMsg(rtlTxt.captions.notAccurate);
@@ -535,6 +543,8 @@ export const Chat = ({ user }: { user: User }) => {
                                     obj.active = false
                                     obj.feelings = new_feelings
                                     updateMessage(chat_msg)
+                                    setCorrectedFeelings(new_feelings)
+                                    setPhase(UserMessagePhase.BE_FeelingsAnalysis)
                                     doSend(prompt_msg)
                                 }}
                             />
