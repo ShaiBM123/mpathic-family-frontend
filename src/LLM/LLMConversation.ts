@@ -3,22 +3,22 @@ import { MessageContent } from "@chatscope/use-chat/dist/interfaces";
 import { MessageContentType, MessageDirection, MessageStatus } from "@chatscope/use-chat/dist/enums";
 import { IStorage } from "@chatscope/use-chat/dist/interfaces";
 import {
-    OpenAIBotMessage,
-    OpenAIMessageReceivedType,
+    LLMBotMessage,
+    LLMMessageReceivedType,
     UserMessageContent,
     MsgContentData,
-    UserMessagePhase
-} from './OpenAITypes';
+    UserPhase
+} from './LLMTypes';
 import { ChatMessage } from "@chatscope/use-chat";
-import { openAIModel, RelationshipCategory, Gender } from "../data/data";
-import { relationships } from './PersonalRelationships';
+import { AIModel } from "../data/data";
+// import { relationships } from './PersonalRelationships';
 // import { OpenAIPromptManager } from './OpenAIPromptingManager';
 import { UpdateState } from "@chatscope/use-chat/dist/Types";
 import { ExtendedStorage } from "../data/ExtendedStorage";
 import { ageCategory } from '../AppUtils';
-import { UserChatSessionData } from "../data/ChatSessionData";
+// import { UserChatSessionData } from "../data/ChatSessionData";
 import callApi from "../lib/apisauce/callApi";
-import { queryString } from "../AppUtils";
+// import { queryString } from "../AppUtils";
 import type { ApiResponse } from "apisauce/apisauce";
 import rtlTxt from '../rtl-text.json';
 
@@ -35,61 +35,61 @@ export type BotMsgReplyProps = {
     msgContentType: MessageContentType
 }
 
-export class OpenAIChatConversation {
+export class LLMChatConversation {
     storage: ExtendedStorage;
     update: UpdateState;
-    messageReceived: OpenAIMessageReceivedType;
-    openAIUser: string;
+    messageReceived: LLMMessageReceivedType;
+    AIUser: string;
 
-    constructor(messageReceived: OpenAIMessageReceivedType, storage: IStorage, update: UpdateState) {
+    constructor(messageReceived: LLMMessageReceivedType, storage: IStorage, update: UpdateState) {
         this.storage = storage as ExtendedStorage;
         this.update = update;
         this.messageReceived = messageReceived;
-        this.openAIUser = openAIModel.name
+        this.AIUser = AIModel.name
     }
 
-    private genderName(gender: Gender | undefined): 'female' | 'male' {
-        return gender === Gender.Female ? 'female' : 'male';
-    }
+    // private genderName(gender: Gender | undefined): 'female' | 'male' {
+    //     return gender === Gender.Female ? 'female' : 'male';
+    // }
 
-    private doNextPhase = (nextPhase: UserMessagePhase) => {
-        const { currentUserSessionData: sData } = (this.storage as ExtendedStorage)?.getState();
+    // private doNextPhase = (nextPhase: UserMessagePhase) => {
+    //     const { currentUserSessionData: sData } = (this.storage as ExtendedStorage)?.getState();
 
-        let phase = sData.user_phase;
-        let phaseCount = sData.phase_count || 0;
+    //     let phase = sData.user_phase;
+    //     let phaseCount = sData.phase_count || 0;
 
-        if (nextPhase === phase) {
-            this.storage?.setPhaseCount(phaseCount + 1);
-        }
-        else {
-            this.storage?.setPhase(nextPhase);
-            this.storage?.setPhaseCount(0);
-        }
-    }
+    //     if (nextPhase === phase) {
+    //         this.storage?.setPhaseCount(phaseCount + 1);
+    //     }
+    //     else {
+    //         this.storage?.setPhase(nextPhase);
+    //         this.storage?.setPhaseCount(0);
+    //     }
+    // }
 
-    private generateFollowUpText = (phase: UserMessagePhase): string => {
+    private generateFollowUpText = (phase: UserPhase): string => {
         const { currentUser, currentUserSessionData: sData } = (this.storage as ExtendedStorage)?.getState();
 
         let uGenderKey = currentUser?.data.gender as 'female' | 'male';
         let u2GenderKey = sData.person_in_conflict.relationship?.gender as 'female' | 'male';
 
         switch (phase) {
-            case UserMessagePhase.BE_PersonInConflictName:
+            case UserPhase.BE_PersonInConflictName:
                 return rtlTxt.chat.askWhatIsTheNameOfPersonInConflict[u2GenderKey];
-            case UserMessagePhase.BE_DescriptionAnalysis:
+            case UserPhase.BE_DescriptionAnalysis:
                 return rtlTxt.chat.callForSituationInfo[uGenderKey];
-            case UserMessagePhase.BE_PersonInConflictAge:
+            case UserPhase.BE_PersonInConflictAge:
                 return rtlTxt.chat.askHowOldPersonInConflict[u2GenderKey];
             default:
                 return ``;
         }
     }
 
-    private buildBotResponse = () => {
+    private buildBotResponse = (phase: UserPhase) => {
         const { currentUser, currentUserSessionData: sData } =
             (this.storage as ExtendedStorage)?.getState();
 
-        let phase = sData.user_phase;
+        let next_phase = sData.user_phase;
         // let uName = currentUser?.firstName as string;
         let uGenderKey = currentUser?.data.gender as 'female' | 'male';
         let uAge = currentUser?.data.age;
@@ -106,67 +106,39 @@ export class OpenAIChatConversation {
             replys.push({ content: content, content_type: content_type })
         }
 
-        // let assistant_msg;
-        let next_phase = phase;
-
-        // let parsed_msg = Object(bot_msg.parsed)
-
         switch (phase) {
 
-            case UserMessagePhase.BE_PersonInConflictRelation:
-                let rel = sData.person_in_conflict.relationship
-                if (!rel) {
+            case UserPhase.BE_PersonInConflictRelation:
+                if (!sData.person_in_conflict.relationship) {
                     addReply({ content: rtlTxt.chat.complainAboutPersonInConflictRelationIsIncomplete[uGenderKey][uAgeCategory] })
                 }
                 else {
                     more_input_required = false;
-
-                    if (relationships({ category: RelationshipCategory.Parents }).includes(rel.relationship_to_user)) {
-                        next_phase = UserMessagePhase.BE_DescriptionAnalysis;
-                    }
-                    else {
-                        next_phase = UserMessagePhase.BE_PersonInConflictName;
-                    }
-
                     addReply({ content: this.generateFollowUpText(next_phase) });
                 }
-
                 break;
 
-            case UserMessagePhase.BE_PersonInConflictName:
-                let rel_to_user = sData.person_in_conflict.relationship?.relationship_to_user
-                let first_name = sData.person_in_conflict.name?.first_name
-                if (!first_name) {
+            case UserPhase.BE_PersonInConflictName:
+                if (!sData.person_in_conflict.name?.first_name) {
                     addReply({ content: rtlTxt.chat.complainAboutPersonInConflictName[uGenderKey][u2GenderKey] })
 
                 } else {
                     more_input_required = false;
-
-                    if (relationships({ category: RelationshipCategory.SiblingsOrChildren }).includes(rel_to_user as string)) {
-                        next_phase = UserMessagePhase.BE_PersonInConflictAge;
-                    }
-                    else {
-                        next_phase = UserMessagePhase.BE_DescriptionAnalysis;
-                    }
                     addReply({ content: this.generateFollowUpText(next_phase) });
                 }
-
                 break;
 
-            case UserMessagePhase.BE_PersonInConflictAge:
-                let age = sData.person_in_conflict.age
-                if (!age) {
+            case UserPhase.BE_PersonInConflictAge:
+                if (!sData.person_in_conflict.age) {
                     addReply({ content: rtlTxt.chat.complainAboutPersonInConflictAge[u2GenderKey] })
 
                 } else {
                     more_input_required = false;
-                    next_phase = UserMessagePhase.BE_DescriptionAnalysis;
                     addReply({ content: this.generateFollowUpText(next_phase) })
                 }
-
                 break;
 
-            case UserMessagePhase.BE_DescriptionAnalysis:
+            case UserPhase.BE_DescriptionAnalysis:
                 let description_analysis = sData.description_analysis;
                 if (!description_analysis.description_is_complete) {
                     addReply({ content: description_analysis.more_details_request })
@@ -176,7 +148,6 @@ export class OpenAIChatConversation {
                     more_input_required = false;
                     // phase is unknown at that point because the user can decide he is not 
                     // satisfied with the given observation and keep feeding more information
-                    // next_phase = UserMessagePhase.Unknown;
 
                     addReply({
                         content: description_analysis.reflection_2nd_person_by_age_group,
@@ -194,7 +165,7 @@ export class OpenAIChatConversation {
         }
 
         this.storage.setMoreUserInputRequired(more_input_required);
-        this.doNextPhase(next_phase)
+        // this.doNextPhase(next_phase)
         this.update();
         return replys;
     }
@@ -210,8 +181,8 @@ export class OpenAIChatConversation {
 
         let msg_content = user_message.content as UserMessageContent
         let msg = msg_content.user_text
-
-        let bot_message_replys: Array<OpenAIBotMessage> = []
+        let bot_message_replys: Array<LLMBotMessage> = []
+        let phase = sData.user_phase;
 
         const constructBotMsgReply = ({
             msgIdx,
@@ -226,7 +197,7 @@ export class OpenAIChatConversation {
                 direction: MessageDirection.Incoming,
                 contentType: msgContentType,
                 createdTime: user_message.createdTime,
-                senderId: this.openAIUser,
+                senderId: this.AIUser,
                 id: user_message.id.concat('-', String(msgIdx + 1)),
                 content: msgContent as unknown as MessageContent<MessageContentType.Other>
             }
@@ -248,7 +219,8 @@ export class OpenAIChatConversation {
                 if (res.data.status === "success") {
                     this.storage.setCurrentUserSessionData(res.data.chatSessionData);
 
-                    let bot_messages = this.buildBotResponse();
+                    let bot_messages = this.buildBotResponse(phase);
+
                     bot_message_replys = bot_messages.map((msg, idx) => {
                         return constructBotMsgReply({
                             msgIdx: idx,
@@ -321,7 +293,7 @@ export class OpenAIChatConversation {
 
         let messages = await this.doMessagePhase(message);
         this.messageReceived(new Date(), intervalId, conversationId, messages, sender);
-        // store the chatscope messages asynchronously
+        // store the chat messages asynchronously
         this.storeChatScopeMessages();
     }
 

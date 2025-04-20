@@ -29,11 +29,11 @@ export const avatars = {
 }
 
 
-export const openAIModel = {
+export const AIModel = {
   name: "OpenAI",
   avatar: mpathicAvatar,
 };
 
-export const openAIConversationId = nanoid();
+export const AIConversationId = nanoid();
 
 // export const users = [openAIModel];

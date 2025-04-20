@@ -2,11 +2,11 @@ import { MessageContentType } from "@chatscope/use-chat/dist/enums";
 import { MessageContent } from "@chatscope/use-chat/dist/interfaces"
 import { ChatMessage } from "@chatscope/use-chat/dist";
 
-export enum OpenAIContentType {
+export enum LLMContentType {
   JSON = 10
 }
 
-export enum UserMessagePhase {
+export enum UserPhase {
   Start = 0,
   FE_MainTopic = 1,
   FE_SubTopic = 2,
@@ -26,7 +26,7 @@ export interface UserMessageContent extends MessageContent<MessageContentType> {
   // phase: UserMessagePhase;
 }
 
-export interface OpenAIBotMessage extends ChatMessage<MessageContentType> {
+export interface LLMBotMessage extends ChatMessage<MessageContentType> {
 
   /**
    * The index of the choice in the list of choices.
@@ -39,11 +39,11 @@ export interface OpenAIBotMessage extends ChatMessage<MessageContentType> {
 
 };
 
-export interface OpenAIMessageReceivedType {
-  (created: Date, intervalId: number, conversationId: string, messages: Array<OpenAIBotMessage>, sender: unknown): void;
+export interface LLMMessageReceivedType {
+  (created: Date, intervalId: number, conversationId: string, messages: Array<LLMBotMessage>, sender: unknown): void;
 }
 
-export interface OpenAIGeneratingMessageType {
+export interface LLMGeneratingMessageType {
   (conversationId: string, userId: string): void;
 }
 

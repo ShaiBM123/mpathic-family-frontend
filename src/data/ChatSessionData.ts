@@ -1,4 +1,4 @@
-import { UserMessagePhase } from '../open_ai/OpenAITypes';
+import { UserPhase } from '../LLM/LLMTypes';
 
 export type UserFeeling = {
     emotion_name: string;
@@ -6,7 +6,7 @@ export type UserFeeling = {
 }
 
 export type UserChatSessionData = {
-    user_phase: UserMessagePhase,
+    user_phase: UserPhase,
     phase_count: number,
     // session meta data is all data set explicitly by the user using the chat interface 
     session_meta_data: {

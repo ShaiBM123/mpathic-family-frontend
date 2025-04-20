@@ -18,7 +18,7 @@ import type {
 } from "@chatscope/use-chat";
 
 import { ExtendedStorage, ExtendedChatState } from '../data/ExtendedStorage';
-import { UserMessagePhase } from '../open_ai/OpenAITypes';
+import { UserPhase } from '../LLM/LLMTypes';
 import { UserChatSessionData, UserFeeling } from "../data/ChatSessionData";
 
 export enum PhaseOperation { StartNewPhase = 1, KeepPhaseAndIncrement = 2, KeepPhase = 3 }
@@ -27,13 +27,13 @@ interface ExtendedChatContextProps {
     setTopic: (value: string) => void;
     setSubTopic: (value: string) => void;
     setCorrectedFeelings: (feelings: UserFeeling[]) => void;
-    phase: UserMessagePhase;
+    phase: UserPhase;
     phaseCount: number;
     moreUserInputRequired: boolean;
     followUpChatMessagesRequired: boolean;
     setMoreUserInputRequired: (moreInputRequired: boolean) => void;
     setFollowUpChatMessagesRequired: (followUpChatMessagesRequired: boolean) => void;
-    setPhase: (phase: UserMessagePhase) => void;
+    setPhase: (phase: UserPhase) => void;
     removeMessageFromActiveConversation: (messageId: string) => void;
     // addOpenAIHistoryText: (role: "user" | "assistant" | "system", txt: string) => void;
     setCurrentUserSessionData: (data: UserChatSessionData) => void;
@@ -142,11 +142,11 @@ export const ExtendedChatProvider = <S extends IChatService>({
 
     /**
      * Sets current phase and transition
-     * @param {UserMessagePhase} phase
+     * @param {UserPhase} phase
      * 
      */
     const setPhase = useCallback(
-        (phase: UserMessagePhase) => {
+        (phase: UserPhase) => {
 
             if (storage.getState().currentUserSessionData.user_phase === phase) {
 

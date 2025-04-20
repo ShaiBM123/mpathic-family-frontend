@@ -13,14 +13,14 @@ import {
 import { IStorage } from "@chatscope/use-chat/dist/interfaces";
 import { ChatEvent, MessageEvent, UserTypingEvent } from "@chatscope/use-chat/dist/events";
 import { ChatMessage } from "@chatscope/use-chat/dist/ChatMessage";
-import {OpenAIChatConversation} from "../open_ai/OpenAIConversation"
+import { LLMChatConversation } from "../LLM/LLMConversation"
 import {
-  OpenAIBotMessage, 
-  OpenAIMessageReceivedType, 
-  OpenAIGeneratingMessageType
-} from '../open_ai/OpenAITypes';
+  LLMBotMessage,
+  LLMMessageReceivedType,
+  LLMGeneratingMessageType
+} from '../LLM/LLMTypes';
 // import {OpenAIPromptManager} from "../open_ai/OpenAIPromptingManager";
-import {openAIModel} from "../data/data";
+import { AIModel } from "../data/data";
 // import { BasicStorage } from "@chatscope/use-chat";
 // import {ExtendedStorage } from "../data/ExtendedStorage";
 // import 'dotenv/config'
@@ -59,22 +59,22 @@ export class ChatService implements IChatService {
   storage?: IStorage;
   updateState: UpdateState;
   // openAIPromptMngr: OpenAIPromptManager;
-  openAIChatConv: OpenAIChatConversation;
+  openAIChatConv: LLMChatConversation;
 
   eventHandlers: EventHandlers = {
-    onMessage: () => {},
-    onConnectionStateChanged: () => {},
-    onUserConnected: () => {},
-    onUserDisconnected: () => {},
-    onUserPresenceChanged: () => {},
-    onUserTyping: () => {},
+    onMessage: () => { },
+    onConnectionStateChanged: () => { },
+    onUserConnected: () => { },
+    onUserDisconnected: () => { },
+    onUserPresenceChanged: () => { },
+    onUserTyping: () => { },
   };
 
   constructor(storage: IStorage, update: UpdateState) {
     this.storage = storage;
     this.updateState = update;
 
-    this.openAIChatConv = new OpenAIChatConversation( this.onOpenAIChatMessagesReceived, storage, update)
+    this.openAIChatConv = new LLMChatConversation(this.onOpenAIChatMessagesReceived, storage, update)
 
     // For communication we use CustomEvent dispatched to the window object.
     // It allows you to simulate sending and receiving data from the server.
@@ -82,82 +82,80 @@ export class ChatService implements IChatService {
     // you will implement here receiving data from your chat server.
 
 
-  //   window.addEventListener("chat-protocol", (evt: Event) => {
-  //     const event = evt as CustomEvent;
+    //   window.addEventListener("chat-protocol", (evt: Event) => {
+    //     const event = evt as CustomEvent;
 
-  //     const {
-  //       detail: { type },
-  //       detail,
-  //     } = event;
+    //     const {
+    //       detail: { type },
+    //       detail,
+    //     } = event;
 
-  //     if (type === "message") {
-  //       const message = detail.message as ChatMessage<MessageContentType.TextHtml>;
+    //     if (type === "message") {
+    //       const message = detail.message as ChatMessage<MessageContentType.TextHtml>;
 
-  //       message.direction = MessageDirection.Incoming;
-  //       const { conversationId } = detail;
-  //       if (this.eventHandlers.onMessage && detail.sender !== this) {
-  //         // Running the onMessage callback registered by ChatProvider will cause:
-  //         // 1. Add a message to the conversation to which the message was sent
-  //         // 2. If a conversation with the given id exists and is not active,
-  //         //    its unreadCounter will be incremented
-  //         // 3. Remove information about the sender who is writing from the conversation
-  //         // 4. Re-render
-  //         //
-  //         // Note!
-  //         // If a conversation with such id does not exist,
-  //         // the message will be added, but the conversation object will not be created.
-  //         // You have to take care of such a case yourself.
-  //         // You can check here if there is already a conversation in storage.
-  //         // If it is not there, you can create it before calling onMessage.
-  //         // After adding a conversation to the list, you don't need to manually run updateState
-  //         // because ChatProvider in onMessage will do it.
-  //         this.eventHandlers.onMessage(
-  //           new MessageEvent({ message, conversationId })
-  //         );
-  //       }
-  //     } else if (type === "typing") {
-  //       const { userId, isTyping, conversationId, content, sender } = detail;
+    //       message.direction = MessageDirection.Incoming;
+    //       const { conversationId } = detail;
+    //       if (this.eventHandlers.onMessage && detail.sender !== this) {
+    //         // Running the onMessage callback registered by ChatProvider will cause:
+    //         // 1. Add a message to the conversation to which the message was sent
+    //         // 2. If a conversation with the given id exists and is not active,
+    //         //    its unreadCounter will be incremented
+    //         // 3. Remove information about the sender who is writing from the conversation
+    //         // 4. Re-render
+    //         //
+    //         // Note!
+    //         // If a conversation with such id does not exist,
+    //         // the message will be added, but the conversation object will not be created.
+    //         // You have to take care of such a case yourself.
+    //         // You can check here if there is already a conversation in storage.
+    //         // If it is not there, you can create it before calling onMessage.
+    //         // After adding a conversation to the list, you don't need to manually run updateState
+    //         // because ChatProvider in onMessage will do it.
+    //         this.eventHandlers.onMessage(
+    //           new MessageEvent({ message, conversationId })
+    //         );
+    //       }
+    //     } else if (type === "typing") {
+    //       const { userId, isTyping, conversationId, content, sender } = detail;
 
-  //       if (this.eventHandlers.onUserTyping && sender !== this) {
-  //         // Running the onUserTyping callback registered by ChatProvider will cause:
-  //         // 1. Add the user to the list of users who are typing in the conversation
-  //         // 2. Debounce
-  //         // 3. Re-render
-  //         this.eventHandlers.onUserTyping(
-  //           new UserTypingEvent({
-  //             userId,
-  //             isTyping,
-  //             conversationId,
-  //             content,
-  //           })
-  //         );
-  //       }
-  //     }
-  //   });
+    //       if (this.eventHandlers.onUserTyping && sender !== this) {
+    //         // Running the onUserTyping callback registered by ChatProvider will cause:
+    //         // 1. Add the user to the list of users who are typing in the conversation
+    //         // 2. Debounce
+    //         // 3. Re-render
+    //         this.eventHandlers.onUserTyping(
+    //           new UserTypingEvent({
+    //             userId,
+    //             isTyping,
+    //             conversationId,
+    //             content,
+    //           })
+    //         );
+    //       }
+    //     }
+    //   });
   }
 
-  onOpenAIGeneratingMessage:OpenAIGeneratingMessageType = (conversationId: string, userId: string) =>
-  {
-        if (this.eventHandlers.onUserTyping) {
-            // Running the onUserTyping callback registered by ChatProvider will cause:
-            // 1. Add the user to the list of users who are typing in the conversation
-            // 2. Debounce
-            // 3. Re-render
-            this.eventHandlers.onUserTyping(
-              new UserTypingEvent({
-                userId,
-                isTyping: true,
-                conversationId,
-                content: "",
-              })
-            );
-        }
+  onOpenAIGeneratingMessage: LLMGeneratingMessageType = (conversationId: string, userId: string) => {
+    if (this.eventHandlers.onUserTyping) {
+      // Running the onUserTyping callback registered by ChatProvider will cause:
+      // 1. Add the user to the list of users who are typing in the conversation
+      // 2. Debounce
+      // 3. Re-render
+      this.eventHandlers.onUserTyping(
+        new UserTypingEvent({
+          userId,
+          isTyping: true,
+          conversationId,
+          content: "",
+        })
+      );
+    }
   }
 
 
-  onOpenAIChatMessagesReceived: OpenAIMessageReceivedType = (
-    created, intervalId, conversationId, messages: Array<OpenAIBotMessage>, sender: unknown) =>
-  {
+  onOpenAIChatMessagesReceived: LLMMessageReceivedType = (
+    created, intervalId, conversationId, messages: Array<LLMBotMessage>, sender: unknown) => {
     clearInterval(intervalId);
 
     for (let msg of messages) {
@@ -165,7 +163,7 @@ export class ChatService implements IChatService {
 
       if (this.eventHandlers.onMessage) {
         this.eventHandlers.onMessage(
-          new MessageEvent({ message , conversationId })
+          new MessageEvent({ message, conversationId })
         );
       }
     }
@@ -189,9 +187,9 @@ export class ChatService implements IChatService {
     // window.dispatchEvent(messageEvent);
 
     var intervalId = window.setInterval(
-      function(msgIsGenerated: OpenAIGeneratingMessageType){
-        msgIsGenerated(conversationId, openAIModel.name)
-    }, 200, this.onOpenAIGeneratingMessage);
+      function (msgIsGenerated: LLMGeneratingMessageType) {
+        msgIsGenerated(conversationId, AIModel.name)
+      }, 200, this.onOpenAIGeneratingMessage);
 
     // Async call
     this.openAIChatConv.sendMessage(message, intervalId, conversationId, this)
@@ -249,7 +247,7 @@ export class ChatService implements IChatService {
   ) {
     const key = `on${evtType.charAt(0).toUpperCase()}${evtType.substring(1)}`;
     if (key in this.eventHandlers) {
-      this.eventHandlers[key] = () => {};
+      this.eventHandlers[key] = () => { };
     }
   }
 }

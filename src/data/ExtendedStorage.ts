@@ -11,10 +11,10 @@ import {
     MessageGroup
 } from "@chatscope/use-chat";
 
-import { openAIModel, openAIConversationId } from "./data";
+import { AIModel, AIConversationId } from "./data";
 // import { UserInRelationshipData } from "../data/UserInRelationshipData";
 import { BasicStorage, BasicStorageParams } from "@chatscope/use-chat";
-import { UserMessagePhase } from '../open_ai/OpenAITypes';
+import { UserPhase } from '../LLM/LLMTypes';
 import { UserChatSessionData, UserFeeling } from "./ChatSessionData";
 
 export interface ExtendedStorageParams extends Required<BasicStorageParams> {
@@ -73,7 +73,7 @@ export class ExtendedStorage<ConversationData = any>
         super({ groupIdGenerator, messageIdGenerator })
 
         this.currentUserSessionData = {
-            user_phase: UserMessagePhase.Start,
+            user_phase: UserPhase.Start,
             phase_count: 0,
             session_meta_data: {},
             person_in_conflict: {},
@@ -84,16 +84,16 @@ export class ExtendedStorage<ConversationData = any>
         this.followUpChatMessagesRequired = false;
 
         this.addUser(new User({
-            id: openAIModel.name,
+            id: AIModel.name,
             presence: new Presence({ status: UserStatus.Available, description: "" }),
             firstName: "",
             lastName: "",
-            username: openAIModel.name,
+            username: AIModel.name,
             email: "",
-            avatar: openAIModel.avatar,
+            avatar: AIModel.avatar,
             bio: "מטפל וירטואלי בשיטת התקשורת המקרבת"
         }));
-        this.addConversation(createConversation(openAIConversationId, openAIModel.name));
+        this.addConversation(createConversation(AIConversationId, AIModel.name));
     }
 
     /**
@@ -106,7 +106,7 @@ export class ExtendedStorage<ConversationData = any>
 
     resetCurrentUserSessionData(): void {
         this.currentUserSessionData = {
-            user_phase: UserMessagePhase.Start,
+            user_phase: UserPhase.Start,
             phase_count: 0,
             session_meta_data: {},
             person_in_conflict: {},
@@ -152,7 +152,7 @@ export class ExtendedStorage<ConversationData = any>
    * Sets current phase
    * @param phase
    */
-    setPhase(phase: UserMessagePhase): void {
+    setPhase(phase: UserPhase): void {
         this.currentUserSessionData.user_phase = phase;
         // this.phase = phase;
     }
