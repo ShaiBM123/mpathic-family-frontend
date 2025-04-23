@@ -32,7 +32,7 @@ import { UserMessageContent, UserPhase } from "../LLM/LLMTypes";
 import { Gender, AIModel, AIConversationId } from "../data/data";
 import { interPersonalTopicsDictionary } from "../components/inter-personal-topics/InterPersonalTopics";
 import { FeelingsScale } from "../components/feelings-scale/FeelingsScale";
-import { TypingText } from "../components/typing-text/TypingText";
+// import { TypingText } from "../components/typing-text/TypingText";
 // import { completeUserPartOfSpeech } from "../open_ai/OpenAIPromptingManager"
 import { OptionButtonsInColumn, OptionButtonsInRow } from "../components/option-buttons-list/OptionButtonsInList";
 import { formatMessage, enumKeyStartsWith } from "../AppUtils";
@@ -54,11 +54,13 @@ export const Chat = ({ user }: { user: User }) => {
 
     // Get all chat related values and methods from useChat hook 
     const {
+        service,
         currentMessages, activeConversation, setActiveConversation, sendMessage, addMessage, resetState,
         getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping, setCurrentUser, currentUser,
-        setTopic, setSubTopic, setCorrectedFeelings, setPhase, setCurrentUserSessionData,
+        setTopic, setSubTopic, setCorrectedFeelings, setPhase,
+        setCurrentUserSessionData, currentUserSessionData: sData,
         removeMessageFromActiveConversation, setMessagesInActiveConversation,
-        phase, phaseCount,
+        phase,
     } = useExtendedChat();
 
     const [isNumericInput, setIsNumericInput] = useState(false);
@@ -342,6 +344,9 @@ export const Chat = ({ user }: { user: User }) => {
                 //     break;
             }
         }
+        else if (phase >= UserPhase.BE_NeedsAnalysis) {
+            addChatBotMsg("אני מתוכנת עד לשלב זה !", MessageContentType.TextPlain);
+        }
         else {
             const message = createUserMessage(text);
             if (activeConversation) {
@@ -377,6 +382,11 @@ export const Chat = ({ user }: { user: User }) => {
 
         }, [activeConversation, getUser],
     );
+
+    const setTextMessageBold = (m: ChatMessage<MessageContentType.TextHtml>) => {
+        m.content = `<b>${m.content}</b>` as any;
+        updateMessage(m);
+    }
 
     const createMessageModel =
         (chat_msg: ChatMessage<MessageContentType>) => {
@@ -504,6 +514,8 @@ export const Chat = ({ user }: { user: User }) => {
                                 ]}
                                 onButtonClick={
                                     (id) => {
+                                        setTextMessageBold(currentMessages.at(-1)?.messages[0] as ChatMessage<MessageContentType>)
+
                                         removeMessageFromActiveConversation(chat_msg.id)
                                         if (id === "ok") {
                                             addUserMsg(rtlTxt.captions.right);
@@ -517,12 +529,12 @@ export const Chat = ({ user }: { user: User }) => {
                                                     id: "feelings"
                                                 }, MessageContentType.Other);
 
-                                            // addChatBotMsg(`כעת בבקשה פרט קצת יותר על התחושות שלך בנוגע לכל מה שקרה`, MessageContentType.TextHtml)
-                                            setPhase(UserPhase.FE_FeelingsProbe)
+                                            setPhase(UserPhase.BE_FeelingsAnalysis)
                                         }
                                         else if (id === "not-accurate") {
                                             addUserMsg(rtlTxt.captions.notAccurate);
-                                            let msg = phaseCount <= 1 ?
+                                            let rc = sData.description_analysis.refinement_count || 0;
+                                            let msg = rc <= 0 ?
                                                 rtlTxt.chat.initialCallForMoreAccurateInfo[uGenderKey]
                                                 :
                                                 rtlTxt.chat.callForMoreAccurateInfo[uGenderKey]
@@ -543,8 +555,8 @@ export const Chat = ({ user }: { user: User }) => {
                                     obj.feelings = new_feelings
                                     updateMessage(chat_msg)
                                     setCorrectedFeelings(new_feelings)
-                                    setPhase(UserPhase.BE_FeelingsAnalysis)
-                                    doSend(prompt_msg)
+                                    // send message directly from chat service to the server
+                                    service.sendMessage({ message: createUserMessage(prompt_msg), conversationId: AIConversationId })
                                 }}
                             />
                     }

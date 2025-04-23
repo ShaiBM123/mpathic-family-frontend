@@ -28,7 +28,6 @@ interface ExtendedChatContextProps {
     setSubTopic: (value: string) => void;
     setCorrectedFeelings: (feelings: UserFeeling[]) => void;
     phase: UserPhase;
-    phaseCount: number;
     moreUserInputRequired: boolean;
     followUpChatMessagesRequired: boolean;
     setMoreUserInputRequired: (moreInputRequired: boolean) => void;
@@ -36,6 +35,7 @@ interface ExtendedChatContextProps {
     setPhase: (phase: UserPhase) => void;
     removeMessageFromActiveConversation: (messageId: string) => void;
     // addOpenAIHistoryText: (role: "user" | "assistant" | "system", txt: string) => void;
+    currentUserSessionData: UserChatSessionData;
     setCurrentUserSessionData: (data: UserChatSessionData) => void;
     resetCurrentUserSessionData: () => void;
     setMessagesInActiveConversation(messages: Array<MessageGroup>): void;
@@ -147,16 +147,7 @@ export const ExtendedChatProvider = <S extends IChatService>({
      */
     const setPhase = useCallback(
         (phase: UserPhase) => {
-
-            if (storage.getState().currentUserSessionData.user_phase === phase) {
-
-                storage.setPhaseCount(storage.getState().currentUserSessionData.phase_count + 1);
-            }
-            else {
-                storage.setPhase(phase);
-                storage.setPhaseCount(0);
-            }
-
+            storage.setPhase(phase);
             updateExtendedState();
         },
         [storage, updateExtendedState]
@@ -213,7 +204,8 @@ export const ExtendedChatProvider = <S extends IChatService>({
 
         moreUserInputRequired: state.moreUserInputRequired,
         followUpChatMessagesRequired: state.followUpChatMessagesRequired,
-        phase: state.currentUserSessionData.user_phase, phaseCount: state.currentUserSessionData.phase_count
+        phase: state.currentUserSessionData.user_phase,
+        currentUserSessionData: state.currentUserSessionData,
     };
 
     // Create serviceFactory

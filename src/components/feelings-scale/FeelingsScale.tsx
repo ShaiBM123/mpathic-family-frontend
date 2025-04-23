@@ -99,7 +99,7 @@ export const FeelingsScale = ({ feelings, active, onRescaleDone }: FeelingsScale
     // const itemsRef = useRef(new Array());
     const composePromptMsg = () => {
         let msg = scales.map((s) => { return ` ${s.emotion_name} בעוצמה ${s.emotion_intensity} ` }).join(' ')
-        return `אני מרגיש את התחושות הבאות בסולם של אחת עד עשר: ${msg}`
+        return `בסולם של אחת עד עשר: ${msg}`
     }
 
     return (

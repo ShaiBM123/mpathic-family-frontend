@@ -24,7 +24,6 @@ export interface ExtendedStorageParams extends Required<BasicStorageParams> {
 export type ExtendedChatState = {
     currentUserSessionData: UserChatSessionData,
     // phase: UserMessagePhase,
-    // phaseCount: number,
     moreUserInputRequired: boolean,
     followUpChatMessagesRequired: boolean,
     // topic: string,
@@ -74,10 +73,10 @@ export class ExtendedStorage<ConversationData = any>
 
         this.currentUserSessionData = {
             user_phase: UserPhase.Start,
-            phase_count: 0,
             session_meta_data: {},
             person_in_conflict: {},
-            description_analysis: {}
+            description_analysis: {},
+            feelings_analysis: {}
         };
 
         this.moreUserInputRequired = true;
@@ -107,10 +106,10 @@ export class ExtendedStorage<ConversationData = any>
     resetCurrentUserSessionData(): void {
         this.currentUserSessionData = {
             user_phase: UserPhase.Start,
-            phase_count: 0,
             session_meta_data: {},
             person_in_conflict: {},
-            description_analysis: {}
+            description_analysis: {},
+            feelings_analysis: {}
         };
     }
     /**
@@ -137,15 +136,6 @@ export class ExtendedStorage<ConversationData = any>
 */
     setCorrectedFeelings(feelings: UserFeeling[]): void {
         this.currentUserSessionData.session_meta_data.corrected_feelings = feelings;
-    }
-
-    /**
-   * Sets current phase count
-   * @param phaseCount
-   */
-    setPhaseCount(phaseCount: number): void {
-        this.currentUserSessionData.phase_count = phaseCount;
-        // this.phaseCount = phaseCount;
     }
 
     /**

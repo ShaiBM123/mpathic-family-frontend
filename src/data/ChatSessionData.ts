@@ -7,7 +7,6 @@ export type UserFeeling = {
 
 export type UserChatSessionData = {
     user_phase: UserPhase,
-    phase_count: number,
     // session meta data is all data set explicitly by the user using the chat interface 
     session_meta_data: {
         topic?: string,
@@ -28,8 +27,12 @@ export type UserChatSessionData = {
     description_analysis: {
         description_is_complete?: boolean,
         more_details_request?: string,
+        refinement_count?: number,
         feelings?: UserFeeling[],
         observation0?: string,
         reflection_2nd_person_by_age_group?: string,
+    },
+    feelings_analysis: {
+        description?: string
     }
 };

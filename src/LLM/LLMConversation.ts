@@ -52,21 +52,6 @@ export class LLMChatConversation {
     //     return gender === Gender.Female ? 'female' : 'male';
     // }
 
-    // private doNextPhase = (nextPhase: UserMessagePhase) => {
-    //     const { currentUserSessionData: sData } = (this.storage as ExtendedStorage)?.getState();
-
-    //     let phase = sData.user_phase;
-    //     let phaseCount = sData.phase_count || 0;
-
-    //     if (nextPhase === phase) {
-    //         this.storage?.setPhaseCount(phaseCount + 1);
-    //     }
-    //     else {
-    //         this.storage?.setPhase(nextPhase);
-    //         this.storage?.setPhaseCount(0);
-    //     }
-    // }
-
     private generateFollowUpText = (phase: UserPhase): string => {
         const { currentUser, currentUserSessionData: sData } = (this.storage as ExtendedStorage)?.getState();
 
@@ -144,20 +129,27 @@ export class LLMChatConversation {
                     addReply({ content: description_analysis.more_details_request })
                 }
                 else {
-
                     more_input_required = false;
                     // phase is unknown at that point because the user can decide he is not 
                     // satisfied with the given observation and keep feeding more information
 
                     addReply({
                         content: description_analysis.reflection_2nd_person_by_age_group,
-                        content_type: MessageContentType.TextPlain
+                        content_type: MessageContentType.TextHtml
                     })
                     addReply({
                         content: { id: "observation_approval", feelings: description_analysis.feelings },
                         content_type: MessageContentType.Other
                     })
                 }
+                break;
+
+            case UserPhase.BE_FeelingsAnalysis:
+                more_input_required = false;
+                addReply({
+                    content: sData.feelings_analysis.description,
+                    content_type: MessageContentType.TextHtml
+                })
                 break;
 
             default:

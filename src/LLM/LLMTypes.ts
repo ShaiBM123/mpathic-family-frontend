@@ -14,9 +14,8 @@ export enum UserPhase {
   BE_PersonInConflictName = 4,
   BE_PersonInConflictAge = 5,
   BE_DescriptionAnalysis = 6,
-  FE_FeelingsProbe = 7,
-  BE_FeelingsAnalysis = 8,
-  BE_NeedsProbe = 9,
+  BE_FeelingsAnalysis = 7,
+  BE_NeedsAnalysis = 8,
   TBD = 999,
   Unknown = 1000
 }
