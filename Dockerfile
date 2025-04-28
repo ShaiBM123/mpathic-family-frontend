@@ -6,6 +6,8 @@ WORKDIR /app
 COPY package.json package-lock.json tsconfig.json ./
 RUN npm install --frozen-lockfile --include=dev
 
+# Copy the environment file
+COPY .env.production .env
 # Copy the rest of the application code and build for production
 COPY public ./public
 COPY src ./src
@@ -13,25 +15,25 @@ COPY src ./src
 RUN npm run build
 
 
-# Stage 2: Development environment
-FROM node:16.20.2-alpine AS development
-WORKDIR /app
+# # Stage 2: Development environment
+# FROM node:16.20.2-alpine AS development
+# WORKDIR /app
 
-# Copy the environment file
-COPY .env.development .env
+# # Copy the environment file
+# COPY .env.development .env
 
-# Install dependencies again for development
-COPY package.json package-lock.json tsconfig.json ./
-RUN npm install --frozen-lockfile --include=dev
+# # Install dependencies again for development
+# COPY package.json package-lock.json tsconfig.json ./
+# RUN npm install --frozen-lockfile --include=dev
 
-# Copy the full source code
-COPY public ./public
-COPY src ./src
-# COPY . ./
+# # Copy the full source code
+# COPY public ./public
+# COPY src ./src
+# # COPY . ./
 
-# Expose port for the development server
-EXPOSE 3000
-CMD ["npm", "start"]
+# # Expose port for the development server
+# EXPOSE 3000
+# CMD ["npm", "start"]
 
 
 # Stage 3: Production environment
