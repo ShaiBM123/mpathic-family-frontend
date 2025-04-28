@@ -1,7 +1,9 @@
 services:
   web:
     build: .
+    env_file:
+      - ./.env.development
     ports:
       - "80:80"
     environment:
-      NODE_ENV: production
+      NODE_ENV: development

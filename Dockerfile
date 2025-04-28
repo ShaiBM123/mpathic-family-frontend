@@ -6,8 +6,6 @@ WORKDIR /app
 COPY package.json package-lock.json tsconfig.json ./
 RUN npm install --frozen-lockfile --include=dev
 
-# Copy the environment file
-COPY .env.production .env
 # Copy the rest of the application code and build for production
 COPY public ./public
 COPY src ./src
