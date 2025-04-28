@@ -1,7 +1,13 @@
+# services:
+#   web:
+#     build: .
+#     ports:
+#       - "80:80"
+#     environment:
+#       NODE_ENV: production
+
 services:
   web:
-    build: .
+    image: shaibenmichael/mpathic-family-frontend-web:latest
     ports:
       - "80:80"
-    environment:
-      NODE_ENV: production
