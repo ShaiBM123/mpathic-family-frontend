@@ -2,7 +2,7 @@ services:
   web:
     build: .
     env_file:
-      - ./.env.development
+      - ./.env
     ports:
       - "80:80"
     environment:

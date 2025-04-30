@@ -1,7 +1,0 @@
-services:
-  web:
-    image: shaibenmichael/mpathic-family-frontend-web:latest
-    env_file:
-      - ./.env.production
-    ports:
-      - "80:80"
