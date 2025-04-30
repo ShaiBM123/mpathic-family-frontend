@@ -1,10 +1,22 @@
 import { create } from "apisauce";
-// export const base_url = "https://mpathic-family.herokuapp.com/mpathic_famliy/api/";
-export const base_url ="http://localhost:5000/mpathic_famliy/api/";
+
+// Function to dynamically get the base URL at runtime
+// const getBaseUrl = () => {
+//   const hostIp = process.env.REACT_APP_HOST_IP || "localhost";
+//   return `http://${hostIp}:5000/mpathic_famliy/api/`;
+// };
+
+
+// const getBaseUrl = () => {
+//   return `http://localhost:5000/mpathic_famliy/api/`;
+// };
+
+const getBaseUrl = () => {
+  return `http://13.53.219.229:5000/mpathic_famliy/api/`;
+};
 
 const apiClient = create({
-  // baseURL: "https://mpathic-family.herokuapp.com/mpathic_famliy/api/",
-  baseURL: "http://localhost:5000/mpathic_famliy/api/",
+  baseURL: getBaseUrl(), // Call the function to get the base URL
 });
 
 export default apiClient;
