@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { Formik } from "formik";
@@ -36,6 +36,8 @@ const AboutUser = () => {
   const navigate = useNavigate();
   const updateMode = sessionStorage.getItem("updateMode");
 
+  const dateOfBirthRef = useRef<HTMLInputElement>(null);
+
   const initialValues = {
     first_name: userData?.first_name || "",
     date_of_birth: userData?.date_of_birth || "",
@@ -46,6 +48,13 @@ const AboutUser = () => {
       setGenderErr(false);
     }
   }, [gender]);
+
+  useEffect(() => {
+    // Set the max attribute of the date input to today's date
+    if (dateOfBirthRef.current) {
+      dateOfBirthRef.current.max = new Date().toISOString().split("T")[0];
+    }
+  }, []);
 
   // const handleSubmit = (values: any) => {
   //   if (gender === "") {
@@ -220,19 +229,18 @@ const AboutUser = () => {
                     <label className="form-label custom-lebel-register">
                       2. מהו תאריך הלידה שלך?
                     </label>
-                    <DatePicker
-                      value={values.date_of_birth}
-                      onChange={
-                        (date) => {
-                          getFieldHelpers("date_of_birth").setValue(date);
-                        }
-                      }
+                    <input
+                      type="date"
+                      className="form-control input_shadow custom_input"
+                      name="date_of_birth"
+                      ref={dateOfBirthRef}
+                      onChange={handleChange("date_of_birth")}
                       onBlur={() => setFieldTouched("date_of_birth")}
-                      // calendarIcon={null}
-                      clearIcon={null}
-                      format="y/M/d"
-                      maxDate={new Date()}
-                    // required={true}
+                      title="BirthDate"
+                      value={values.date_of_birth}
+                      min="1900-01-01"
+                      placeholder="dd-mm-yyyy"
+                      required
                     />
                     {touched.date_of_birth && <p className="err_msg">{errors.date_of_birth}</p>}
                   </div>
