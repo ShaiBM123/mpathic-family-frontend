@@ -514,10 +514,9 @@ export const Chat = ({ user }: { user: User }) => {
                                 ]}
                                 onButtonClick={
                                     (id) => {
-                                        setTextMessageBold(currentMessages.at(-1)?.messages[0] as ChatMessage<MessageContentType>)
-
                                         removeMessageFromActiveConversation(chat_msg.id)
                                         if (id === "ok") {
+                                            setTextMessageBold(currentMessages.at(-1)?.messages[0] as ChatMessage<MessageContentType>)
                                             addUserMsg(rtlTxt.captions.right);
 
                                             addChatBotMsg(rtlTxt.chat.feelingsAdjustmentGuidelines[uGenderKey], MessageContentType.TextHtml)

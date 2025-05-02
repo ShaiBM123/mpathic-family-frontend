@@ -30,7 +30,7 @@ export type UserChatSessionData = {
         refinement_count?: number,
         feelings?: UserFeeling[],
         observation0?: string,
-        reflection_2nd_person_by_age_group?: string,
+        reflection?: string,
     },
     feelings_analysis: {
         description?: string

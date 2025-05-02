@@ -225,7 +225,7 @@ const AboutUser = () => {
                     {touched.first_name && <p className="err_msg">{errors.first_name}</p>}
                   </div>
 
-                  <div className="mb-3 mt-3 w-100">
+                  <div className="mb-3 mt-3 w-100 custom_date_of_birth">
                     <label className="form-label custom-lebel-register">
                       2. מהו תאריך הלידה שלך?
                     </label>

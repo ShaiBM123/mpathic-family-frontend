@@ -3289,34 +3289,37 @@ button.nav-link.custom_tab_button {
 
 /* ...existing code... */
 
-// .custom_datepicker_wrapper {
+// // .custom_datepicker_wrapper {
+// //   width: 100%;
+// // }
+
+// .react-date-picker {
 //   width: 100%;
+
+//   .react-date-picker__wrapper {
+//     border: none !important;
+//     @extend .form-control;
+//     @extend .input_shadow;
+//     @extend .custom_input;
+
+//     // .react-date-picker__inputGroup {
+//     //   font-weight: bold;
+//     // }
+//   }
 // }
 
-.react-date-picker {
-  width: 100%;
+.custom_date_of_birth {
 
-  .react-date-picker__wrapper {
-    border: none !important;
-    @extend .form-control;
-    @extend .input_shadow;
-    @extend .custom_input;
-
-    // .react-date-picker__inputGroup {
-    //   font-weight: bold;
-    // }
+  input[type=date]:required:invalid::-webkit-datetime-edit {
+    color: transparent;
   }
-}
 
-input[type=date]:required:invalid::-webkit-datetime-edit {
-  color: transparent;
-}
+  input[type=date]:focus::-webkit-datetime-edit {
+    color: black !important;
+  }
 
-input[type=date]:focus::-webkit-datetime-edit {
-  color: black !important;
-}
-
-input[type=date] {
-  display: block;
-  text-align: right;
+  input[type=date] {
+    display: block;
+    text-align: right;
+  }
 }

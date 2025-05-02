@@ -115,7 +115,7 @@ const Registration = () => {
             "RegUserData",
             JSON.stringify({ last_id: res.data.last_id })
           );
-          const userData = { username, email };
+          const userData = email && email !== "" ? { username, email } : { username };
           sessionStorage.setItem("userData", JSON.stringify(userData));
           setErr(false);
           setErrMsg("");

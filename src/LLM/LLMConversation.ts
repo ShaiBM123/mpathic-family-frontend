@@ -134,7 +134,7 @@ export class LLMChatConversation {
                     // satisfied with the given observation and keep feeding more information
 
                     addReply({
-                        content: description_analysis.reflection_2nd_person_by_age_group,
+                        content: description_analysis.reflection,
                         content_type: MessageContentType.TextHtml
                     })
                     addReply({
