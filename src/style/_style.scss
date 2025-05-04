@@ -3315,11 +3315,11 @@ button.nav-link.custom_tab_button {
   }
 
   input[type=date]:focus::-webkit-datetime-edit {
-    color: black !important;
+    color: lightgray !important;
   }
 
   input[type=date] {
-    display: block;
+    // display: block;
     text-align: right;
   }
 }

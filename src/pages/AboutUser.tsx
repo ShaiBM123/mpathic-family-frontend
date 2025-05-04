@@ -53,6 +53,9 @@ const AboutUser = () => {
     // Set the max attribute of the date input to today's date
     if (dateOfBirthRef.current) {
       dateOfBirthRef.current.max = new Date().toISOString().split("T")[0];
+      dateOfBirthRef.current.addEventListener('click', function (event: any) {
+        event.target?.showPicker();
+      });
     }
   }, []);
 
@@ -100,14 +103,14 @@ const AboutUser = () => {
           gender,
         };
 
-    // let DataRemovedBlankVal = Object.fromEntries(
-    //   Object.entries(newUserData).filter((value) => value[1])
-    // ); //Remove key with Blank value if any.
+    let userDataNoBlanks = Object.fromEntries(
+      Object.entries(newUserData).filter((value) => value[1])
+    ); //Remove key with Blank value if any.
 
     try {
       const res = await callApi.postData(
         "member_register",
-        queryString(newUserData),
+        queryString(userDataNoBlanks),
         {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -153,12 +156,15 @@ const AboutUser = () => {
 
         } else {
           console.log(res.data.message);
+          navigate("/");
         }
       } else {
         console.log(res.originalError);
+        navigate("/");
       }
     } catch (error) {
       console.log(error);
+      navigate("/");
     }
   }
 
@@ -239,7 +245,7 @@ const AboutUser = () => {
                       title="BirthDate"
                       value={values.date_of_birth}
                       min="1900-01-01"
-                      placeholder="dd-mm-yyyy"
+                      // placeholder="DD-MM-YYYY"
                       required
                     />
                     {touched.date_of_birth && <p className="err_msg">{errors.date_of_birth}</p>}
