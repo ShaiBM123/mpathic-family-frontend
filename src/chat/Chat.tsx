@@ -36,6 +36,7 @@ import { FeelingsScale } from "../components/feelings-scale/FeelingsScale";
 // import { completeUserPartOfSpeech } from "../open_ai/OpenAIPromptingManager"
 import { OptionButtonsInColumn, OptionButtonsInRow } from "../components/option-buttons-list/OptionButtonsInList";
 import { formatMessage, enumKeyStartsWith } from "../AppUtils";
+import { useLogOut } from "../AppHooks";
 import callApi from "../lib/apisauce/callApi";
 import { trackPromise } from "react-promise-tracker";
 
@@ -58,12 +59,14 @@ export const Chat = ({ user }: { user: User }) => {
         currentMessages, activeConversation, setActiveConversation, sendMessage, addMessage, resetState,
         getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping, setCurrentUser, currentUser,
         setTopic, setSubTopic, setCorrectedFeelings, setPhase,
-        setCurrentUserSessionData, currentUserSessionData: sData,
-        removeMessageFromActiveConversation, setMessagesInActiveConversation,
-        phase,
+        setCurrentUserSessionData, currentUserSessionData: sData, phase,
+        removeMessagesFromConversation, removeMessageFromActiveConversation, setMessagesInActiveConversation,
+
     } = useExtendedChat();
 
     const [isNumericInput, setIsNumericInput] = useState(false);
+
+    const logOut = useLogOut();
 
     useEffect(() => {
         setCurrentUser(user);
@@ -234,21 +237,19 @@ export const Chat = ({ user }: { user: User }) => {
             if (currentMessages.length === 0) {
 
                 let uName = currentUser?.firstName;
-                let uGenderKey = genderKey(currentUser.data.gender);
-
-                setPhase(UserPhase.FE_MainTopic)
+                setPhase(UserPhase.Start)
                 addChatBotMsg(
                     formatMessage(rtlTxt.chat.firstTimeWelcomeMsg, { name: uName }),
                     MessageContentType.TextHtml
                 );
+
                 addChatBotMsg(
                     {
-                        ...interPersonalTopicsDictionary,
                         active: true,
                         selected: false,
-                        selected_categories: null,
-                        id: "inter_personal_main_topics"
-                    }, MessageContentType.Other);
+                        id: "start_approval"
+                    }, MessageContentType.Other
+                );
             }
 
         }
@@ -430,7 +431,44 @@ export const Chat = ({ user }: { user: User }) => {
                     //             }}
                     //         />
                     // }
-                    if (obj.id === "inter_personal_main_topics") {
+                    if (obj.id === "start_approval") {
+
+                        // a separate module should be implemented instaed displaying just typed text 
+                        message_payload =
+
+                            <OptionButtonsInRow
+                                buttonsData={[
+                                    { id: "sure", text: rtlTxt.captions.sure },
+                                    { id: "next-time", text: rtlTxt.captions.nextTime }
+                                ]}
+                                onButtonClick={
+                                    (id) => {
+                                        removeMessageFromActiveConversation(chat_msg.id)
+                                        if (id === "sure") {
+                                            addUserMsg(rtlTxt.captions.sure);
+                                            addChatBotMsg(
+                                                rtlTxt.chat.firstTimeMainTopicMsg[uGenderKey],
+                                                MessageContentType.TextHtml);
+                                            addChatBotMsg(
+                                                {
+                                                    ...interPersonalTopicsDictionary,
+                                                    active: true,
+                                                    selected: false,
+                                                    selected_categories: null,
+                                                    id: "inter_personal_main_topics"
+                                                }, MessageContentType.Other);
+
+                                            setPhase(UserPhase.FE_MainTopic)
+                                        }
+                                        else if (id === "next-time") {
+                                            // removeMessagesFromConversation(AIConversationId)
+                                            logOut();
+                                        }
+                                    }
+                                }
+                            />
+                    }
+                    else if (obj.id === "inter_personal_main_topics") {
                         message_payload =
                             <OptionButtonsInColumn
                                 buttonsData={
