@@ -156,15 +156,12 @@ const AboutUser = () => {
 
         } else {
           console.log(res.data.message);
-          navigate("/");
         }
       } else {
         console.log(res.originalError);
-        navigate("/");
       }
     } catch (error) {
       console.log(error);
-      navigate("/");
     }
   }
 
