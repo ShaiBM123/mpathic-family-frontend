@@ -15,14 +15,15 @@ import svgQuestionMark from "../../images/chat/question-mark.svg";
 import svgSmartPhone from "../../images/chat/smart-phone.svg";
 import svgTwoPeoples from "../../images/chat/two-peoples.svg";
 import svgOnePeople from "../../images/chat/one-people.svg";
+import svgHomeTasks from "../../images/chat/home-tasks.svg";
 
 export enum IP1stCategory {
     None,
+    TimePlanning,
     HomeAssignmentsAndSchedules,
     LeisureTime,
     Relationships,
     SpaceAndPrivacy,
-    TimePlanning,
     Other
 }
 
@@ -38,9 +39,20 @@ export enum IP2ndCategory {
 export const interPersonalTopicsDictionary = {
     major_categories: {
 
+        [IP1stCategory.TimePlanning]: {
+            title: 'תכנון זמן',
+            iconSrc: svgClock,
+            sub_categories: {
+                [IP2ndCategory.Other]: { title: 'אחר', description: '' },
+                [IP2ndCategory.Issue1]: { title: 'שינויים בלוחות זמנים שנקבעו' },
+                [IP2ndCategory.Issue2]: { title: 'לימודים ומבחנים' },
+                [IP2ndCategory.Issue3]: { title: 'קביעת פעילות חדשה' },
+            }
+        },
+
         [IP1stCategory.HomeAssignmentsAndSchedules]: {
             title: 'מטלות בית',
-            iconSrc: svgClock,
+            iconSrc: svgHomeTasks,
             sub_categories: {
                 [IP2ndCategory.Other]: { title: 'אחר', description: '' },
                 [IP2ndCategory.Issue1]: { title: 'חלוקת המטלות בבית' },
@@ -81,17 +93,6 @@ export const interPersonalTopicsDictionary = {
                 [IP2ndCategory.Issue2]: { title: 'טלפון נייד ורשתות חברתיות' },
                 [IP2ndCategory.Issue3]: { title: 'זמן עם עצמי' },
                 [IP2ndCategory.Issue4]: { title: 'זמן עם חברים.ות / משפחה' }
-            }
-        },
-
-        [IP1stCategory.TimePlanning]: {
-            title: 'תכנון זמן',
-            iconSrc: svgClock,
-            sub_categories: {
-                [IP2ndCategory.Other]: { title: 'אחר', description: '' },
-                [IP2ndCategory.Issue1]: { title: 'שינויים בלוחות זמנים שנקבעו' },
-                [IP2ndCategory.Issue2]: { title: 'לימודים ומבחנים' },
-                [IP2ndCategory.Issue3]: { title: 'קביעת פעילות חדשה' },
             }
         },
 
