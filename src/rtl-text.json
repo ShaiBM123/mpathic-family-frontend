@@ -15,26 +15,12 @@
     "femaleTerminology": "בלשון נקבה"
   },
 
-  "zodFieldDescription": {
-    "firstName": "שם פרטי",
-    "lastName": "שם משפחה",
-    "age": "גיל",
-    "observation": {
-      "requestForMoreInfo": "בקשה למידע נוסף להשלמת ניסוח התצפית",
-      "theObservation": "התצפית"
-    }
-  },
-
   "chat": {
     "firstTimeWelcomeMsg": "היי ${name}, כיף לראות אותך פה :)<br>קוראים לי אמפתיק צ’ט, ואני יכול לעזור לך עם קונפליקטים, נושאים מורכבים, ועניינים לא פתורים בינך לבין <b>אדם אחר</b> וגם עם עניינים(?) שלך עם עצמך.<br>אני הכי טוב בענייני משפחה :) אבל אשתדל לעזור בכל נושא שיצוף.<br>בשיתוף פעולה נוכל לתקשר לאדם השני את הצורך שלך ולהזמין אותו לשיחה פתוחה בהשראת <b>תקשורת מקרבת</b>.<br><br>שנתחיל?!",
 
     "askWhatIsTheNameOfPersonInConflict": {
       "male": "מה שמו?",
       "female": "מה שמה?"
-    },
-    "askWhatIsUserAge": {
-      "male": "<b>בן כמה אתה?</b>",
-      "female": "<b>בת כמה את?</b>"
     },
     "askHowOldPersonInConflict": {
       "male": "בן כמה הוא?",
