@@ -1,22 +1,20 @@
 First Time Instalations:
   - Instructions can be found in mpathic-family-backend-node project
 
-Deployment:
-  - SSH (MobaXterm) into EC2
+1st Time Deployment:
+  // SSH (MobaXterm) into EC2 
   - cd ~/mpathic/frontend
   - copy the prod folder from your local machine to the EC2 instance using SCP (MobaXterm)
   - cd prod
-  - Before running the docker compose command, make sure all images pushed to docker hub are up to date:
-    Use docker-compose-dev.yml to build the images locally and push them to docker hub
-    The client.ts file should use the production server base URL
-  - docker compose down --rmi all (Dangerous command)
-  - docker compose up -d --build
-  - Usefull commands:
-      - docker exec -it <container_id> sh // SSH into a specific container
-      - ctrl P + Q // detach from the container shell
-Recovery:
-  chmod +x frontend_reboot.sh
-  sudo crontab -e
-  - Add the following line to the crontab file to run the script on reboot:
-    @reboot /home/ubuntu/mpathic/frontend/frontend_reboot.sh
+  // make sure all images pushed to docker hub are up to date. use docker-compose.yml to build the images locally and push them to docker hub
+  - chmod +x frontend_reboot.sh
+  - sudo crontab -e
+  // Add the following line to the crontab file to run the script on reboot:
+    @reboot /home/ubuntu/mpathic/backend/prod/frontend_reboot.sh
+  - reboot
+
+Ongoing Deployment:
+  // make sure all images pushed to docker hub are up to date 
+  // use docker-compose.yml to build the images locally and push them to docker hub
+  - reboot
   
