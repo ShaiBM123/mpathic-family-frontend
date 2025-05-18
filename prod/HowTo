@@ -11,10 +11,10 @@ First Time Instalations:
   - sudo crontab -e
   // Add the following line to the crontab file to run the script on reboot:
     @reboot /home/ubuntu/mpathic/backend/prod/frontend_reboot.sh
-  - reboot
+  - sudo reboot
 
 Ongoing Deployment:
   // make sure all images pushed to docker hub are up to date 
   // use docker-compose.yml to build the images locally and push them to docker hub
-  - reboot
+  - sudo reboot
   
