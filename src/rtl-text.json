@@ -1,9 +1,4 @@
 {
-  "ageTitle": {
-    "male": ["ילד", "נער", "גבר"],
-    "female": ["ילדה", "נערה", "אישה"]
-  },
-
   "captions": {
     "right": "נכון",
     "sure": "בטח",
@@ -20,11 +15,13 @@
 
     "askWhatIsTheNameOfPersonInConflict": {
       "male": "מה שמו?",
-      "female": "מה שמה?"
+      "female": "מה שמה?",
+      "unknown": "מה שמו/ה?"
     },
     "askHowOldPersonInConflict": {
       "male": "בן כמה הוא?",
-      "female": "בת כמה היא?"
+      "female": "בת כמה היא?",
+      "unknown": "מה גילו/ה?"
     },
     "firstTimeGreeting": {
       "male": "<b>נעים להכיר קצת יותר :)<br>ברוך הבא!</b>",
@@ -72,33 +69,24 @@
         "לא הבנתי, למי את מתייחסת ? (בן זוג, אח, אחות וכו')"
       ]
     },
-    "answerPersonInConflictRelation": {
-      "male": "הוא ה${u2Relationship} של ${uName}",
-      "female": "היא ה${u2Relationship} של ${uName}"
-    },
 
     "complainAboutPersonInConflictName": {
       "male": {
         "male": "לא הבנתי :-( רשום את השם שלו",
-        "female": "לא הבנתי :-( רשום את השם שלה"
+        "female": "לא הבנתי :-( רשום את השם שלה",
+        "unknown": "לא הבנתי :-( רשום את השם שלו/ה"
       },
       "female": {
         "male": "לא הבנתי :-( רשמי את השם שלו",
-        "female": "לא הבנתי :-( רשמי את השם שלה"
+        "female": "לא הבנתי :-( רשמי את השם שלה",
+        "unknown": "לא הבנתי :-( רשמי את השם שלו/ה"
       }
-    },
-    "answerPersonInConflictName": {
-      "male": "שמו הפרטי ${u2Name}",
-      "female": "שמה הפרטי ${u2Name}"
     },
 
     "complainAboutPersonInConflictAge": {
       "male": "לא הבנתי אותך :-( מהו גילו ?",
-      "female": "לא הבנתי אותך :-( מהו גילה ?"
-    },
-    "answerPersonInConflictAge": {
-      "male": "גילו ${u2Age}",
-      "female": "גילה ${u2Age}"
+      "female": "לא הבנתי אותך :-( מהו גילה ?",
+      "unknown": "לא הבנתי אותך :-( מהו גילו/ה ?"
     },
 
     "feelingsAdjustmentGuidelines": {

@@ -56,7 +56,7 @@ export class LLMChatConversation {
         const { currentUser, currentUserSessionData: sData } = (this.storage as ExtendedStorage)?.getState();
 
         let uGenderKey = currentUser?.data.gender as 'female' | 'male';
-        let u2GenderKey = sData.person_in_conflict.relationship?.gender as 'female' | 'male';
+        let u2GenderKey = sData.person_in_conflict.gender;
 
         switch (phase) {
             case UserPhase.BE_PersonInConflictName:
@@ -80,8 +80,8 @@ export class LLMChatConversation {
         let uAge = currentUser?.data.age;
         let uAgeCategory = ageCategory(uAge);
 
-        let personInConflict = sData.person_in_conflict;
-        let u2GenderKey = personInConflict?.relationship?.gender as 'female' | 'male';
+        // let personInConflict = sData.person_in_conflict;
+        let u2GenderKey = sData.person_in_conflict?.gender;
 
         let more_input_required = true
 
@@ -94,7 +94,7 @@ export class LLMChatConversation {
         switch (phase) {
 
             case UserPhase.BE_PersonInConflictRelation:
-                if (!sData.person_in_conflict.relationship) {
+                if (!sData.person_in_conflict.relationship_to_user) {
                     addReply({ content: rtlTxt.chat.complainAboutPersonInConflictRelationIsIncomplete[uGenderKey][uAgeCategory] })
                 }
                 else {

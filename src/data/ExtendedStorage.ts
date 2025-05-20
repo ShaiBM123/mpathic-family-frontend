@@ -74,7 +74,7 @@ export class ExtendedStorage<ConversationData = any>
         this.currentUserSessionData = {
             user_phase: UserPhase.Start,
             session_meta_data: {},
-            person_in_conflict: {},
+            person_in_conflict: { gender: 'unknown' },
             description_analysis: {},
             feelings_analysis: {}
         };
@@ -107,7 +107,7 @@ export class ExtendedStorage<ConversationData = any>
         this.currentUserSessionData = {
             user_phase: UserPhase.Start,
             session_meta_data: {},
-            person_in_conflict: {},
+            person_in_conflict: { gender: 'unknown' },
             description_analysis: {},
             feelings_analysis: {}
         };
