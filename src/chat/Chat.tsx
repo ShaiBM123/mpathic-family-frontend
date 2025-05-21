@@ -56,12 +56,12 @@ export const Chat = ({ user }: { user: User }) => {
     // Get all chat related values and methods from useChat hook 
     const {
         service,
-        currentMessages, activeConversation, setActiveConversation, sendMessage, addMessage, resetState,
+        currentMessages, activeConversation, setActiveConversation, sendMessage, addMessage,
         getUser, currentMessage, setCurrentMessage, updateMessage, sendTyping, setCurrentUser, currentUser,
         setTopic, setSubTopic, setCorrectedFeelings, setPhase,
         setCurrentUserSessionData, currentUserSessionData: sData, phase,
-        removeMessagesFromConversation, removeMessageFromActiveConversation, setMessagesInActiveConversation,
-
+        removeMessagesFromConversation, removeMessageFromActiveConversation,
+        setMessagesInActiveConversation, resetCurrentUserSessionData,
     } = useExtendedChat();
 
     const [isNumericInput, setIsNumericInput] = useState(false);
@@ -76,125 +76,137 @@ export const Chat = ({ user }: { user: User }) => {
         setActiveConversation(AIConversationId)
     }, [setActiveConversation]);
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const JWToken = JSON.parse(sessionStorage.getItem("UserJWT") as string);
 
-    const createActiveSessionIfNotExists = useCallback(() => {
+    const fetchUserActiveSessionMessages = useCallback(async () => {
 
-        currentUser && trackPromise(
-            callApi
-                .getDatawithToken(
-                    "create_user_active_session",
-                    {
-                        email: currentUser?.email,
-                        username: currentUser?.username
+        // currentUser && trackPromise(
+        return callApi
+            .getDatawithToken(
+                "get_chatscope_session_messages",
+                {
+                    email: currentUser?.email,
+                    username: currentUser?.username
+                },
+                {
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded; charset=UTF-8",
+                        Authorization: JWToken,
                     },
-                    {
-                        headers: {
-                            "Content-Type":
-                                "application/x-www-form-urlencoded; charset=UTF-8",
-                            Authorization: JWToken,
-                        },
+                }
+            )
+            .then((res: any) => {
+                if (res.data.status === "success") {
+                    setMessagesInActiveConversation(res.data.messages);
+                    return true;
+                }
+                return false;
+            })
+            .catch((res) => {
+                return false;
+            })
+        // );
+    }, [JWToken, currentUser]);
+
+    const fetchUserActiveSessionData = useCallback(async () => {
+
+        // currentUser && trackPromise(
+        return callApi
+            .getDatawithToken(
+                "get_session_data",
+                {
+                    email: currentUser?.email,
+                    username: currentUser?.username
+                },
+                {
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded; charset=UTF-8",
+                        Authorization: JWToken,
+                    },
+                }
+            )
+            .then((res: any) => {
+                if (res.data.status === "success") {
+                    if (res.data.chatSessionData) {
+                        setCurrentUserSessionData(res.data.chatSessionData);
                     }
-                )
-                .then((res: any) => {
-                    if (res.data.status !== "success") {
-                        resetState();
-                        navigate("/");
-                    }
-                })
-                .catch((res) => {
-                    console.log(res.originalError);
-                    resetState();
-                    navigate("/");
-                })
-        );
-    }, [JWToken, currentUser, resetState, navigate]);
+                    return true;
+                }
+                return false;
+            })
+            .catch((res) => {
+                // console.log(res.originalError);
+                // navigate("/");
+                return false;
+            })
+        // );
+    }, [JWToken, currentUser]);
+
+    const createActiveSessionIfNotExists = useCallback(async () => {
+
+        // currentUser && trackPromise(
+        return callApi
+            .getDatawithToken(
+                "create_user_active_session",
+                {
+                    email: currentUser?.email,
+                    username: currentUser?.username
+                },
+                {
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded; charset=UTF-8",
+                        Authorization: JWToken,
+                    },
+                }
+            )
+            .then((res: any) => {
+                if (res.data.status === "success") {
+                    return true;
+                }
+                return false;
+            })
+            .catch((res) => {
+                // console.log(res.originalError);
+                // navigate("/");
+                return false;
+            })
+        // );
+    }, [JWToken, currentUser]);
 
     useEffect(() => {
-        createActiveSessionIfNotExists();
-    }, [createActiveSessionIfNotExists]);
 
-    const fetchUserActiveSessionData = useCallback(() => {
-
-        currentUser && trackPromise(
-            callApi
-                .getDatawithToken(
-                    "get_session_data",
-                    {
-                        email: currentUser?.email,
-                        username: currentUser?.username
-                    },
-                    {
-                        headers: {
-                            "Content-Type":
-                                "application/x-www-form-urlencoded; charset=UTF-8",
-                            Authorization: JWToken,
-                        },
+        currentUser && trackPromise((async () => {
+            let success = false;
+            if (await createActiveSessionIfNotExists()) {
+                if (await fetchUserActiveSessionData()) {
+                    if (await fetchUserActiveSessionMessages()) {
+                        success = true;
                     }
-                )
-                .then((res: any) => {
-                    if (res.data.status === "success") {
-                        if (res.data.chatSessionData) {
-                            setCurrentUserSessionData(res.data.chatSessionData);
-                        }
-                    } else {
-                        console.log(res.data.message);
-                        resetState();
-                        navigate("/");
-                    }
-                })
-                .catch((res) => {
-                    console.log(res.originalError);
-                    resetState();
-                    navigate("/");
-                })
-        );
-    }, [JWToken, currentUser, resetState, navigate, setCurrentUserSessionData]);
+                }
+            }
+            if (!success) {
+                removeMessagesFromConversation(AIConversationId);
+                resetCurrentUserSessionData();
+                logOut();
+            }
 
-    useEffect(() => {
-        fetchUserActiveSessionData();
-    }, [fetchUserActiveSessionData]);
+        })());
+
+    }, [currentUser, AIConversationId, JWToken]);
 
 
-    const fetchUserActiveSessionMessages = useCallback(() => {
+    // useEffect(() => {
+    //     fetchUserActiveSessionData();
+    // }, [fetchUserActiveSessionData]);
 
-        currentUser && trackPromise(
-            callApi
-                .getDatawithToken(
-                    "get_chatscope_session_messages",
-                    {
-                        email: currentUser?.email,
-                        username: currentUser?.username
-                    },
-                    {
-                        headers: {
-                            "Content-Type":
-                                "application/x-www-form-urlencoded; charset=UTF-8",
-                            Authorization: JWToken,
-                        },
-                    }
-                )
-                .then((res: any) => {
-                    if (res.data.status === "success") {
-                        setMessagesInActiveConversation(res.data.messages);
-                    } else {
-                        console.log(res.data.message);
-                        resetState();
-                        navigate("/");
-                    }
-                })
-                .catch((res) => {
-                    console.log(res.originalError);
-                    resetState();
-                    navigate("/");
-                })
-        );
-    }, [JWToken, currentUser, setMessagesInActiveConversation, navigate, resetState]);
 
-    useEffect(() => {
-        fetchUserActiveSessionMessages();
-    }, [fetchUserActiveSessionMessages]);
+    // useEffect(() => {
+    //     fetchUserActiveSessionMessages();
+    // }, [fetchUserActiveSessionMessages]);
 
 
     // const scrollToTop = useCallback(() => {
@@ -213,9 +225,9 @@ export const Chat = ({ user }: { user: User }) => {
 
     // }, [])
 
-    const scrollToBottom = useCallback(() => {
-        document.getElementsByClassName('cs-message-list__scroll-to')[0]?.scrollIntoView({ behavior: 'auto', block: 'end' })
-    }, [])
+    // const scrollToBottom = useCallback(() => {
+    //     document.getElementsByClassName('cs-message-list__scroll-to')[0]?.scrollIntoView({ behavior: 'auto', block: 'end' })
+    // }, [])
 
     const addChatBotMsg = useCallback((content: unknown, contentType: MessageContentType) => {
         activeConversation &&
