@@ -8,9 +8,9 @@ import RoundBtn from "../components/legacy/RoundBtn";
 import type { ApiResponse } from "apisauce/apisauce";
 import { queryString } from "../AppUtils";
 // import { CustomFormikDatePicker } from "../components/legacy/CustomDatePicker2";
-import DatePicker from 'react-date-picker';
-import 'react-date-picker/dist/DatePicker.css';
-import 'react-calendar/dist/Calendar.css';
+// import DatePicker from 'react-date-picker';
+// import 'react-date-picker/dist/DatePicker.css';
+// import 'react-calendar/dist/Calendar.css';
 
 import header_shape from '../images/header-shape.svg';
 
@@ -18,9 +18,12 @@ const validationSchema = Yup.object().shape({
   first_name: Yup.string()
     .required("יש להזין את שמך")
     .max(45, "שם ארוך מדי (יותר מ45 תווים)"),
-  date_of_birth: Yup.date()
-    .nullable()
-    .required("יש להזין תאריך לידה"),
+  age: Yup.number()
+    .typeError("יש להזין גיל במספרים בלבד")
+    .integer("יש להזין מספר שלם")
+    .min(5, "גיל מינימלי חייב להיות לפחות 5")
+    .max(120, "גיל מקסימלי לא יכול להיות מעל 120")
+    .required("יש להזין גיל"),
 });
 
 const AboutUser = () => {
@@ -36,11 +39,9 @@ const AboutUser = () => {
   const navigate = useNavigate();
   const updateMode = sessionStorage.getItem("updateMode");
 
-  const dateOfBirthRef = useRef<HTMLInputElement>(null);
-
   const initialValues = {
     first_name: userData?.first_name || "",
-    date_of_birth: userData?.date_of_birth || "",
+    age: userData?.age || "",
   };
 
   useEffect(() => {
@@ -48,34 +49,6 @@ const AboutUser = () => {
       setGenderErr(false);
     }
   }, [gender]);
-
-  useEffect(() => {
-    // Set the max attribute of the date input to today's date
-    if (dateOfBirthRef.current) {
-      dateOfBirthRef.current.max = new Date().toISOString().split("T")[0];
-      dateOfBirthRef.current.addEventListener('click', function (event: any) {
-        event.target?.showPicker();
-      });
-    }
-  }, []);
-
-  // const handleSubmit = (values: any) => {
-  //   if (gender === "") {
-  //     setGenderErr(true);
-  //   } else {
-  //     setGenderErr(false);
-  //   }
-
-  //   if (gender === "") return;
-
-  //   const newUserData = {
-  //     ...userData,
-  //     ...values,
-  //   };
-
-  //   sessionStorage.setItem("userData", JSON.stringify(newUserData));
-  //   navigate("/i-am");
-  // };
 
 
   const handleSubmit = async (values: any) => {
@@ -89,17 +62,24 @@ const AboutUser = () => {
 
     const userData = JSON.parse(sessionStorage.getItem("userData") as string);
 
+    // Calculate date_of_birth from age
+    const date_of_birth = `${new Date().getFullYear() - Number(values.age)}-01-01`;
+    // Exclude age from newUserData, use date_of_birth instead
+    const { age, ...restValues } = values;
+
     let newUserData =
       last_id && last_id !== ""
         ? {
           ...userData,
-          ...values,
+          ...restValues,
+          date_of_birth,
           gender,
           last_id,
         }
         : {
           ...userData,
-          ...values,
+          ...restValues,
+          date_of_birth,
           gender,
         };
 
@@ -145,12 +125,6 @@ const AboutUser = () => {
 
           sessionStorage.setItem("UserJWT", JSON.stringify(res.data.jwt));
           sessionStorage.removeItem("RegUserData");
-
-          // if (updateMode !== undefined && updateMode === "on") {
-          //   document.getElementById("settingsModal").click();
-          // } else {
-          //   navigate("/signup-success");
-          // }
 
           navigate("/chat");
 
@@ -230,22 +204,22 @@ const AboutUser = () => {
 
                   <div className="mb-3 mt-3 w-100 custom_date_of_birth">
                     <label className="form-label custom-lebel-register">
-                      2. מהו תאריך הלידה שלך?
+                      2. מהו גילך?
                     </label>
                     <input
-                      type="date"
+                      type="number"
                       className="form-control input_shadow custom_input"
-                      name="date_of_birth"
-                      ref={dateOfBirthRef}
-                      onChange={handleChange("date_of_birth")}
-                      onBlur={() => setFieldTouched("date_of_birth")}
-                      title="BirthDate"
-                      value={values.date_of_birth}
-                      min="1900-01-01"
-                      // placeholder="DD-MM-YYYY"
+                      name="age"
+                      min="1"
+                      max="120"
+                      step="1"
+                      onChange={handleChange("age")}
+                      onBlur={() => setFieldTouched("age")}
+                      title="Age"
+                      value={values.age}
                       required
                     />
-                    {touched.date_of_birth && <p className="err_msg">{errors.date_of_birth}</p>}
+                    {touched.age && <p className="err_msg">{errors.age}</p>}
                   </div>
 
 
