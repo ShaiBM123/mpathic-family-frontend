@@ -9,7 +9,10 @@ export const FeelingIntensityEnum = z.enum(["1", "2", "3", "4", "5", "6", "7", "
 // const FeelingIntensityEnum = z.nativeEnum(FeelingIntensityEnum);
 export type FeelingIntensityEnumType = z.infer<typeof FeelingIntensityEnum>;
 export const Feeling = z.object({
-    emotion_name: z.string(),
+    emotion: z.object({
+        emotion_category: z.string(),
+        emotion_name: z.string(),
+    }),
     // emotion_name: z.enum([HebFeelings[0].feeling_name, ...HebFeelings.filter((_, idx) => { return idx > 0 }).map((f) => { return f.feeling_name })]),
     emotion_intensity: FeelingIntensityEnum,
 });
@@ -98,7 +101,7 @@ export const FeelingsScale = ({ feelings, active, onRescaleDone }: FeelingsScale
     const [addingFeeling, setAddingFeeling] = useState(false);
     // const itemsRef = useRef(new Array());
     const composePromptMsg = () => {
-        let msg = scales.map((s) => { return ` ${s.emotion_name} בעוצמה ${s.emotion_intensity} ` }).join(' ')
+        let msg = scales.map((s) => { return ` ${s.emotion.emotion_name} בעוצמה ${s.emotion_intensity} ` }).join(' ')
         return `אני מרגיש את הרגשות הבאים בסולם של אחת עד עשר: ${msg}`
     }
 
@@ -129,7 +132,10 @@ export const FeelingsScale = ({ feelings, active, onRescaleDone }: FeelingsScale
                                                 console.log(feeling_name)
 
                                                 let new_scales = scales.concat([{
-                                                    emotion_name: feeling_name,
+                                                    emotion: {
+                                                        emotion_category: '',
+                                                        emotion_name: feeling_name
+                                                    },
                                                     emotion_intensity: "5" as FeelingIntensityEnumType
                                                 }])
                                                 setScales(new_scales)
@@ -163,7 +169,7 @@ export const FeelingsScale = ({ feelings, active, onRescaleDone }: FeelingsScale
                                                 setScales(new_scales)
                                             }} />
                                     }
-                                    {f.emotion_name}
+                                    {f.emotion.emotion_name}
                                 </div>
                                 <div>
                                     <FeelingsScaleBar
@@ -171,9 +177,9 @@ export const FeelingsScale = ({ feelings, active, onRescaleDone }: FeelingsScale
                                         onRescale={
                                             (new_intensity: FeelingIntensityEnumType) => {
                                                 let new_scales = scales.map((s) => {
-                                                    return s.emotion_name === f.emotion_name ?
+                                                    return s.emotion.emotion_name === f.emotion.emotion_name ?
                                                         {
-                                                            emotion_name: s.emotion_name,
+                                                            emotion: s.emotion,
                                                             emotion_intensity: new_intensity
                                                         } : s
                                                 })

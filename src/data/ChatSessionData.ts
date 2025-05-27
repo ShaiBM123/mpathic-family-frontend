@@ -1,7 +1,10 @@
 import { UserPhase } from '../LLM/LLMTypes';
 
 export type UserFeeling = {
-    emotion_name: string;
+    emotion: {
+        emotion_category: string;
+        emotion_name: string;
+    },
     emotion_intensity: "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10";
 }
 
