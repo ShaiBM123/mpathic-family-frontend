@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /home/ubuntu/mpathic/mpathic-family-frontend/prod/
+cd /home/ubuntu/mpathic/frontend/prod/
 docker compose down --rmi all
 docker compose up -d --build
 
