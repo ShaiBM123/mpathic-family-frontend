@@ -32,7 +32,8 @@ import { UserMessageContent, UserPhase } from "../LLM/LLMTypes";
 // import { ReactTyped } from "react-typed";
 import { Gender, AIModel, AIConversationId } from "../data/data";
 import { interPersonalTopicsDictionary } from "../components/inter-personal-topics/InterPersonalTopics";
-import { FeelingsScale } from "../components/feelings-scale/FeelingsScale";
+// import { FeelingsScale } from "../components/feelings-scale/FeelingsScale";
+import { FeelingsApprovalComponent } from "../components/FeelingsApprovalComponent";
 // import { TypingText } from "../components/typing-text/TypingText";
 // import { completeUserPartOfSpeech } from "../open_ai/OpenAIPromptingManager"
 import { OptionButtonsInColumn, OptionButtonsInRow } from "../components/option-buttons-list/OptionButtonsInList";
@@ -574,8 +575,8 @@ export const Chat = ({ user }: { user: User }) => {
                                             addChatBotMsg(
                                                 {
                                                     feelings: obj.feelings,
-                                                    active: true,
-                                                    selected: false,
+                                                    approved: false,
+                                                    // selected: false,
                                                     id: "feelings"
                                                 }, MessageContentType.Other);
 
@@ -597,11 +598,15 @@ export const Chat = ({ user }: { user: User }) => {
                             />
                     }
                     else if (obj.id === "feelings") {
-
+                        // DEBUG
+                        // obj.feelings = [
+                        //     { id: "anger", name: "כעס", intensity: 8, type: "bad" as const },
+                        //     { id: "compassion", name: "חמלה", intensity: 6, type: "good" as const },
+                        // ]
                         message_payload =
-                            <FeelingsScale feelings={obj.feelings} active={obj.active}
+                            <FeelingsApprovalComponent feelings={obj.feelings} approved={obj.approved}
                                 onRescaleDone={(new_feelings, prompt_msg) => {
-                                    obj.active = false
+                                    obj.approved = true
                                     obj.feelings = new_feelings
                                     updateMessage(chat_msg)
                                     setCorrectedFeelings(new_feelings)
