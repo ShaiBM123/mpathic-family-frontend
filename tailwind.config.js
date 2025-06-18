@@ -1,3 +1,5 @@
+const { scopedPreflightStyles, isolateInsideOfContainer } = require('tailwindcss-scoped-preflight')
+
 module.exports = {
   darkMode: ["class"],
   content: [
@@ -83,5 +85,9 @@ module.exports = {
       }
     }
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"), 
+    scopedPreflightStyles({
+      isolationStrategy: isolateInsideOfContainer('#mpathic-items-component'), // style root name, used to wrap Popper menus etc
+    }),],
 };
