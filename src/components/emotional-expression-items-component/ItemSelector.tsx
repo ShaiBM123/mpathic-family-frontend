@@ -51,6 +51,7 @@ export default function ItemSelector({
   const goodCategories = categories.filter((category) => category.type === "good")
   const needCategories = categories // For needs, all categories are need categories
 
+
   // Freeze background and scroll to popup when it appears
   useEffect(() => {
     if (approvalPopup) {
@@ -61,7 +62,7 @@ export default function ItemSelector({
       setTimeout(() => {
         if (popupRef.current) {
           popupRef.current.scrollIntoView({
-            behavior: "smooth",
+            behavior: "auto",
             block: "center",
           })
         }
@@ -79,11 +80,12 @@ export default function ItemSelector({
 
   // Scroll to bad dropdown when it opens
   useEffect(() => {
+
     if (isBadDropdownOpen && badDropdownRef.current) {
       setTimeout(() => {
         if (badDropdownRef.current) {
           badDropdownRef.current.scrollIntoView({
-            behavior: "smooth",
+            behavior: "auto",
             block: "start",
           })
 
@@ -97,6 +99,7 @@ export default function ItemSelector({
         }
       }, 100)
     }
+
   }, [isBadDropdownOpen])
 
   // Scroll to good dropdown when it opens
@@ -105,7 +108,7 @@ export default function ItemSelector({
       setTimeout(() => {
         if (goodDropdownRef.current) {
           goodDropdownRef.current.scrollIntoView({
-            behavior: "smooth",
+            behavior: "auto",
             block: "start",
           })
 
@@ -127,7 +130,7 @@ export default function ItemSelector({
       setTimeout(() => {
         if (needDropdownRef.current) {
           needDropdownRef.current.scrollIntoView({
-            behavior: "smooth",
+            behavior: "auto",
             block: "start",
           })
 
