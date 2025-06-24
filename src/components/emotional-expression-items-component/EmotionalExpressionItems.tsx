@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useCallback } from "react"
+import React, { useState, useCallback, useRef } from "react"
 import { Plus } from "lucide-react"
 import { Button } from "./components/ui/button"
 import ItemScale from "./ItemScale"
@@ -56,6 +56,7 @@ export default function IntegratedItemsComponent({
   const [isSelectorOpen, setIsSelectorOpen] = useState(false)
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const [isApproved, setIsApproved] = useState(approved) // Use prop for initial state
+  const itemSelectorRef = useRef<any>(null)
 
   const handleDeleteItem = (id: string) => {
     const deletedItem = items.find((f) => f.id === id)
@@ -108,6 +109,10 @@ export default function IntegratedItemsComponent({
     // Only allow opening selector if less than 3 items
     if (items.length < 3) {
       setIsSelectorOpen(true)
+      setTimeout(() => {
+        // Call the scroll method after opening selector
+        itemSelectorRef.current?.scrollToDropdownTitles?.()
+      }, 200) // Delay to ensure selector is rendered
     }
   }
 
@@ -291,8 +296,8 @@ export default function IntegratedItemsComponent({
 
         {/* Item Selector */}
         {!isApproved && isSelectorOpen && (
-          // <div style={{ marginTop: "25px" }}>
           <ItemSelector
+            ref={itemSelectorRef}
             categories={categories}
             selectedItems={selectedItems}
             itemType={itemType}
@@ -300,7 +305,6 @@ export default function IntegratedItemsComponent({
             onItemDeselect={handleItemDeselect}
             isQuotaReached={isQuotaReached}
           />
-          // </div>
         )}
       </div>
     </div >

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import React, { forwardRef, useImperativeHandle, useState, useEffect, useRef } from "react"
 import { ChevronDown, ChevronUp, Check, X } from "lucide-react"
 import { Button } from "./components/ui/button"
 
@@ -24,16 +24,22 @@ interface ItemSelectorProps {
   onItemSelect?: (itemId: string, item: Item) => void
   onItemDeselect?: (itemId: string) => void
   isQuotaReached?: boolean
+  scrollToDropdownTitles?: () => void // Add this prop
 }
 
-export default function ItemSelector({
-  categories,
-  selectedItems = [],
-  itemType,
-  onItemSelect,
-  onItemDeselect,
-  isQuotaReached = false,
-}: ItemSelectorProps) {
+// Use forwardRef to expose a scroll method
+const ItemSelector = forwardRef(function ItemSelector(
+  {
+    categories,
+    selectedItems = [],
+    itemType,
+    onItemSelect,
+    onItemDeselect,
+    isQuotaReached = false,
+    scrollToDropdownTitles,
+  }: ItemSelectorProps,
+  ref: React.Ref<any>
+) {
   const [isBadDropdownOpen, setIsBadDropdownOpen] = useState(false)
   const [isGoodDropdownOpen, setIsGoodDropdownOpen] = useState(false)
   const [isNeedDropdownOpen, setIsNeedDropdownOpen] = useState(false)
@@ -50,7 +56,6 @@ export default function ItemSelector({
   const badCategories = categories.filter((category) => category.type === "bad")
   const goodCategories = categories.filter((category) => category.type === "good")
   const needCategories = categories // For needs, all categories are need categories
-
 
   // Freeze background and scroll to popup when it appears
   useEffect(() => {
@@ -80,7 +85,6 @@ export default function ItemSelector({
 
   // Scroll to bad dropdown when it opens
   useEffect(() => {
-
     if (isBadDropdownOpen && badDropdownRef.current) {
       setTimeout(() => {
         if (badDropdownRef.current) {
@@ -99,7 +103,6 @@ export default function ItemSelector({
         }
       }, 100)
     }
-
   }, [isBadDropdownOpen])
 
   // Scroll to good dropdown when it opens
@@ -419,6 +422,28 @@ export default function ItemSelector({
     })
   }
 
+  // Ref to the element after dropdown titles
+  const dropdownTitlesRef = useRef<HTMLDivElement>(null)
+
+  // Expose scroll method to parent
+  useImperativeHandle(ref, () => ({
+    scrollToDropdownTitles: () => {
+      if (dropdownTitlesRef.current) {
+        dropdownTitlesRef.current.scrollIntoView({
+          behavior: "auto",
+          block: "start",
+        })
+        // Scroll a bit more to show the dropdown content
+        setTimeout(() => {
+          window.scrollBy({
+            top: 150, // Same as good dropdown
+            behavior: "smooth",
+          })
+        }, 300)
+      }
+    },
+  }))
+
   return (
     <div className="tw-w-full tw-max-w-md tw-mx-auto" style={{ backgroundColor: "#D1F2FD" }} dir="rtl">
       {/* Container with same structure as items list to align with buttons */}
@@ -479,7 +504,7 @@ export default function ItemSelector({
                     </div>
 
                     {/* 10px Gap between Bad and Good Feelings Sections */}
-                    <div className="tw-h-[10px]"></div>
+                    <div className="tw-h-[10px]" ref={dropdownTitlesRef}></div>
 
                     {/* Good Feelings Section */}
                     <div>
@@ -592,4 +617,6 @@ export default function ItemSelector({
       )}
     </div>
   )
-}
+})
+
+export default ItemSelector
