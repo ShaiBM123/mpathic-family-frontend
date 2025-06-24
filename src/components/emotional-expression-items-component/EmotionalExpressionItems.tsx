@@ -26,6 +26,7 @@ interface IntegratedItemsComponentProps {
   itemType: "feeling" | "need" // New prop to specify item type
   onApprove?: (items: Item[]) => void
   approved?: boolean // Add this line
+  forceChatRerender?: () => void // <-- Add this prop
 }
 
 export default function IntegratedItemsComponent({
@@ -34,6 +35,7 @@ export default function IntegratedItemsComponent({
   itemType,
   onApprove,
   approved = false, // Add default value
+  forceChatRerender, // <-- Add this prop
 }: IntegratedItemsComponentProps) {
   const [items, setItems] = useState<Item[]>(initialItems)
   const [categories, setCategories] = useState<ItemCategory[]>(initialCategories)
@@ -304,6 +306,7 @@ export default function IntegratedItemsComponent({
             onItemSelect={handleItemSelect}
             onItemDeselect={handleItemDeselect}
             isQuotaReached={isQuotaReached}
+            onDropdownCollapsed={forceChatRerender} // <-- Pass the callback here
           />
         )}
       </div>

@@ -25,6 +25,7 @@ interface ItemSelectorProps {
   onItemDeselect?: (itemId: string) => void
   isQuotaReached?: boolean
   scrollToDropdownTitles?: () => void // Add this prop
+  onDropdownCollapsed?: () => void // <-- Add this prop
 }
 
 // Use forwardRef to expose a scroll method
@@ -37,6 +38,7 @@ const ItemSelector = forwardRef(function ItemSelector(
     onItemDeselect,
     isQuotaReached = false,
     scrollToDropdownTitles,
+    onDropdownCollapsed,
   }: ItemSelectorProps,
   ref: React.Ref<any>
 ) {
@@ -52,6 +54,11 @@ const ItemSelector = forwardRef(function ItemSelector(
   const badDropdownRef = useRef<HTMLDivElement>(null)
   const goodDropdownRef = useRef<HTMLDivElement>(null)
   const needDropdownRef = useRef<HTMLDivElement>(null)
+  const prevDropdownStates = useRef({
+    isBadDropdownOpen: false,
+    isGoodDropdownOpen: false,
+    isNeedDropdownOpen: false,
+  });
 
   const badCategories = categories.filter((category) => category.type === "bad")
   const goodCategories = categories.filter((category) => category.type === "good")
@@ -443,6 +450,22 @@ const ItemSelector = forwardRef(function ItemSelector(
       }
     },
   }))
+
+  useEffect(() => {
+    // Detect collapse for any dropdown
+    if (
+      prevDropdownStates.current.isBadDropdownOpen && !isBadDropdownOpen ||
+      prevDropdownStates.current.isGoodDropdownOpen && !isGoodDropdownOpen ||
+      prevDropdownStates.current.isNeedDropdownOpen && !isNeedDropdownOpen
+    ) {
+      onDropdownCollapsed?.();
+    }
+    prevDropdownStates.current = {
+      isBadDropdownOpen,
+      isGoodDropdownOpen,
+      isNeedDropdownOpen,
+    };
+  }, [isBadDropdownOpen, isGoodDropdownOpen, isNeedDropdownOpen, onDropdownCollapsed]);
 
   return (
     <div className="tw-w-full tw-max-w-md tw-mx-auto" style={{ backgroundColor: "#D1F2FD" }} dir="rtl">

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     MainContainer,
@@ -604,15 +604,17 @@ export const Chat = ({ user }: { user: User }) => {
                         //     { id: "compassion", name: "חמלה", intensity: 6, type: "good" as const },
                         // ]
                         message_payload =
-                            <FeelingsApprovalComponent feelings={obj.feelings} approved={obj.approved}
+                            <FeelingsApprovalComponent
+                                feelings={obj.feelings}
+                                approved={obj.approved}
                                 onRescaleDone={(new_feelings, prompt_msg) => {
                                     obj.approved = true
                                     obj.feelings = new_feelings
                                     updateMessage(chat_msg)
                                     setCorrectedFeelings(new_feelings)
-                                    // send message directly from chat service to the server
                                     service.sendMessage({ message: createUserMessage(prompt_msg), conversationId: AIConversationId })
                                 }}
+                                forceChatRerender={forceChatRerender} // <-- Pass the callback here
                             />
                     }
                 }
@@ -672,8 +674,16 @@ export const Chat = ({ user }: { user: User }) => {
     const rtl = process.env.REACT_APP_RTL
     const hold_text_input = toHoldTextInput()
 
+    // Add this state to force re-render
+    const [chatRenderKey, setChatRenderKey] = useState(0);
+
+    // Callback to force re-render
+    const forceChatRerender = useCallback(() => {
+        setChatRenderKey((prev) => prev + 1);
+    }, []);
+
     return (
-        <MainContainer responsive>
+        <MainContainer responsive key={chatRenderKey}>
 
             <ChatContainer>
                 {activeConversation && <ConversationHeader>
